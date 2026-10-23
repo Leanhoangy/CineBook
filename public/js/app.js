@@ -1,0 +1,25 @@
+// CineBook – script dùng chung
+document.addEventListener('DOMContentLoaded', () => {
+    // Hiện toast thông báo (flash message)
+    document.querySelectorAll('.toast').forEach((el) => bootstrap.Toast.getOrCreateInstance(el).show());
+
+    // Hộp xác nhận trước khi xóa/hủy: <form data-confirm="Nội dung câu hỏi">
+    document.querySelectorAll('form[data-confirm]').forEach((form) => {
+        form.addEventListener('submit', (e) => {
+            if (!confirm(form.dataset.confirm)) e.preventDefault();
+        });
+    });
+
+    // Xem trước ảnh trước khi upload: <input type="file" data-preview="#idAnh">
+    document.querySelectorAll('input[type=file][data-preview]').forEach((input) => {
+        input.addEventListener('change', () => {
+            const target = document.querySelector(input.dataset.preview);
+            const file = input.files[0];
+            if (target && file) {
+                target.src = URL.createObjectURL(file);
+                target.classList.remove('d-none');
+                document.querySelectorAll(input.dataset.hide || '').forEach((el) => el.classList.add('d-none'));
+            }
+        });
+    });
+});
