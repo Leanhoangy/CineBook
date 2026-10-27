@@ -83,6 +83,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('rooms', Admin\RoomController::class)->except('show');
     Route::resource('showtimes', Admin\ShowtimeController::class)->except('show');
 
+    Route::get('bookings/xuat-excel', [Admin\BookingController::class, 'export'])->name('bookings.export');
     Route::resource('bookings', Admin\BookingController::class)->only(['index', 'show', 'update', 'destroy']);
 
     Route::resource('reviews', Admin\ReviewController::class)->only(['index', 'update', 'destroy']);

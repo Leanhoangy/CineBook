@@ -23,6 +23,9 @@
                     <a href="{{ route('admin.bookings.index') }}" class="btn btn-sm btn-link text-muted">Xóa lọc</a>
                 @endif
             </form>
+            <a href="{{ route('admin.bookings.export', request()->only(['q', 'status', 'from', 'to'])) }}" class="btn btn-sm btn-success" title="Xuất các đơn theo bộ lọc hiện tại">
+                <i class="bi bi-file-earmark-excel me-1"></i>Xuất Excel
+            </a>
         </div>
         <div class="table-responsive">
             <table class="table ad-table table-hover">

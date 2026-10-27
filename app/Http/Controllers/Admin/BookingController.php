@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\BookingsExport;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -13,16 +17,41 @@ class BookingController extends Controller
 {
     public function index(Request $request): View
     {
-        $bookings = Booking::with(['user', 'showtime.movie', 'showtime.room', 'seats'])
-            ->search($request->query('q'))
-            ->when($request->query('status'), fn ($q, $s) => $q->where('status', $s))
-            ->when($request->query('from'), fn ($q, $d) => $q->whereDate('created_at', '>=', $d))
-            ->when($request->query('to'), fn ($q, $d) => $q->whereDate('created_at', '<=', $d))
+        $bookings = $this->filtered($request)
+            ->with(['user', 'showtime.movie', 'showtime.room', 'seats'])
             ->latest()
             ->paginate(15)
             ->withQueryString();
 
         return view('admin.bookings.index', compact('bookings'));
+    }
+
+    /** Xuất các đơn theo bộ lọc đang xem ra file Excel */
+    public function export(Request $request): BinaryFileResponse
+    {
+        $request->validate([
+            'from' => ['nullable', 'date_format:Y-m-d'],
+            'to' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+
+        $path = sys_get_temp_dir().'/'.Str::uuid().'.xlsx';
+        (new BookingsExport($this->filtered($request)))->store($path);
+
+        $range = $request->query('from') || $request->query('to')
+            ? '_'.($request->query('from') ?: 'dau').'_den_'.($request->query('to') ?: now()->toDateString())
+            : '_'.now()->format('Y-m-d');
+
+        return response()->download($path, "don-dat-ve{$range}.xlsx")->deleteFileAfterSend();
+    }
+
+    /** Bộ lọc dùng chung cho trang danh sách và file Excel */
+    private function filtered(Request $request): Builder
+    {
+        return Booking::query()
+            ->search($request->query('q'))
+            ->when($request->query('status'), fn ($q, $s) => $q->where('status', $s))
+            ->when($request->query('from'), fn ($q, $d) => $q->whereDate('created_at', '>=', $d))
+            ->when($request->query('to'), fn ($q, $d) => $q->whereDate('created_at', '<=', $d));
     }
 
     public function show(Booking $booking): View
