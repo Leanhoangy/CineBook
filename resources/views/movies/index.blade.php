@@ -31,7 +31,7 @@
             </form>
         </div>
 
-        <div class="d-flex gap-2 overflow-auto pb-2 mb-4">
+        <div class="d-flex gap-2 overflow-auto pb-2 mb-4" data-scroll-active>
             <a href="{{ route('movies.index', request()->except(['the-loai', 'page'])) }}" class="cb-chip {{ request('the-loai') ? '' : 'active' }}">Tất cả thể loại</a>
             @foreach ($genres as $genre)
                 <a href="{{ route('movies.index', [...request()->except('page'), 'the-loai' => $genre->slug]) }}"

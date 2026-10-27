@@ -3,6 +3,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Hiện toast thông báo (flash message)
     document.querySelectorAll('.toast').forEach((el) => bootstrap.Toast.getOrCreateInstance(el).show());
 
+    // Thanh lọc cuộn ngang <div data-scroll-active>: cuộn mục đang chọn (.active) ra giữa để người dùng biết mình đang ở mục nào
+    document.querySelectorAll('[data-scroll-active]').forEach((bar) => {
+        const active = bar.querySelector('.active');
+        if (!active) return;
+        const barRect = bar.getBoundingClientRect();
+        const activeRect = active.getBoundingClientRect();
+        bar.scrollLeft += activeRect.left - barRect.left - (barRect.width - activeRect.width) / 2;
+    });
+
     // Hộp xác nhận trước khi xóa/hủy: <form data-confirm="Nội dung câu hỏi">
     document.querySelectorAll('form[data-confirm]').forEach((form) => {
         form.addEventListener('submit', (e) => {
