@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Voucher;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 /**
  * Tạo lịch sử đặt vé ngẫu nhiên để trang thống kê có dữ liệu.
@@ -82,7 +83,7 @@ class BookingSeeder extends Seeder
      * Chọn mã giảm giá hợp lệ tại thời điểm đặt (đúng thời hạn, đủ đơn tối thiểu, còn lượt, khách chưa dùng).
      * Bỏ qua tài khoản demo để khi trình bày vẫn thử được mọi mã.
      */
-    private function pickVoucher(User $customer, int $total, $createdAt, bool $cancelled): ?Voucher
+    private function pickVoucher(User $customer, int $total, Carbon $createdAt, bool $cancelled): ?Voucher
     {
         if ($customer->email === 'user@cinebook.test') {
             return null;
@@ -92,7 +93,7 @@ class BookingSeeder extends Seeder
             && (! $v->starts_at || $v->starts_at->lte($createdAt))
             && (! $v->expires_at || $v->expires_at->gt($createdAt))
             && $total >= $v->min_order
-            && ($v->usage_limit === null || ($this->used[$v->id] ?? 0) < $v->usage_limit)
+            && ($v->usage_limit === null || ($this->used[$v->id] ?? 0) < $v->usage_limit - 2) // chừa 2 lượt để demo
             && ! isset($this->usedBy[$customer->id][$v->id]));
 
         // Vé đã hủy không tính lượt dùng (giống quy tắc trên web)

@@ -10,7 +10,7 @@ CineBook cho phép khách hàng xem phim đang chiếu, tra lịch chiếu, **ch
 
 | Phần mềm | Phiên bản |
 |---|---|
-| PHP | ≥ 8.3 (bật extension `pdo_mysql`, `mbstring`, `fileinfo`, `gd`) |
+| PHP | ≥ 8.3 (bật extension `pdo_mysql`, `mbstring`, `fileinfo`, `gd`, `zip`) |
 | Composer | 2.x |
 | MySQL / MariaDB | MySQL 8+ hoặc MariaDB 10.6+ (XAMPP, Laragon, Herd đều dùng được) |
 
@@ -74,13 +74,17 @@ Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày
 | Quản trị viên | `admin@cinebook.test` | `/admin` |
 | Khách hàng | `user@cinebook.test` | Trang chủ |
 
+**Mã giảm giá mẫu** (tài khoản demo chưa dùng mã nào): `CINEBOOK10` (giảm 10%, tối đa 30.000 ₫), `GIAM20K` (đơn từ 150.000 ₫), `SINHVIEN`, `NHOMBAN4` (đơn từ 300.000 ₫), `THANHVIENMOI`; `HE2026` đã hết hạn và `GIANGSINH` chưa tới ngày để demo thông báo lỗi.
+
+**Email** (quên mật khẩu, vé điện tử): mặc định `MAIL_MAILER=log` nên email được ghi vào `storage/logs/laravel.log`. Muốn gửi thật, điền cấu hình SMTP (VD: [Mailtrap](https://mailtrap.io) hoặc Gmail + App Password) vào các biến `MAIL_*` trong `.env`.
+
 ### Chạy kiểm thử tự động
 
 ```bash
 php artisan test
 ```
 
-26 test chức năng (đăng nhập, phân quyền, tìm kiếm, đặt vé, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+48 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -90,14 +94,16 @@ php artisan test
 - Xem phim đang chiếu / sắp chiếu, chi tiết phim, trailer YouTube.
 - **Tìm kiếm** phim theo tên, đạo diễn, diễn viên + lọc theo thể loại, trạng thái, **phân trang giữ từ khóa**.
 - **Gợi ý tìm kiếm trực tiếp bằng AJAX** trên thanh menu.
-- Xem lịch chiếu theo ngày.
-- Đăng ký, đăng nhập.
+- Xem lịch chiếu theo ngày, xem **đánh giá của khán giả** (điểm trung bình, phân bố số sao).
+- Đăng ký, đăng nhập, **quên mật khẩu** (gửi link đặt lại qua email).
 
 ### Khách hàng (role `user`)
 - **Chọn ghế trên sơ đồ phòng chiếu**: ghế thường / ghế VIP (phụ thu), tính tiền tức thì.
 - Sơ đồ ghế **tự động cập nhật bằng AJAX mỗi 10 giây**; nếu ghế đang chọn bị người khác đặt sẽ được thông báo.
 - Đặt vé an toàn: dùng **transaction + khóa dòng (`lockForUpdate`)** để 2 người không thể đặt trùng ghế.
-- Vé điện tử có mã vé + mã QR, in vé.
+- **Mã giảm giá**: kiểm tra bằng AJAX, tự tính lại khi đổi ghế (giảm % có mức tối đa / giảm tiền cố định, đơn tối thiểu, giới hạn lượt, mỗi khách 1 lần).
+- Vé điện tử có mã vé + mã QR, in vé, **nhận vé qua email** ngay sau khi đặt.
+- **Đánh giá phim** (1–5 sao + bình luận) sau khi đã xem.
 - Lịch sử đặt vé (sắp chiếu / đã chiếu), **tự hủy vé** trước giờ chiếu 60 phút.
 - Cập nhật hồ sơ, **upload ảnh đại diện**, đổi mật khẩu.
 
@@ -106,7 +112,9 @@ php artisan test
 - **CRUD Phim**: upload poster, gán nhiều thể loại, **xóa mềm (Soft Delete)** → thùng rác → khôi phục / xóa vĩnh viễn.
 - **CRUD Thể loại**, **CRUD Phòng chiếu** (xem trước sơ đồ ghế khi nhập số hàng/ghế).
 - **CRUD Suất chiếu**: tự tính giờ kết thúc, **chặn trùng giờ trong cùng phòng**, khóa sửa/xóa khi đã có vé.
-- **Đơn đặt vé**: tìm kiếm theo mã vé/khách/phim, lọc trạng thái & khoảng ngày, xác nhận/hủy, xóa đơn đã hủy.
+- **Đơn đặt vé**: tìm kiếm theo mã vé/khách/phim, lọc trạng thái & khoảng ngày, xác nhận/hủy, xóa đơn đã hủy, **xuất Excel** (chi tiết đơn + doanh thu theo phim).
+- **Mã giảm giá**: CRUD mã, thống kê lượt dùng và tổng tiền đã giảm.
+- **Đánh giá**: tìm kiếm, lọc theo số sao, ẩn/hiện bình luận vi phạm, xóa.
 - **Người dùng**: tạo/sửa/xóa tài khoản, phân quyền admin/user.
 
 ---
@@ -115,22 +123,25 @@ php artisan test
 
 | Kỹ thuật | Vị trí trong mã nguồn |
 |---|---|
-| Migration (7 bảng nghiệp vụ, khóa ngoại, unique, index) | `database/migrations/` |
+| Migration (9 bảng nghiệp vụ, khóa ngoại, unique, index) | `database/migrations/` |
 | Seeder + Factory | `database/seeders/`, `database/factories/` |
 | Eloquent: `hasMany`, `belongsTo`, `belongsToMany`, scope, accessor | `app/Models/` |
 | Soft Delete | `Movie` + `Admin\MovieController@trash/restore/forceDelete` |
 | Middleware phân quyền tự viết `role:admin` | `app/Http/Middleware/EnsureUserHasRole.php`, `bootstrap/app.php` |
-| Policy (chỉ chủ vé được xem/hủy vé) | `app/Policies/BookingPolicy.php` |
+| Policy (chỉ chủ vé được xem/hủy vé, chỉ chủ đánh giá được xóa) | `app/Policies/` |
 | Form Request + validate tùy biến (`after()`) | `app/Http/Requests/` |
 | `validate()` trong Controller | `ProfileController@updatePassword`, `Admin\BookingController@update` |
 | Thông báo lỗi tiếng Việt | `lang/vi/validation.php` |
 | Flash message (toast) | `resources/views/partials/flash.blade.php` |
 | Upload file qua Storage | `ProfileController@update`, `Admin\MovieController@store/update` |
-| AJAX (JSON API) | `MovieController@suggest`, `BookingController@seatStatus`, `public/js/` |
+| AJAX (JSON API) | `MovieController@suggest`, `BookingController@seatStatus/checkVoucher`, `public/js/` |
 | Blade layout, component, directive `@money` | `resources/views/layouts`, `components`, `AppServiceProvider` |
 | DB Transaction + `lockForUpdate` | `BookingController@store` |
 | Feature Test | `tests/Feature/` |
 | Artisan command + HTTP Client (cào dữ liệu) | `app/Console/Commands/CrawlMovies.php` |
+| Task Scheduling (tự xếp lịch chiếu hằng ngày) | `app/Console/Commands/RefreshShowtimes.php`, `routes/console.php` |
+| Gửi email: Password Broker, Notification, Mailable (Markdown) | `PasswordResetController`, `app/Notifications/`, `app/Mail/BookingConfirmed.php` |
+| Xuất file Excel (.xlsx) | `app/Exports/BookingsExport.php` (thư viện `openspout/openspout`) |
 
 ## 5. Cấu trúc thư mục chính
 

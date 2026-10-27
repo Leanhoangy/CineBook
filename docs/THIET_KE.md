@@ -24,6 +24,9 @@ erDiagram
     movies ||--o{ showtimes : "được chiếu ở"
     rooms ||--o{ showtimes : "tổ chức"
     movies }o--o{ genres : "thuộc (genre_movie)"
+    users ||--o{ reviews : "viết"
+    movies ||--o{ reviews : "được đánh giá"
+    vouchers |o--o{ bookings : "áp dụng cho"
 
     users {
         bigint id PK
@@ -81,7 +84,9 @@ erDiagram
         varchar code UK
         bigint user_id FK
         bigint showtime_id FK
-        int total_price
+        bigint voucher_id FK "nullable"
+        int total_price "sau giảm giá"
+        int discount
         enum status "confirmed|cancelled"
         varchar note
     }
@@ -91,6 +96,26 @@ erDiagram
         varchar seat_code "A1, C12..."
         enum seat_type "standard|vip"
         int price
+    }
+    reviews {
+        bigint id PK
+        bigint user_id FK
+        bigint movie_id FK
+        tinyint rating "1-5"
+        text content
+        boolean is_hidden
+    }
+    vouchers {
+        bigint id PK
+        varchar code UK
+        enum type "percent|fixed"
+        int value
+        int max_discount
+        int min_order
+        int usage_limit
+        timestamp starts_at
+        timestamp expires_at
+        boolean is_active
     }
 ```
 
@@ -104,11 +129,15 @@ erDiagram
 | Suất chiếu – Đơn đặt vé | 1 – nhiều | `Showtime::bookings()` / `Booking::showtime()` |
 | Người dùng – Đơn đặt vé | 1 – nhiều | `User::bookings()` / `Booking::user()` |
 | Đơn đặt vé – Ghế | 1 – nhiều | `Booking::seats()` / `BookingSeat::booking()` |
+| Người dùng / Phim – Đánh giá | 1 – nhiều (unique `user_id + movie_id`) | `User::reviews()`, `Movie::reviews()` / `Review::user()`, `Review::movie()` |
+| Mã giảm giá – Đơn đặt vé | 1 – nhiều (không bắt buộc) | `Voucher::bookings()` / `Booking::voucher()` |
 
 **Ghi chú thiết kế:**
 - Ghế không lưu thành bảng riêng mà sinh từ `total_rows × seats_per_row` của phòng (A1…J14) giúp admin đổi sơ đồ phòng dễ dàng; `booking_seats` lưu ghế đã bán kèm **giá tại thời điểm đặt** để lịch sử không bị thay đổi khi admin đổi giá.
 - Khóa ngoại `showtimes → movies/rooms` và `bookings → users/showtimes` dùng `restrictOnDelete` để không thể xóa dữ liệu đã phát sinh giao dịch.
 - Phim dùng **Soft Delete** để suất chiếu & vé cũ vẫn hiển thị được tên phim.
+- `bookings.total_price` là số tiền khách trả **sau giảm giá**, `discount` lưu số tiền đã giảm tại thời điểm đặt; lượt dùng mã chỉ tính vé còn hiệu lực nên khách hủy vé thì mã được hoàn lượt.
+- Đánh giá chỉ được tạo khi khách có vé đã xác nhận của một suất chiếu **đã diễn ra** (`Movie::canBeReviewedBy()`), tránh đánh giá ảo.
 
 ## 3. Sơ đồ Use Case
 
@@ -135,12 +164,19 @@ flowchart LR
         UC14(Quản lý suất chiếu)
         UC15(Quản lý đơn đặt vé)
         UC16(Quản lý người dùng)
+        UC17(Quên / đặt lại mật khẩu)
+        UC18(Đánh giá phim)
+        UC19(Áp mã giảm giá)
+        UC20(Quản lý mã giảm giá)
+        UC21(Kiểm duyệt đánh giá)
+        UC22(Xuất báo cáo Excel)
     end
 
-    Guest --- UC1 & UC2 & UC3 & UC4 & UC5
-    User --- UC1 & UC2 & UC3 & UC5 & UC6 & UC7 & UC8 & UC9
-    Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16
+    Guest --- UC1 & UC2 & UC3 & UC4 & UC5 & UC17
+    User --- UC1 & UC2 & UC3 & UC5 & UC6 & UC7 & UC8 & UC9 & UC18
+    Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16 & UC20 & UC21 & UC22
     UC6 -. include .-> UC5
+    UC19 -. extend .-> UC6
     UC8 -. extend .-> UC7
 ```
 
@@ -169,19 +205,31 @@ Thêm/sửa phim kèm upload poster (jpg/png/webp ≤ 3MB) và chọn nhiều th
 ### 4.4. Tìm kiếm + phân trang
 Trang `/phim` tìm theo tên/đạo diễn/diễn viên, lọc thể loại, trạng thái; 8 phim/trang; dùng `paginate()->withQueryString()` để giữ từ khóa khi chuyển trang. Thanh menu có gợi ý tìm kiếm AJAX (debounce 250ms, điều hướng bằng phím mũi tên).
 
+### 4.5. Mã giảm giá (UC19, UC20)
+| Mục | Nội dung |
+|---|---|
+| Luồng chính | Khách nhập mã ở trang chọn ghế → AJAX kiểm tra mã và trả về điều kiện → trình duyệt tự tính lại tiền giảm khi đổi ghế → khi xác nhận, server kiểm tra lại trong transaction (khóa dòng mã) rồi lưu `voucher_id`, `discount`. |
+| Ràng buộc | Mã đang bật, trong thời gian hiệu lực, còn lượt (chỉ tính vé chưa hủy), mỗi khách dùng 1 lần, đơn đạt giá trị tối thiểu; mã giảm % có mức giảm tối đa. Admin không xóa được mã đã có người dùng (chỉ tạm khóa). |
+
+### 4.6. Đánh giá phim (UC18, UC21)
+Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao kèm bình luận; mỗi phim 1 đánh giá, sửa/xóa được. Trang phim hiển thị điểm trung bình, phân bố số sao. Admin lọc, ẩn/hiện bình luận vi phạm hoặc xóa.
+
 ## 5. Đối chiếu yêu cầu đồ án
 
 | Yêu cầu (file đề) | Đáp ứng trong CineBook |
 |---|---|
-| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 5 migration nghiệp vụ, 6 seeder, 5 factory |
+| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 7 migration nghiệp vụ, 8 seeder, 7 factory; phim thật cào từ Moveek (`movies:crawl`) |
 | Blade + Bootstrap, tách giao diện user/admin | `layouts/app` (tối, rạp phim) và `layouts/admin` (sidebar) |
 | ≥ 2 role, admin vào `/admin`, bảo vệ route bằng Middleware | Role `admin`/`user`, middleware `role:` tự viết + `auth` + `guest` |
-| CRUD ≥ 2 bảng có quan hệ | CRUD đủ trên Phim, Thể loại, Phòng, Suất chiếu, Người dùng (+ Đơn đặt vé) |
+| CRUD ≥ 2 bảng có quan hệ | CRUD đủ trên Phim, Thể loại, Phòng, Suất chiếu, Người dùng, Mã giảm giá (+ Đơn đặt vé, Đánh giá) |
 | Tìm kiếm + phân trang giữ từ khóa | `/phim` và tất cả trang danh sách admin |
 | Validation + thông báo lỗi rõ ràng | 9 Form Request + `validate()`, thông báo tiếng Việt |
 | Flash message sau thêm/sửa/xóa | Toast Bootstrap ở cả 2 khu vực |
 | *Mở rộng:* Upload file | Poster phim, avatar người dùng |
-| *Mở rộng:* AJAX | Gợi ý tìm kiếm, cập nhật sơ đồ ghế realtime |
+| *Mở rộng:* Gửi email | Quên mật khẩu (Password Broker), email vé điện tử sau khi đặt |
+| *Mở rộng:* Xuất file | Xuất đơn đặt vé + doanh thu theo phim ra Excel (.xlsx) |
+| *Mở rộng:* Tác vụ định kỳ | `showtimes:refresh` chạy hằng ngày qua Laravel Scheduler |
+| *Mở rộng:* AJAX | Gợi ý tìm kiếm, cập nhật sơ đồ ghế realtime, kiểm tra mã giảm giá |
 | *Mở rộng:* API ngoài | YouTube embed (trailer), QR code API |
 | *Mở rộng:* Responsive | Bootstrap grid, menu thu gọn, sidebar offcanvas |
 | *Mở rộng:* Soft Delete, Middleware tùy chỉnh | Phim xóa mềm + thùng rác; `EnsureUserHasRole` |

@@ -39,7 +39,7 @@ class BookingsExport
     {
         $sheet = $writer->getCurrentSheet();
         $sheet->setName('Đơn đặt vé');
-        $sheet->setSheetView(new SheetView(freezeRow: 2));
+        $sheet->setSheetView((new SheetView)->setFreezeRow(2));
         $sheet->setColumnWidth(12, 1);
         $sheet->setColumnWidth(17, 2, 7);
         $sheet->setColumnWidth(24, 3, 4);
@@ -54,8 +54,8 @@ class BookingsExport
             'Ghế', 'Số ghế', 'Tạm tính', 'Mã giảm giá', 'Giảm giá', 'Thành tiền', 'Trạng thái',
         ]));
 
-        $money = new Style(format: self::MONEY);
-        $date = new Style(format: 'dd/mm/yyyy hh:mm');
+        $money = (new Style)->setFormat(self::MONEY);
+        $date = (new Style)->setFormat('dd/mm/yyyy hh:mm');
 
         // Đọc theo từng lô 500 đơn để không tốn bộ nhớ khi dữ liệu lớn
         (clone $this->query)
@@ -63,13 +63,13 @@ class BookingsExport
             ->lazyByIdDesc(500, 'bookings.id', 'id')
             ->each(function (Booking $b) use ($writer, $money, $date) {
                 $writer->addRow(Row::fromValuesWithStyles(
-                    [
+                    cellValues: [
                         $b->code, $b->created_at->toDateTimeImmutable(), $b->user->name, $b->user->email, $b->user->phone,
                         $b->showtime->movie->title, $b->showtime->start_time->toDateTimeImmutable(), $b->showtime->room->name,
                         $b->seat_list, $b->seats->count(), $b->subtotal, $b->voucher?->code, $b->discount, $b->total_price,
                         $b->status_label,
                     ],
-                    [1 => $date, 6 => $date, 10 => $money, 12 => $money, 13 => $money],
+                    columnStyles: [1 => $date, 6 => $date, 10 => $money, 12 => $money, 13 => $money],
                 ));
             });
     }
@@ -78,7 +78,7 @@ class BookingsExport
     {
         $sheet = $writer->getCurrentSheet();
         $sheet->setName('Doanh thu theo phim');
-        $sheet->setSheetView(new SheetView(freezeRow: 2));
+        $sheet->setSheetView((new SheetView)->setFreezeRow(2));
         $sheet->setColumnWidth(40, 1);
         $sheet->setColumnWidth(14, 2, 3);
         $sheet->setColumnWidth(18, 4, 5, 6);
@@ -100,30 +100,29 @@ class BookingsExport
             ->toBase()
             ->get();
 
-        $money = new Style(format: self::MONEY);
+        $money = (new Style)->setFormat(self::MONEY);
         $styles = [3 => $money, 4 => $money, 5 => $money];
 
         foreach ($rows as $r) {
             $writer->addRow(Row::fromValuesWithStyles(
-                [$r->title, (int) $r->orders, (int) $r->tickets, (int) $r->revenue + (int) $r->discount, (int) $r->discount, (int) $r->revenue],
-                $styles,
+                cellValues: [$r->title, (int) $r->orders, (int) $r->tickets, (int) $r->revenue + (int) $r->discount, (int) $r->discount, (int) $r->revenue],
+                columnStyles: $styles,
             ));
         }
 
-        $total = new Style(fontBold: true, format: self::MONEY);
+        $total = (new Style)->setFontBold()->setFormat(self::MONEY);
         $writer->addRow(Row::fromValuesWithStyles(
-            ['TỔNG CỘNG', $rows->sum('orders'), $rows->sum('tickets'), $rows->sum('revenue') + $rows->sum('discount'), $rows->sum('discount'), $rows->sum('revenue')],
-            [0 => new Style(fontBold: true), 1 => $total, 2 => $total, 3 => $total, 4 => $total, 5 => $total],
+            cellValues: ['TỔNG CỘNG', $rows->sum('orders'), $rows->sum('tickets'), $rows->sum('revenue') + $rows->sum('discount'), $rows->sum('discount'), $rows->sum('revenue')],
+            columnStyles: [0 => (new Style)->setFontBold(), 1 => $total, 2 => $total, 3 => $total, 4 => $total, 5 => $total],
         ));
     }
 
     private function headerRow(array $titles): Row
     {
-        return Row::fromValuesWithStyle($titles, new Style(
-            fontBold: true,
-            fontColor: 'FFFFFF',
-            cellAlignment: CellAlignment::CENTER,
-            backgroundColor: 'E63946',
-        ));
+        return Row::fromValues($titles, (new Style)
+            ->setFontBold()
+            ->setFontColor('FFFFFF')
+            ->setCellAlignment(CellAlignment::CENTER)
+            ->setBackgroundColor('E63946'));
     }
 }
