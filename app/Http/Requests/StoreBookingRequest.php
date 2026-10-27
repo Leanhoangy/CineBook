@@ -18,6 +18,7 @@ class StoreBookingRequest extends FormRequest
             'seats' => ['required', 'array', 'min:1', 'max:'.config('cinema.max_seats_per_booking')],
             'seats.*' => ['required', 'string', 'distinct', 'regex:/^[A-Z]\d{1,2}$/'],
             'note' => ['nullable', 'string', 'max:255'],
+            'voucher_code' => ['nullable', 'string', 'max:30'],
         ];
     }
 

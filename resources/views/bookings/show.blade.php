@@ -60,6 +60,12 @@
                         <span>@money($seats->sum('price'))</span>
                     </div>
                 @endforeach
+                @if ($booking->discount)
+                    <div class="d-flex justify-content-between py-1 text-success">
+                        <span>Mã giảm giá {{ $booking->voucher?->code }}</span>
+                        <span>-@money($booking->discount)</span>
+                    </div>
+                @endif
                 <div class="d-flex justify-content-between pt-2 mt-1 border-top fw-bold">
                     <span>Tổng cộng</span><span>@money($booking->total_price)</span>
                 </div>

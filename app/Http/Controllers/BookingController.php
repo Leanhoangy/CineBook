@@ -6,6 +6,7 @@ use App\Http\Requests\StoreBookingRequest;
 use App\Mail\BookingConfirmed;
 use App\Models\Booking;
 use App\Models\Showtime;
+use App\Models\Voucher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -74,23 +75,35 @@ class BookingController extends Controller
                 ]);
             }
 
+            $seats = array_map(function (string $code) use ($showtime) {
+                $type = $showtime->room->seatType($code);
+
+                return ['seat_code' => $code, 'seat_type' => $type, 'price' => $showtime->seatPrice($type)];
+            }, $seatCodes);
+            $subtotal = array_sum(array_column($seats, 'price'));
+
+            // Khóa mã giảm giá để 2 đơn cùng lúc không vượt quá số lượt cho phép
+            $voucher = null;
+            $discount = 0;
+            if ($code = $request->validated('voucher_code')) {
+                $voucher = Voucher::where('code', strtoupper(trim($code)))->lockForUpdate()->first();
+                $reason = $voucher ? $voucher->unavailableReason($request->user(), $subtotal) : 'Mã giảm giá không tồn tại.';
+
+                if ($reason) {
+                    throw ValidationException::withMessages(['voucher_code' => $reason]);
+                }
+                $discount = $voucher->discountFor($subtotal);
+            }
+
             $booking = Booking::create([
                 'user_id' => $request->user()->id,
                 'showtime_id' => $showtime->id,
-                'total_price' => 0,
+                'voucher_id' => $voucher?->id,
+                'discount' => $discount,
+                'total_price' => $subtotal - $discount,
                 'note' => $request->validated('note'),
             ]);
-
-            $total = 0;
-            foreach ($seatCodes as $code) {
-                $type = $showtime->room->seatType($code);
-                $price = $showtime->seatPrice($type);
-                $total += $price;
-
-                $booking->seats()->create(['seat_code' => $code, 'seat_type' => $type, 'price' => $price]);
-            }
-
-            $booking->update(['total_price' => $total]);
+            $booking->seats()->createMany($seats);
 
             return $booking;
         });
@@ -110,7 +123,7 @@ class BookingController extends Controller
     {
         Gate::authorize('view', $booking);
 
-        $booking->load(['showtime.movie', 'showtime.room', 'seats', 'user']);
+        $booking->load(['showtime.movie', 'showtime.room', 'seats', 'user', 'voucher']);
 
         return view('bookings.show', compact('booking'));
     }
@@ -124,6 +137,43 @@ class BookingController extends Controller
         $booking->update(['status' => Booking::STATUS_CANCELLED]);
 
         return redirect()->route('bookings.show', $booking)->with('success', 'Đã hủy vé '.$booking->code.'. Ghế đã được mở lại cho khách khác.');
+    }
+
+    /**
+     * API kiểm tra mã giảm giá trên trang chọn ghế (AJAX).
+     * Trả về điều kiện của mã để trình duyệt tự tính lại khi khách đổi ghế; khi đặt vé server sẽ kiểm tra lại.
+     */
+    public function checkVoucher(Request $request, Showtime $showtime): JsonResponse
+    {
+        $request->validate([
+            'code' => ['required', 'string', 'max:30'],
+            'seats' => ['array', 'max:'.config('cinema.max_seats_per_booking')],
+            'seats.*' => ['string'],
+        ]);
+
+        $subtotal = collect($request->input('seats', []))
+            ->filter(fn ($code) => $showtime->room->hasSeat($code))
+            ->sum(fn ($code) => $showtime->seatPrice($showtime->room->seatType($code)));
+
+        $voucher = Voucher::findByCode($request->input('code'));
+        $reason = $voucher ? $voucher->unavailableReason($request->user(), $subtotal) : 'Mã giảm giá không tồn tại.';
+
+        // Chưa chọn ghế / chưa đủ giá trị tối thiểu vẫn cho áp mã, trình duyệt sẽ nhắc khi tính tiền
+        $belowMinimum = $voucher && $subtotal < $voucher->min_order;
+        if ($reason && ! $belowMinimum) {
+            return response()->json(['valid' => false, 'message' => $reason], 422);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'code' => $voucher->code,
+            'label' => $voucher->label,
+            'type' => $voucher->type,
+            'value' => $voucher->value,
+            'max_discount' => $voucher->max_discount,
+            'min_order' => $voucher->min_order,
+            'discount' => $belowMinimum ? 0 : $voucher->discountFor($subtotal),
+        ]);
     }
 
     /** API trả về danh sách ghế đã đặt để cập nhật sơ đồ ghế theo thời gian thực (AJAX) */

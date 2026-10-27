@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
             MovieSeeder::class,
             RoomSeeder::class,
             ShowtimeSeeder::class,
+            VoucherSeeder::class,
             BookingSeeder::class,
             ReviewSeeder::class,
         ]);

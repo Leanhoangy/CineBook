@@ -18,6 +18,7 @@
             ['admin.reviews.index', 'admin.reviews.*', 'bi-chat-square-text', 'Đánh giá'],
             'Kinh doanh',
             ['admin.bookings.index', 'admin.bookings.*', 'bi-receipt', 'Đơn đặt vé'],
+            ['admin.vouchers.index', 'admin.vouchers.*', 'bi-ticket-detailed', 'Mã giảm giá'],
             ['admin.users.index', 'admin.users.*', 'bi-people', 'Người dùng'],
         ];
     @endphp

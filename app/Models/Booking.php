@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-#[Fillable(['code', 'user_id', 'showtime_id', 'total_price', 'status', 'note'])]
+#[Fillable(['code', 'user_id', 'showtime_id', 'voucher_id', 'total_price', 'discount', 'status', 'note'])]
 class Booking extends Model
 {
     use HasFactory;
@@ -28,6 +28,7 @@ class Booking extends Model
     {
         return [
             'total_price' => 'integer',
+            'discount' => 'integer',
         ];
     }
 
@@ -60,6 +61,17 @@ class Booking extends Model
     public function seats(): HasMany
     {
         return $this->hasMany(BookingSeat::class);
+    }
+
+    public function voucher(): BelongsTo
+    {
+        return $this->belongsTo(Voucher::class);
+    }
+
+    /** Tiền vé trước khi áp mã giảm giá */
+    public function getSubtotalAttribute(): int
+    {
+        return $this->total_price + $this->discount;
     }
 
     public function scopeSearch(Builder $query, ?string $keyword): Builder

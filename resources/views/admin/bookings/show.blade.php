@@ -45,7 +45,13 @@
                             </tr>
                         @endforeach
                     </tbody>
-                    <tfoot><tr><th colspan="2">Tổng cộng</th><th class="text-end fs-5">@money($booking->total_price)</th></tr></tfoot>
+                    <tfoot>
+                        @if ($booking->discount)
+                            <tr><td colspan="2" class="text-muted">Tạm tính</td><td class="text-end">@money($booking->subtotal)</td></tr>
+                            <tr><td colspan="2" class="text-success">Mã giảm giá <span class="font-monospace">{{ $booking->voucher?->code ?? '(đã xóa)' }}</span></td><td class="text-end text-success">-@money($booking->discount)</td></tr>
+                        @endif
+                        <tr><th colspan="2">Tổng cộng</th><th class="text-end fs-5">@money($booking->total_price)</th></tr>
+                    </tfoot>
                 </table>
             </div>
         </div>

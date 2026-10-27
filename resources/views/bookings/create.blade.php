@@ -102,6 +102,21 @@
                             <input type="text" id="note" name="note" value="{{ old('note') }}" maxlength="255" class="form-control form-control-sm @error('note') is-invalid @enderror" placeholder="VD: Cần ghế gần lối đi">
                         </div>
 
+                        <div class="mb-3" id="voucherBox" data-check-url="{{ route('bookings.voucher', $showtime) }}">
+                            <label for="voucherInput" class="form-label small text-muted">Mã giảm giá</label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" id="voucherInput" name="voucher_code" value="{{ old('voucher_code') }}" maxlength="30" class="form-control text-uppercase @error('voucher_code') is-invalid @enderror" placeholder="VD: CINEBOOK10" autocomplete="off">
+                                <button type="button" class="btn btn-outline-light" id="voucherApply">Áp dụng</button>
+                            </div>
+                            <div id="voucherMessage" class="small mt-1 {{ $errors->has('voucher_code') ? 'text-danger' : '' }}">@error('voucher_code'){{ $message }}@enderror</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between small text-muted mb-1 d-none" id="subtotalRow">
+                            <span>Tạm tính</span><span id="subtotalPrice">0 ₫</span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-success mb-2 d-none" id="discountRow">
+                            <span>Giảm giá <span id="discountCode" class="fw-semibold"></span></span><span id="discountPrice">-0 ₫</span>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="text-muted">Tổng cộng</span>
                             <span class="total" id="totalPrice">0 ₫</span>

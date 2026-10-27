@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\Booking;
 use App\Models\Showtime;
 use App\Models\User;
+use App\Models\Voucher;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 
 /**
@@ -12,10 +14,19 @@ use Illuminate\Database\Seeder;
  */
 class BookingSeeder extends Seeder
 {
+    private Collection $vouchers;
+
+    /** @var array<int, int> Số lượt đã dùng của từng mã */
+    private array $used = [];
+
+    /** @var array<int, array<int, bool>> Mã khách đã dùng */
+    private array $usedBy = [];
+
     public function run(): void
     {
         $customers = User::where('role', User::ROLE_USER)->get();
         $showtimes = Showtime::with('room')->where('start_time', '<', now()->addDays(4))->get();
+        $this->vouchers = Voucher::where('is_active', true)->get();
 
         foreach ($showtimes as $showtime) {
             $taken = [];
@@ -37,8 +48,9 @@ class BookingSeeder extends Seeder
                     ? $showtime->start_time->copy()->subHours(fake()->numberBetween(2, 72))
                     : now()->subMinutes(fake()->numberBetween(5, 3 * 24 * 60));
 
+                $customer = $customers->random();
                 $booking = Booking::create([
-                    'user_id' => $customers->random()->id,
+                    'user_id' => $customer->id,
                     'showtime_id' => $showtime->id,
                     'total_price' => 0,
                     'status' => $cancelled ? Booking::STATUS_CANCELLED : Booking::STATUS_CONFIRMED,
@@ -52,13 +64,44 @@ class BookingSeeder extends Seeder
                     $booking->seats()->create(['seat_code' => $code, 'seat_type' => $type, 'price' => $price]);
                 }
 
+                $voucher = fake()->boolean(15) ? $this->pickVoucher($customer, $total, $createdAt, $cancelled) : null;
+                $discount = $voucher?->discountFor($total) ?? 0;
+
                 $booking->forceFill([
-                    'total_price' => $total,
+                    'voucher_id' => $voucher?->id,
+                    'discount' => $discount,
+                    'total_price' => $total - $discount,
                     'created_at' => $createdAt,
                     'updated_at' => $createdAt,
                 ])->save();
             }
         }
+    }
+
+    /**
+     * Chọn mã giảm giá hợp lệ tại thời điểm đặt (đúng thời hạn, đủ đơn tối thiểu, còn lượt, khách chưa dùng).
+     * Bỏ qua tài khoản demo để khi trình bày vẫn thử được mọi mã.
+     */
+    private function pickVoucher(User $customer, int $total, $createdAt, bool $cancelled): ?Voucher
+    {
+        if ($customer->email === 'user@cinebook.test') {
+            return null;
+        }
+
+        $voucher = $this->vouchers->first(fn (Voucher $v) => fake()->boolean(60)
+            && (! $v->starts_at || $v->starts_at->lte($createdAt))
+            && (! $v->expires_at || $v->expires_at->gt($createdAt))
+            && $total >= $v->min_order
+            && ($v->usage_limit === null || ($this->used[$v->id] ?? 0) < $v->usage_limit)
+            && ! isset($this->usedBy[$customer->id][$v->id]));
+
+        // Vé đã hủy không tính lượt dùng (giống quy tắc trên web)
+        if ($voucher && ! $cancelled) {
+            $this->used[$voucher->id] = ($this->used[$voucher->id] ?? 0) + 1;
+            $this->usedBy[$customer->id][$voucher->id] = true;
+        }
+
+        return $voucher;
     }
 
     /** Chọn một dãy ghế liền nhau còn trống trong cùng một hàng */

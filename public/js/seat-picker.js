@@ -16,22 +16,101 @@
 
     const selected = new Map(); // mã ghế => giá
 
+    // Mã giảm giá: server trả về điều kiện của mã, trình duyệt tự tính lại mỗi khi đổi ghế
+    const voucherBox = document.getElementById('voucherBox');
+    const voucherInput = document.getElementById('voucherInput');
+    const voucherBtn = document.getElementById('voucherApply');
+    const voucherMsg = document.getElementById('voucherMessage');
+    let voucher = null;
+
+    const discountFor = (subtotal) => {
+        if (!voucher || subtotal < voucher.min_order) return 0;
+        let discount = voucher.type === 'percent' ? Math.floor(subtotal * voucher.value / 100) : voucher.value;
+        if (voucher.max_discount) discount = Math.min(discount, voucher.max_discount);
+        return Math.min(discount, subtotal);
+    };
+
+    const showVoucherMessage = (text, type) => {
+        voucherMsg.textContent = text;
+        voucherMsg.className = `small mt-1 text-${type}`;
+    };
+
     const render = () => {
         hiddenBox.innerHTML = '';
         tagBox.innerHTML = '';
-        let total = 0;
+        let subtotal = 0;
 
         [...selected.keys()].sort((a, b) => a.localeCompare(b, 'en', { numeric: true })).forEach((code) => {
-            total += selected.get(code);
+            subtotal += selected.get(code);
             hiddenBox.insertAdjacentHTML('beforeend', `<input type="hidden" name="seats[]" value="${code}">`);
             tagBox.insertAdjacentHTML('beforeend', `<span class="badge rounded-pill text-bg-danger me-1 mb-1">${code}</span>`);
         });
 
+        const discount = discountFor(subtotal);
+        document.getElementById('subtotalRow').classList.toggle('d-none', !voucher);
+        document.getElementById('discountRow').classList.toggle('d-none', !voucher);
+        document.getElementById('subtotalPrice').textContent = money(subtotal);
+        document.getElementById('discountPrice').textContent = '-' + money(discount);
+
+        if (voucher) {
+            document.getElementById('discountCode').textContent = `(${voucher.code})`;
+            if (selected.size && subtotal < voucher.min_order) {
+                showVoucherMessage(`Mã ${voucher.code} cần đơn từ ${money(voucher.min_order)}. Hãy chọn thêm ghế.`, 'warning');
+            } else {
+                showVoucherMessage(`Đã áp dụng: ${voucher.label}`, 'success');
+            }
+        }
+
         if (!selected.size) tagBox.innerHTML = '<span class="text-muted small">Chưa chọn ghế nào</span>';
-        totalEl.textContent = money(total);
+        totalEl.textContent = money(subtotal - discount);
         countEl.textContent = selected.size;
         submitBtn.disabled = selected.size === 0;
     };
+
+    const applyVoucher = async () => {
+        const code = voucherInput.value.trim();
+        voucher = null;
+        if (!code) {
+            showVoucherMessage('', 'muted');
+            render();
+            return;
+        }
+
+        const params = new URLSearchParams({ code });
+        selected.forEach((_, seat) => params.append('seats[]', seat));
+        voucherBtn.disabled = true;
+
+        try {
+            const res = await fetch(`${voucherBox.dataset.checkUrl}?${params}`, { headers: { Accept: 'application/json' } });
+            const data = await res.json();
+            if (res.ok && data.valid) {
+                voucher = data;
+                voucherInput.value = data.code;
+            } else {
+                showVoucherMessage(data.message || 'Mã giảm giá không hợp lệ.', 'danger');
+            }
+        } catch (err) {
+            showVoucherMessage('Không kiểm tra được mã, vui lòng thử lại.', 'danger');
+        } finally {
+            voucherBtn.disabled = false;
+            render();
+        }
+    };
+
+    voucherBtn.addEventListener('click', applyVoucher);
+    voucherInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Enter trong ô mã không gửi form đặt vé
+            applyVoucher();
+        }
+    });
+    voucherInput.addEventListener('input', () => {
+        if (voucher) {
+            voucher = null;
+            showVoucherMessage('Bấm "Áp dụng" để kiểm tra mã mới.', 'muted');
+            render();
+        }
+    });
 
     root.addEventListener('click', (e) => {
         const seat = e.target.closest('.cb-seat[data-code]');
@@ -59,6 +138,7 @@
         const seat = root.querySelector(`.cb-seat[data-code="${code}"]`);
         if (seat && !seat.disabled) seat.click();
     });
+    if (voucherInput.value.trim() && !voucherInput.classList.contains('is-invalid')) applyVoucher();
 
     const refresh = async () => {
         try {

@@ -77,7 +77,7 @@ class AuthAndRoleTest extends TestCase
         $this->seed();
         $admin = User::where('role', 'admin')->first();
 
-        foreach (['dashboard', 'movies.index', 'movies.create', 'movies.trash', 'genres.index', 'rooms.index', 'showtimes.index', 'showtimes.create', 'bookings.index', 'reviews.index', 'users.index'] as $route) {
+        foreach (['dashboard', 'movies.index', 'movies.create', 'movies.trash', 'genres.index', 'rooms.index', 'showtimes.index', 'showtimes.create', 'bookings.index', 'reviews.index', 'vouchers.index', 'vouchers.create', 'users.index'] as $route) {
             $this->actingAs($admin)->get(route('admin.'.$route))->assertOk();
         }
     }

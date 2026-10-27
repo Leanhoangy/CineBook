@@ -14,6 +14,10 @@ Xin chào **{{ $booking->user->name }}**, cảm ơn bạn đã đặt vé tại 
 |:--|--:|
 | Mã vé | **{{ $booking->code }}** |
 | Ghế | {{ $booking->seat_list }} |
+@if ($booking->discount)
+| Tạm tính | {{ number_format($booking->subtotal, 0, ',', '.') }} ₫ |
+| Giảm giá ({{ $booking->voucher?->code }}) | -{{ number_format($booking->discount, 0, ',', '.') }} ₫ |
+@endif
 | Tổng tiền | **{{ number_format($booking->total_price, 0, ',', '.') }} ₫** |
 </x-mail::table>
 

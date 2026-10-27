@@ -16,7 +16,7 @@ class BookingConfirmed extends Mailable
 
     public function __construct(public Booking $booking)
     {
-        $this->booking->loadMissing(['user', 'showtime.movie', 'showtime.room', 'seats']);
+        $this->booking->loadMissing(['user', 'showtime.movie', 'showtime.room', 'seats', 'voucher']);
     }
 
     public function envelope(): Envelope

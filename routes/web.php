@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:user')->group(function () {
         Route::get('/suat-chieu/{showtime}/dat-ve', [BookingController::class, 'create'])->name('bookings.create');
         Route::post('/suat-chieu/{showtime}/dat-ve', [BookingController::class, 'store'])->name('bookings.store');
+        Route::get('/suat-chieu/{showtime}/ma-giam-gia', [BookingController::class, 'checkVoucher'])->name('bookings.voucher')->middleware('throttle:20,1'); // AJAX
         Route::get('/ve-cua-toi', [BookingController::class, 'index'])->name('bookings.index');
         Route::get('/ve-cua-toi/{booking:code}', [BookingController::class, 'show'])->name('bookings.show');
         Route::patch('/ve-cua-toi/{booking:code}/huy', [BookingController::class, 'cancel'])->name('bookings.cancel');
@@ -85,6 +86,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('bookings', Admin\BookingController::class)->only(['index', 'show', 'update', 'destroy']);
 
     Route::resource('reviews', Admin\ReviewController::class)->only(['index', 'update', 'destroy']);
+    Route::resource('vouchers', Admin\VoucherController::class)->except('show');
 
     Route::resource('users', Admin\UserController::class)->except('show');
 });
