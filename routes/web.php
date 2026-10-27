@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ScheduleController;
@@ -25,6 +26,10 @@ Route::get('/lich-chieu', [ScheduleController::class, 'index'])->name('schedule.
 Route::get('/uu-dai', [PageController::class, 'promotions'])->name('promotions');
 Route::get('/ho-tro', [PageController::class, 'support'])->name('support');
 Route::get('/suat-chieu/{showtime}/ghe-da-dat', [BookingController::class, 'seatStatus'])->name('showtimes.seats'); // AJAX
+
+// VNPay gọi về sau khi thanh toán (có chữ ký nên không cần đăng nhập; IPN do server VNPay gọi)
+Route::get('/thanh-toan/vnpay/ket-qua', [PaymentController::class, 'vnpayReturn'])->name('payments.vnpay.return');
+Route::get('/thanh-toan/vnpay/ipn', [PaymentController::class, 'vnpayIpn'])->name('payments.vnpay.ipn');
 
 /*
 |--------------------------------------------------------------------------
@@ -62,6 +67,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/ve-cua-toi', [BookingController::class, 'index'])->name('bookings.index');
         Route::get('/ve-cua-toi/{booking:code}', [BookingController::class, 'show'])->name('bookings.show');
         Route::patch('/ve-cua-toi/{booking:code}/huy', [BookingController::class, 'cancel'])->name('bookings.cancel');
+        Route::post('/ve-cua-toi/{booking:code}/thanh-toan', [PaymentController::class, 'pay'])->name('bookings.pay');
 
         Route::post('/phim/{movie}/danh-gia', [ReviewController::class, 'store'])->name('reviews.store');
         Route::delete('/danh-gia/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
@@ -87,6 +93,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('showtimes', Admin\ShowtimeController::class)->except('show');
 
     Route::get('bookings/xuat-excel', [Admin\BookingController::class, 'export'])->name('bookings.export');
+    Route::patch('bookings/{booking}/thu-tien', [Admin\BookingController::class, 'markPaid'])->name('bookings.mark-paid');
     Route::resource('bookings', Admin\BookingController::class)->only(['index', 'show', 'update', 'destroy']);
 
     Route::resource('reviews', Admin\ReviewController::class)->only(['index', 'update', 'destroy']);

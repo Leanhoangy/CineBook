@@ -124,7 +124,7 @@
         <div class="cb-footer-bottom">
             <div class="container d-flex flex-wrap justify-content-between gap-2 py-3 small">
                 <span>&copy; {{ date('Y') }} CineBook. Đồ án môn Lập trình mã nguồn mở, xây dựng bằng Laravel.</span>
-                <span>Thanh toán tại quầy khi nhận vé</span>
+                <span>Thanh toán online qua VNPay hoặc tại quầy</span>
             </div>
         </div>
     </footer>

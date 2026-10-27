@@ -17,4 +17,9 @@ class BookingPolicy
     {
         return $booking->user_id === $user->id && $booking->canBeCancelledByCustomer();
     }
+
+    public function pay(User $user, Booking $booking): bool
+    {
+        return $booking->user_id === $user->id && $booking->canBePaidOnline();
+    }
 }

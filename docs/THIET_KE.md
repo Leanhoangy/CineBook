@@ -12,7 +12,7 @@
 - *Khách hàng (User)*: đặt vé, chọn ghế, quản lý vé đã đặt.
 - *Quản trị viên (Admin)*: quản lý toàn bộ dữ liệu nghiệp vụ và theo dõi doanh thu.
 
-**Phạm vi:** một rạp với nhiều phòng chiếu; thanh toán tại quầy khi nhận vé (chưa tích hợp cổng thanh toán online).
+**Phạm vi:** một rạp với nhiều phòng chiếu; khách thanh toán online qua cổng VNPay (môi trường sandbox) hoặc trả tại quầy khi nhận vé.
 
 ## 2. Sơ đồ ERD
 
@@ -89,6 +89,9 @@ erDiagram
         int total_price "sau giảm giá"
         int discount
         enum status "confirmed|cancelled"
+        timestamp paid_at "null = chưa thanh toán"
+        enum payment_method "vnpay|counter, nullable"
+        varchar payment_ref "mã giao dịch VNPay"
         varchar note
     }
     booking_seats {
@@ -138,6 +141,7 @@ erDiagram
 - Khóa ngoại `showtimes → movies/rooms` và `bookings → users/showtimes` dùng `restrictOnDelete` để không thể xóa dữ liệu đã phát sinh giao dịch.
 - Phim dùng **Soft Delete** để suất chiếu & vé cũ vẫn hiển thị được tên phim.
 - `bookings.total_price` là số tiền khách trả **sau giảm giá**, `discount` lưu số tiền đã giảm tại thời điểm đặt; lượt dùng mã chỉ tính vé còn hiệu lực nên khách hủy vé thì mã được hoàn lượt.
+- Trạng thái thanh toán tách khỏi trạng thái vé: vé "Đã xác nhận" giữ ghế ngay khi đặt, `paid_at` cho biết đã trả tiền hay chưa (online qua VNPay hoặc nhân viên xác nhận thu tại quầy). Vé đã thanh toán online không cho khách tự hủy.
 - Đánh giá chỉ được tạo khi khách có vé đã xác nhận của một suất chiếu **đã diễn ra** (`Movie::canBeReviewedBy()`), tránh đánh giá ảo.
 
 ## 3. Sơ đồ Use Case
@@ -171,14 +175,16 @@ flowchart LR
         UC20(Quản lý mã giảm giá)
         UC21(Kiểm duyệt đánh giá)
         UC22(Xuất báo cáo Excel)
+        UC23(Thanh toán online VNPay)
     end
 
     Guest --- UC1 & UC2 & UC3 & UC4 & UC5 & UC17
-    User --- UC1 & UC2 & UC3 & UC5 & UC6 & UC7 & UC8 & UC9 & UC18
+    User --- UC1 & UC2 & UC3 & UC5 & UC6 & UC7 & UC8 & UC9 & UC18 & UC23
     Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16 & UC20 & UC21 & UC22
     UC6 -. include .-> UC5
     UC19 -. extend .-> UC6
     UC8 -. extend .-> UC7
+    UC23 -. extend .-> UC7
 ```
 
 > Khi vẽ lại bằng draw.io/StarUML: Khách hàng **kế thừa** (generalization) từ Khách vãng lai; "Đặt vé" `<<include>>` "Đăng nhập"; "Hủy vé" `<<extend>>` "Xem vé".
@@ -215,14 +221,23 @@ Trang `/phim` tìm theo tên/đạo diễn/diễn viên, lọc thể loại, tr�
 ### 4.6. Bảng giá vé & ưu đãi
 Giá ghế thường của mỗi suất được tính tự động theo bảng giá trong `config/cinema.php` (`Showtime::standardPriceFor`): trước 12h / 12h–17h / từ 17h, phụ thu cuối tuần, "Thứ Ba vui vẻ" đồng giá cả ngày; ghế VIP phụ thu thêm. Trang `/uu-dai` đọc cùng bảng giá này và các mã giảm giá còn dùng được (đang bật, chưa hết hạn, còn lượt) nên nội dung luôn khớp với giá thực tế khi đặt vé.
 
-### 4.7. Đánh giá phim (UC18, UC21)
+### 4.7. Thanh toán online VNPay (UC23)
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Khách hàng, cổng thanh toán VNPay |
+| Tiền điều kiện | Vé của chính khách, đang "Đã xác nhận", chưa thanh toán, suất chiếu chưa bắt đầu; đã cấu hình `VNPAY_TMN_CODE`, `VNPAY_HASH_SECRET` |
+| Luồng chính | 1. Khách bấm "Thanh toán qua VNPay" trên trang vé. 2. Hệ thống tạo link VNPay (số tiền, mã giao dịch = mã vé + thời điểm, hạn 15 phút) ký bằng HMAC-SHA512 và chuyển khách sang VNPay. 3. Khách thanh toán bằng thẻ/QR ngân hàng. 4. VNPay đưa khách về `/thanh-toan/vnpay/ket-qua` và gọi IPN `/thanh-toan/vnpay/ipn`. 5. Hệ thống kiểm tra chữ ký, tìm vé, đối chiếu số tiền, khóa dòng vé rồi ghi `paid_at`, `payment_method = vnpay`, `payment_ref`. 6. Trang vé hiện "Đã thanh toán (VNPay)" kèm mã giao dịch. |
+| Luồng phụ | 3a. Khách hủy giao dịch / thẻ lỗi → vé vẫn giữ, chưa thanh toán, có thể thử lại hoặc trả tại quầy. 5a. Sai chữ ký hoặc sai số tiền → từ chối (IPN trả mã 97 / 04). 5b. Kết quả đến 2 lần (trình duyệt + IPN) → chỉ ghi nhận 1 lần (IPN trả mã 02). |
+| Thanh toán tại quầy | Nhân viên mở đơn trong trang quản trị, bấm "Đã thu ... ₫" để ghi nhận `payment_method = counter`. |
+
+### 4.8. Đánh giá phim (UC18, UC21)
 Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao kèm bình luận; mỗi phim 1 đánh giá, sửa/xóa được. Trang phim hiển thị điểm trung bình, phân bố số sao. Admin lọc, ẩn/hiện bình luận vi phạm hoặc xóa.
 
 ## 5. Đối chiếu yêu cầu đồ án
 
 | Yêu cầu (file đề) | Đáp ứng trong CineBook |
 |---|---|
-| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 8 migration nghiệp vụ, 8 seeder, 7 factory; phim thật cào từ Moveek (`movies:crawl`) |
+| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 9 migration nghiệp vụ, 8 seeder, 7 factory; phim thật cào từ Moveek (`movies:crawl`) |
 | Blade + Bootstrap, tách giao diện user/admin | `layouts/app` (tối, rạp phim) và `layouts/admin` (sidebar) |
 | ≥ 2 role, admin vào `/admin`, bảo vệ route bằng Middleware | Role `admin`/`user`, middleware `role:` tự viết + `auth` + `guest` |
 | CRUD ≥ 2 bảng có quan hệ | CRUD đủ trên Phim, Thể loại, Phòng, Suất chiếu, Người dùng, Mã giảm giá (+ Đơn đặt vé, Đánh giá) |
@@ -234,7 +249,7 @@ Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao
 | *Mở rộng:* Xuất file | Xuất đơn đặt vé + doanh thu theo phim ra Excel (.xlsx) |
 | *Mở rộng:* Tác vụ định kỳ | Laravel Scheduler: `showtimes:refresh` hằng ngày (khởi chiếu / ngừng chiếu tự động, xếp lịch 7 ngày tới, mở bán vé trước); `movies:crawl --import` hằng tuần lấy phim mới |
 | *Mở rộng:* AJAX | Gợi ý tìm kiếm, cập nhật sơ đồ ghế realtime, kiểm tra mã giảm giá |
-| *Mở rộng:* API ngoài | YouTube embed (trailer), QR code API |
+| *Mở rộng:* API ngoài | Cổng thanh toán VNPay (sandbox, chữ ký HMAC-SHA512, IPN), YouTube embed (trailer); mã QR vé tạo bằng thư viện PHP ngay trên server |
 | *Mở rộng:* Responsive | Bootstrap grid, menu thu gọn, sidebar offcanvas |
 | *Mở rộng:* Soft Delete, Middleware tùy chỉnh | Phim xóa mềm + thùng rác; `EnsureUserHasRole` |
 

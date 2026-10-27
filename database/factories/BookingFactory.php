@@ -27,6 +27,11 @@ class BookingFactory extends Factory
         return $this->state(fn () => ['status' => Booking::STATUS_CANCELLED]);
     }
 
+    public function paid(string $method = Booking::PAYMENT_VNPAY): static
+    {
+        return $this->state(fn () => ['paid_at' => now(), 'payment_method' => $method]);
+    }
+
     /** Tạo kèm danh sách ghế và tự tính tổng tiền */
     public function withSeats(array $seatCodes): static
     {

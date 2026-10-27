@@ -128,7 +128,7 @@ class BookingController extends Controller
         }
 
         return redirect()->route('bookings.show', $booking)
-            ->with('success', 'Đặt vé thành công! Mã vé của bạn là '.$booking->code.'.');
+            ->with('success', 'Đặt vé thành công! Mã vé của bạn là '.$booking->code.'. Bạn có thể thanh toán online ngay hoặc trả tại quầy khi nhận vé.');
     }
 
     public function show(Booking $booking): View
@@ -143,7 +143,9 @@ class BookingController extends Controller
     public function cancel(Booking $booking): RedirectResponse
     {
         if (Gate::denies('cancel', $booking)) {
-            return back()->with('error', 'Vé chỉ được hủy trước giờ chiếu ít nhất '.config('cinema.cancel_before_minutes').' phút.');
+            return back()->with('error', $booking->isPaid()
+                ? 'Vé đã thanh toán online không hỗ trợ hủy. Vui lòng liên hệ hỗ trợ nếu cần.'
+                : 'Vé chỉ được hủy trước giờ chiếu ít nhất '.config('cinema.cancel_before_minutes').' phút.');
         }
 
         $booking->update(['status' => Booking::STATUS_CANCELLED]);

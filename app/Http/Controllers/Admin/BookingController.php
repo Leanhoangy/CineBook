@@ -50,6 +50,9 @@ class BookingController extends Controller
         return Booking::query()
             ->search($request->query('q'))
             ->when($request->query('status'), fn ($q, $s) => $q->where('status', $s))
+            ->when($request->query('payment'), fn ($q, $p) => $p === 'unpaid'
+                ? $q->whereNull('paid_at')
+                : $q->where('payment_method', $p))
             ->when($request->query('from'), fn ($q, $d) => $q->whereDate('created_at', '>=', $d))
             ->when($request->query('to'), fn ($q, $d) => $q->whereDate('created_at', '<=', $d));
     }
@@ -83,6 +86,18 @@ class BookingController extends Controller
         $booking->update($validated);
 
         return back()->with('success', "Đã cập nhật vé {$booking->code}: {$booking->status_label}.");
+    }
+
+    /** Nhân viên xác nhận đã thu tiền khi khách trả tại quầy */
+    public function markPaid(Booking $booking): RedirectResponse
+    {
+        if (! $booking->isConfirmed() || $booking->isPaid()) {
+            return back()->with('error', "Vé {$booking->code} đã thanh toán hoặc đã hủy.");
+        }
+
+        $booking->markPaid(Booking::PAYMENT_COUNTER);
+
+        return back()->with('success', "Đã ghi nhận vé {$booking->code} thanh toán tại quầy.");
     }
 
     public function destroy(Booking $booking): RedirectResponse

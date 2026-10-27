@@ -18,7 +18,10 @@
                 <div class="flex-grow-1 min-w-0">
                     <div class="d-flex justify-content-between gap-2 flex-wrap">
                         <h2 class="h6 fw-bold mb-1">{{ $st->movie->title }}</h2>
-                        <x-status-badge :status="$booking->status" />
+                        <span class="d-flex gap-1 flex-wrap">
+                            <x-status-badge :status="$booking->status" />
+                            <x-payment-badge :booking="$booking" />
+                        </span>
                     </div>
                     <div class="small text-muted mb-2">
                         <i class="bi bi-calendar-event me-1"></i>{{ $st->start_time->translatedFormat('l, d/m/Y · H:i') }}

@@ -48,10 +48,11 @@ class BookingsExport
         $sheet->setColumnWidth(18, 9);
         $sheet->setColumnWidth(14, 11, 12, 13, 14);
         $sheet->setColumnWidth(13, 15);
+        $sheet->setColumnWidth(26, 16);
 
         $writer->addRow($this->headerRow([
             'Mã vé', 'Ngày đặt', 'Khách hàng', 'Email', 'Số điện thoại', 'Phim', 'Suất chiếu', 'Phòng',
-            'Ghế', 'Số ghế', 'Tạm tính', 'Mã giảm giá', 'Giảm giá', 'Thành tiền', 'Trạng thái',
+            'Ghế', 'Số ghế', 'Tạm tính', 'Mã giảm giá', 'Giảm giá', 'Thành tiền', 'Trạng thái', 'Thanh toán',
         ]));
 
         $money = (new Style)->setFormat(self::MONEY);
@@ -67,7 +68,7 @@ class BookingsExport
                         $b->code, $b->created_at->toDateTimeImmutable(), $b->user->name, $b->user->email, $b->user->phone,
                         $b->showtime->movie->title, $b->showtime->start_time->toDateTimeImmutable(), $b->showtime->room->name,
                         $b->seat_list, $b->seats->count(), $b->subtotal, $b->voucher?->code, $b->discount, $b->total_price,
-                        $b->status_label,
+                        $b->status_label, $b->isConfirmed() || $b->isPaid() ? $b->payment_label : null,
                     ],
                     columnStyles: [1 => $date, 6 => $date, 10 => $money, 12 => $money, 13 => $money],
                 ));

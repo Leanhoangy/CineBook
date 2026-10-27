@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-#[Fillable(['code', 'user_id', 'showtime_id', 'voucher_id', 'total_price', 'discount', 'status', 'note'])]
+#[Fillable(['code', 'user_id', 'showtime_id', 'voucher_id', 'total_price', 'discount', 'status', 'note', 'paid_at', 'payment_method', 'payment_ref'])]
 class Booking extends Model
 {
     use HasFactory;
@@ -24,11 +24,21 @@ class Booking extends Model
         self::STATUS_CANCELLED => 'Đã hủy',
     ];
 
+    public const PAYMENT_VNPAY = 'vnpay';
+
+    public const PAYMENT_COUNTER = 'counter';
+
+    public const PAYMENT_METHODS = [
+        self::PAYMENT_VNPAY => 'VNPay',
+        self::PAYMENT_COUNTER => 'Tại quầy',
+    ];
+
     protected function casts(): array
     {
         return [
             'total_price' => 'integer',
             'discount' => 'integer',
+            'paid_at' => 'datetime',
         ];
     }
 
@@ -100,10 +110,37 @@ class Booking extends Model
         return $this->status === self::STATUS_CONFIRMED;
     }
 
-    /** Khách chỉ được tự hủy khi vé còn hiệu lực và còn đủ thời gian trước giờ chiếu */
+    public function isPaid(): bool
+    {
+        return $this->paid_at !== null;
+    }
+
+    public function getPaymentLabelAttribute(): string
+    {
+        return $this->isPaid()
+            ? 'Đã thanh toán ('.(self::PAYMENT_METHODS[$this->payment_method] ?? $this->payment_method).')'
+            : 'Chưa thanh toán';
+    }
+
+    /** Thanh toán online được khi vé còn hiệu lực, chưa trả tiền và suất chiếu chưa bắt đầu */
+    public function canBePaidOnline(): bool
+    {
+        return $this->isConfirmed() && ! $this->isPaid() && $this->showtime->start_time->isFuture();
+    }
+
+    public function markPaid(string $method, ?string $ref = null): void
+    {
+        $this->update(['paid_at' => now(), 'payment_method' => $method, 'payment_ref' => $ref]);
+    }
+
+    /**
+     * Khách chỉ được tự hủy khi vé còn hiệu lực, chưa thanh toán online và còn đủ thời gian trước giờ chiếu.
+     * Vé đã thanh toán không tự hủy được (giống các rạp thật: vé đã mua không hoàn tiền).
+     */
     public function canBeCancelledByCustomer(): bool
     {
         return $this->isConfirmed()
+            && ! $this->isPaid()
             && $this->showtime->start_time->gt(now()->addMinutes((int) config('cinema.cancel_before_minutes')));
     }
 }

@@ -41,7 +41,7 @@ php artisan serve
 
 Mở trình duyệt: **http://localhost:8000**
 
-**Cách khác:** import trực tiếp file [`database/cinebook.sql`](database/cinebook.sql) (~3,5 MB, khoảng 16.000 đơn đặt vé mẫu) vào database `cinebook` bằng phpMyAdmin thay cho bước 4; nếu phpMyAdmin báo file quá lớn thì dùng `migrate --seed` (mất khoảng 30 giây). Khi đó cần tự chép poster: copy các file trong `database/seeders/data/posters/` vào `storage/app/public/posters/` (nếu chạy `migrate --seed` thì seeder tự chép).
+**Cách khác:** import trực tiếp file [`database/cinebook.sql`](database/cinebook.sql) (~4 MB, khoảng 16.000 đơn đặt vé mẫu) vào database `cinebook` bằng phpMyAdmin thay cho bước 4; nếu phpMyAdmin báo file quá lớn thì dùng `migrate --seed` (mất khoảng 30 giây). Khi đó cần tự chép poster: copy các file trong `database/seeders/data/posters/` vào `storage/app/public/posters/` (nếu chạy `migrate --seed` thì seeder tự chép).
 
 ### Dữ liệu phim thật
 
@@ -86,6 +86,13 @@ Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày
 
 **Mã giảm giá mẫu** (tài khoản demo chưa dùng mã nào): `CINEBOOK10` (giảm 10%, tối đa 30.000 ₫), `GIAM20K` (đơn từ 150.000 ₫), `SINHVIEN`, `NHOMBAN4` (đơn từ 300.000 ₫); `THANHVIENMOI` (20 khách đầu tiên) đã hết lượt, `HE2026` đã hết hạn và `GIANGSINH` chưa tới ngày để demo thông báo lỗi.
 
+**Thanh toán online VNPay (sandbox, không mất tiền thật):** không cấu hình thì web chỉ nhận thanh toán tại quầy. Muốn demo thanh toán online:
+1. Đăng ký tài khoản thử nghiệm tại [sandbox.vnpayment.vn/devreg](https://sandbox.vnpayment.vn/devreg/), VNPay gửi **mã website (TMN Code)** và **chuỗi bí mật (Hash Secret)** qua email.
+2. Điền vào `.env`: `VNPAY_TMN_CODE=...` và `VNPAY_HASH_SECRET=...`
+3. Đặt vé → trang vé bấm **"Thanh toán ... qua VNPay"** → chọn *Thẻ nội địa* → ngân hàng **NCB**, dùng thẻ test: số thẻ `9704198526191432198`, tên `NGUYEN VAN A`, ngày phát hành `07/15`, OTP `123456`.
+
+Chạy trên máy cá nhân thì kết quả được ghi nhận khi VNPay đưa trình duyệt quay về web. URL IPN (`/thanh-toan/vnpay/ipn`, VNPay gọi từ server của họ) chỉ hoạt động khi web có địa chỉ public (VD: deploy hoặc dùng ngrok) và đã khai báo URL này trong trang quản lý sandbox.
+
 **Email** (quên mật khẩu, vé điện tử): mặc định `MAIL_MAILER=log` nên email được ghi vào `storage/logs/laravel.log`. Muốn gửi thật, điền cấu hình SMTP (VD: [Mailtrap](https://mailtrap.io) hoặc Gmail + App Password) vào các biến `MAIL_*` trong `.env`.
 
 ### Chạy kiểm thử tự động
@@ -94,7 +101,7 @@ Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày
 php artisan test
 ```
 
-58 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+66 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -114,9 +121,10 @@ php artisan test
 - Sơ đồ ghế **tự động cập nhật bằng AJAX mỗi 10 giây**; nếu ghế đang chọn bị người khác đặt sẽ được thông báo.
 - Đặt vé an toàn: dùng **transaction + khóa dòng (`lockForUpdate`)** để 2 người không thể đặt trùng ghế.
 - **Mã giảm giá**: danh sách "Mã dành cho bạn" ngay ở bước chọn ghế (hiện số tiền được giảm theo ghế đang chọn, gợi ý mã tiết kiệm nhất, báo còn thiếu bao nhiêu để đủ điều kiện), bấm để áp dụng; kiểm tra bằng AJAX, tự tính lại khi đổi ghế (giảm % có mức tối đa / giảm tiền cố định, đơn tối thiểu, giới hạn lượt, mỗi khách 1 lần).
-- Vé điện tử có mã vé + mã QR, in vé, **nhận vé qua email** ngay sau khi đặt.
+- Vé điện tử có mã vé + mã QR (tạo ngay trên server, không cần mạng), in vé, **nhận vé qua email** ngay sau khi đặt.
+- **Thanh toán online qua VNPay** (thẻ ATM, Visa/Master, QR ngân hàng) ngay trên trang vé, hoặc trả tại quầy khi nhận vé; kết quả được kiểm tra chữ ký HMAC-SHA512 và số tiền trước khi ghi nhận.
 - **Đánh giá phim** (1–5 sao + bình luận) sau khi đã xem.
-- Lịch sử đặt vé (sắp chiếu / đã chiếu), **tự hủy vé** trước giờ chiếu 60 phút.
+- Lịch sử đặt vé (sắp chiếu / đã chiếu) kèm trạng thái thanh toán, **tự hủy vé** chưa thanh toán trước giờ chiếu 60 phút (vé đã thanh toán online không tự hủy được).
 - Cập nhật hồ sơ, **upload ảnh đại diện**, đổi mật khẩu.
 
 ### Quản trị viên (role `admin`, khu vực `/admin`)
@@ -124,7 +132,7 @@ php artisan test
 - **CRUD Phim**: upload poster, gán nhiều thể loại, ngày kết thúc chiếu (tự chuyển "Ngừng chiếu"), **xóa mềm (Soft Delete)** → thùng rác → khôi phục / xóa vĩnh viễn.
 - **CRUD Thể loại**, **CRUD Phòng chiếu** (xem trước sơ đồ ghế khi nhập số hàng/ghế).
 - **CRUD Suất chiếu**: tự tính giờ kết thúc, **chặn trùng giờ trong cùng phòng**, khóa sửa/xóa khi đã có vé.
-- **Đơn đặt vé**: tìm kiếm theo mã vé/khách/phim, lọc trạng thái & khoảng ngày, xác nhận/hủy, xóa đơn đã hủy, **xuất Excel** (chi tiết đơn + doanh thu theo phim).
+- **Đơn đặt vé**: tìm kiếm theo mã vé/khách/phim, lọc trạng thái, thanh toán & khoảng ngày, xác nhận/hủy, **xác nhận đã thu tiền tại quầy**, xóa đơn đã hủy, **xuất Excel** (chi tiết đơn + doanh thu theo phim).
 - **Mã giảm giá**: CRUD mã, thống kê lượt dùng và tổng tiền đã giảm.
 - **Đánh giá**: tìm kiếm, lọc theo số sao, ẩn/hiện bình luận vi phạm, xóa.
 - **Người dùng**: tạo/sửa/xóa tài khoản, phân quyền admin/user.
@@ -196,7 +204,8 @@ docs/
 - [Bootstrap 5.3](https://getbootstrap.com) & [Bootstrap Icons](https://icons.getbootstrap.com) – giao diện (MIT)
 - [Chart.js 4](https://www.chartjs.org) – biểu đồ doanh thu (MIT)
 - Font [Be Vietnam Pro](https://fonts.google.com/specimen/Be+Vietnam+Pro) – Google Fonts (OFL)
-- [goQR.me API](https://goqr.me/api/) – tạo mã QR trên vé (chỉ gửi mã vé)
+- [chillerlan/php-qrcode](https://github.com/chillerlan/php-qrcode) – tạo mã QR trên vé và trong email ngay trên server (MIT)
+- [VNPay sandbox](https://sandbox.vnpayment.vn/apis/) – cổng thanh toán online (môi trường thử nghiệm)
 - YouTube embed – phát trailer phim
 
 ## 8. Xử lý sự cố thường gặp

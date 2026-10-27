@@ -282,6 +282,13 @@ main { flex: 1; }
 .cb-ticket .label { color: var(--cb-muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
 .cb-ticket .value { font-weight: 700; font-size: 1.05rem; }
 .cb-qr { width: 120px; height: 120px; border-radius: 10px; background: #fff; padding: 8px; }
+.cb-payment {
+    display: flex; gap: .75rem; align-items: flex-start; padding: .9rem 1rem;
+    border: 1px dashed var(--cb-gold); border-radius: 10px; background: rgba(245, 185, 66, .06);
+}
+.cb-payment > .bi { font-size: 1.4rem; color: var(--cb-gold); line-height: 1.2; }
+.cb-payment.is-paid { border: 1px solid rgba(25, 135, 84, .6); background: rgba(25, 135, 84, .1); }
+.cb-payment.is-paid > .bi { color: #3ec98a; }
 .cb-ticket.cancelled { opacity: .7; }
 .cb-ticket.cancelled .cb-ticket-head { background: rgba(108, 117, 125, .2); }
 

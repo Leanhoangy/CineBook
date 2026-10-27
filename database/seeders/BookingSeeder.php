@@ -110,6 +110,7 @@ class BookingSeeder extends Seeder
 
         $voucher = fake()->boolean(15) ? $this->pickVoucher($customer, $total, $createdAt, $cancelled) : null;
         $discount = $voucher?->discountFor($total) ?? 0;
+        [$paidAt, $method] = $cancelled ? [null, null] : $this->payment($showtime, $createdAt);
 
         $booking = new Booking([
             'user_id' => $customer->id,
@@ -118,11 +119,31 @@ class BookingSeeder extends Seeder
             'discount' => $discount,
             'total_price' => $total - $discount,
             'status' => $cancelled ? Booking::STATUS_CANCELLED : Booking::STATUS_CONFIRMED,
+            'paid_at' => $paidAt,
+            'payment_method' => $method,
+            'payment_ref' => $method === Booking::PAYMENT_VNPAY ? fake()->numerify('14######') : null,
         ]);
         $booking->created_at = $booking->updated_at = $createdAt;
         $booking->save();
 
         BookingSeat::insert(array_map(fn (array $row) => $row + ['booking_id' => $booking->id], $rows));
+    }
+
+    /**
+     * Khoảng 55% khách thanh toán online qua VNPay ngay sau khi đặt; số còn lại trả tại quầy trước giờ chiếu,
+     * nên vé của suất sắp chiếu có thể vẫn chưa thanh toán. Vé đã hủy luôn là vé chưa trả tiền.
+     *
+     * @return array{0: ?Carbon, 1: ?string}
+     */
+    private function payment(Showtime $showtime, Carbon $createdAt): array
+    {
+        if (fake()->boolean(55)) {
+            return [$createdAt->copy()->addMinutes(fake()->numberBetween(1, 8))->min(now()), Booking::PAYMENT_VNPAY];
+        }
+
+        return $showtime->start_time->isPast()
+            ? [$showtime->start_time->copy()->subMinutes(fake()->numberBetween(10, 45)), Booking::PAYMENT_COUNTER]
+            : [null, null];
     }
 
     /**

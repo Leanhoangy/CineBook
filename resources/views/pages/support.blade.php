@@ -13,8 +13,8 @@
                 ['Có đặt vé trước cho phim sắp chiếu được không?', 'Được. Phim sắp chiếu được mở bán vé từ ngày khởi chiếu khi đã có lịch chiếu trong 7 ngày tới, có nhãn "Đặt vé trước" ở trang lịch chiếu.'],
             ],
             'Thanh toán & hủy vé' => [
-                ['Thanh toán như thế nào?', 'Hiện CineBook nhận thanh toán tại quầy khi bạn đến nhận vé. Số tiền cần trả là "Tổng cộng" trên vé điện tử (đã trừ mã giảm giá).'],
-                ['Tôi có thể hủy vé không?', 'Bạn tự hủy được trong mục "Vé của tôi" trước giờ chiếu ít nhất '.config('cinema.cancel_before_minutes').' phút. Ghế được mở lại cho người khác đặt và lượt dùng mã giảm giá (nếu có) được hoàn lại.'],
+                ['Thanh toán như thế nào?', 'Sau khi đặt vé, bạn có thể thanh toán online ngay trên trang vé qua cổng VNPay (thẻ ATM nội địa, Visa/Master hoặc quét QR bằng ứng dụng ngân hàng), hoặc trả tại quầy khi đến nhận vé. Số tiền cần trả là "Tổng cộng" trên vé điện tử (đã trừ mã giảm giá).'],
+                ['Tôi có thể hủy vé không?', 'Vé chưa thanh toán: bạn tự hủy được trong mục "Vé của tôi" trước giờ chiếu ít nhất '.config('cinema.cancel_before_minutes').' phút; ghế được mở lại cho người khác đặt và lượt dùng mã giảm giá (nếu có) được hoàn lại. Vé đã thanh toán online không hỗ trợ hủy, vui lòng liên hệ hotline nếu gặp sự cố.'],
                 ['Dùng mã giảm giá thế nào?', 'Nhập mã ở bước chọn ghế, hệ thống tự kiểm tra và tính số tiền giảm. Mỗi đơn dùng 1 mã, mỗi khách chỉ dùng mỗi mã 1 lần. Xem các mã đang áp dụng ở trang Ưu đãi.'],
             ],
             'Tại rạp' => [

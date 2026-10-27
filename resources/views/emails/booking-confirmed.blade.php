@@ -22,10 +22,11 @@ Xin chào **{{ $booking->user->name }}**, cảm ơn bạn đã đặt vé tại 
 </x-mail::table>
 
 <p style="text-align: center">
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ urlencode($booking->code) }}" alt="Mã QR vé {{ $booking->code }}" width="180" height="180">
+{{-- Nhúng ảnh PNG vào email (cid) vì Gmail chặn ảnh SVG/data URI; khi xem trước email không có $message thì dùng SVG --}}
+<img src="{{ isset($message) ? $message->embedData(\App\Services\TicketQr::png($booking->code), "qr-{$booking->code}.png", 'image/png') : \App\Services\TicketQr::svg($booking->code) }}" alt="Mã QR vé {{ $booking->code }}" width="180" height="180">
 </p>
 
-Vui lòng đưa mã QR hoặc mã vé cho nhân viên tại quầy để vào phòng chiếu. Bạn có thể hủy vé trước giờ chiếu {{ config('cinema.cancel_before_minutes') }} phút.
+Vui lòng đưa mã QR hoặc mã vé cho nhân viên tại quầy để vào phòng chiếu. Bạn có thể thanh toán online qua VNPay trên trang vé điện tử hoặc trả tại quầy khi nhận vé. Vé chưa thanh toán có thể hủy trước giờ chiếu {{ config('cinema.cancel_before_minutes') }} phút.
 
 <x-mail::button :url="route('bookings.show', $booking)">
 Xem vé điện tử

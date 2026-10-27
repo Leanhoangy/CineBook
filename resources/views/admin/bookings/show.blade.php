@@ -14,7 +14,10 @@
                         <div class="text-muted small">Mã vé</div>
                         <div class="fs-4 fw-bold font-monospace">{{ $booking->code }}</div>
                     </div>
-                    <x-status-badge :status="$booking->status" class="fs-6" />
+                    <div class="text-end">
+                        <x-status-badge :status="$booking->status" class="fs-6" />
+                        <x-payment-badge :booking="$booking" class="d-table ms-auto mt-1" />
+                    </div>
                 </div>
                 <div class="row g-3 mb-4">
                     <div class="col-sm-6">
@@ -28,6 +31,17 @@
                     <div class="col-sm-6">
                         <div class="text-muted small">Ngày đặt</div>
                         <div>{{ $booking->created_at->format('H:i:s d/m/Y') }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Thanh toán</div>
+                        <div>
+                            @if ($booking->isPaid())
+                                {{ \App\Models\Booking::PAYMENT_METHODS[$booking->payment_method] }} lúc {{ $booking->paid_at->format('H:i d/m/Y') }}
+                                @if ($booking->payment_ref)<span class="small text-muted">· mã GD <span class="font-monospace">{{ $booking->payment_ref }}</span></span>@endif
+                            @else
+                                Chưa thanh toán
+                            @endif
+                        </div>
                     </div>
                     <div class="col-sm-6">
                         <div class="text-muted small">Ghi chú</div>
@@ -62,6 +76,14 @@
                 <div class="small text-muted">{{ $booking->user->email }}</div>
                 <div class="small text-muted">{{ $booking->user->phone ?: 'Chưa có SĐT' }}</div>
             </div>
+            @if ($booking->isConfirmed() && ! $booking->isPaid())
+                <form method="POST" action="{{ route('admin.bookings.mark-paid', $booking) }}" class="ad-card p-4 mb-4" data-confirm="Xác nhận đã thu @money($booking->total_price) cho vé {{ $booking->code }}?">
+                    @csrf @method('PATCH')
+                    <h2 class="h6 fw-bold mb-2">Thu tiền tại quầy</h2>
+                    <p class="small text-muted mb-3">Khách chưa thanh toán online. Bấm khi đã thu đủ tiền lúc khách nhận vé.</p>
+                    <button class="btn btn-success w-100"><i class="bi bi-cash-coin me-1"></i>Đã thu @money($booking->total_price)</button>
+                </form>
+            @endif
             <div class="ad-card p-4">
                 <h2 class="h6 fw-bold mb-3">Cập nhật trạng thái</h2>
                 <form method="POST" action="{{ route('admin.bookings.update', $booking) }}">

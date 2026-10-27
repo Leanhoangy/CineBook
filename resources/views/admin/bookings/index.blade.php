@@ -14,16 +14,23 @@
                         <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
+                <select name="payment" class="form-select form-select-sm w-auto">
+                    <option value="">Mọi thanh toán</option>
+                    <option value="unpaid" @selected(request('payment') === 'unpaid')>Chưa thanh toán</option>
+                    @foreach (\App\Models\Booking::PAYMENT_METHODS as $value => $label)
+                        <option value="{{ $value }}" @selected(request('payment') === $value)>Đã trả · {{ $label }}</option>
+                    @endforeach
+                </select>
                 <span class="small text-muted">Từ</span>
                 <input type="date" name="from" value="{{ request('from') }}" class="form-control form-control-sm w-auto">
                 <span class="small text-muted">đến</span>
                 <input type="date" name="to" value="{{ request('to') }}" class="form-control form-control-sm w-auto">
                 <button class="btn btn-sm btn-light"><i class="bi bi-funnel me-1"></i>Lọc</button>
-                @if (request()->hasAny(['q', 'status', 'from', 'to']))
+                @if (request()->hasAny(['q', 'status', 'payment', 'from', 'to']))
                     <a href="{{ route('admin.bookings.index') }}" class="btn btn-sm btn-link text-muted">Xóa lọc</a>
                 @endif
             </form>
-            <a href="{{ route('admin.bookings.export', request()->only(['q', 'status', 'from', 'to'])) }}" class="btn btn-sm btn-success" title="Xuất các đơn theo bộ lọc hiện tại">
+            <a href="{{ route('admin.bookings.export', request()->only(['q', 'status', 'payment', 'from', 'to'])) }}" class="btn btn-sm btn-success" title="Xuất các đơn theo bộ lọc hiện tại">
                 <i class="bi bi-file-earmark-excel me-1"></i>Xuất Excel
             </a>
         </div>
@@ -44,7 +51,10 @@
                             </td>
                             <td class="small">{{ $booking->seat_list }}</td>
                             <td class="text-end fw-semibold text-nowrap">@money($booking->total_price)</td>
-                            <td><x-status-badge :status="$booking->status" /></td>
+                            <td>
+                                <x-status-badge :status="$booking->status" />
+                                <x-payment-badge :booking="$booking" class="d-table mt-1" />
+                            </td>
                             <td class="small text-nowrap">{{ $booking->created_at->format('H:i d/m/Y') }}</td>
                             <td class="text-end"><a href="{{ route('admin.bookings.show', $booking) }}" class="btn btn-sm btn-light btn-icon" title="Chi tiết"><i class="bi bi-eye"></i></a></td>
                         </tr>
