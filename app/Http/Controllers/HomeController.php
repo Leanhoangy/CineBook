@@ -24,7 +24,7 @@ class HomeController extends Controller
             ->get();
 
         $featured = $nowShowing->first();
-        $genres = Genre::withCount('movies')->orderBy('name')->get();
+        $genres = Genre::withShowingMovies()->orderBy('name')->get();
 
         return view('home', compact('nowShowing', 'comingSoon', 'featured', 'genres'));
     }

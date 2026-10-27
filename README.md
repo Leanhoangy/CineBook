@@ -45,15 +45,27 @@ Mở trình duyệt: **http://localhost:8000**
 
 ### Dữ liệu phim thật
 
-Danh sách phim (tên, mô tả, đạo diễn, diễn viên, thời lượng, ngày khởi chiếu, phân loại tuổi, thể loại, trailer, poster) được cào từ [Moveek.com](https://moveek.com) – phim **đang chiếu** và **sắp chiếu** tại Việt Nam – và lưu sẵn trong `database/seeders/data/` (`movies.json` + thư mục `posters/`), nên `migrate --seed` không cần Internet. Để cập nhật phim mới nhất:
+Danh sách phim (tên, mô tả, đạo diễn, diễn viên, thời lượng, ngày khởi chiếu, phân loại tuổi, thể loại, trailer, poster) được cào từ [Moveek.com](https://moveek.com) – phim **đang chiếu**, **sắp chiếu** và một số phim **đã ngừng chiếu** gần đây tại Việt Nam – và lưu sẵn trong `database/seeders/data/` (`movies.json` + thư mục `posters/`), nên `migrate --seed` không cần Internet. Để cập nhật phim mới nhất:
 
 ```bash
-php artisan movies:crawl                 # mặc định: toàn bộ phim đang chiếu + 20 phim sắp chiếu
+php artisan movies:crawl                 # mặc định: phim đang chiếu + 20 phim sắp chiếu + 15 phim đã ngừng chiếu
 php artisan movies:crawl --upcoming=40   # lấy nhiều phim sắp chiếu hơn
 php artisan migrate:fresh --seed         # nạp lại database (xóa dữ liệu cũ)
 ```
 
-Phòng chiếu, suất chiếu, người dùng và đơn đặt vé vẫn được sinh tự động bởi seeder. Phim sắp chiếu chưa công bố thời lượng được tạm tính 120 phút; phim chưa có phân loại tuổi được để mặc định `P`.
+> Lệnh cào nghỉ 2 giây giữa các request. Nếu Moveek tạm chặn (lỗi 403), lệnh sẽ dừng và **giữ nguyên dữ liệu cũ** – hãy thử lại sau vài giờ.
+
+Phòng chiếu, suất chiếu, người dùng và đơn đặt vé vẫn được sinh tự động bởi seeder. Phim sắp chiếu chưa công bố thời lượng được tạm tính 120 phút; phim chưa có phân loại tuổi được để mặc định `P`. Trang khách chỉ hiện những thể loại còn phim đang/sắp chiếu.
+
+### Lịch chiếu luôn cập nhật
+
+Seeder chỉ tạo suất chiếu đến 7 ngày sau ngày seed. Để web luôn có suất chiếu (nhất là **trước buổi demo**), chạy:
+
+```bash
+php artisan showtimes:refresh   # chuyển phim đến ngày khởi chiếu sang "Đang chiếu" + xếp suất chiếu 7 ngày tới
+```
+
+Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày; khi phát triển trên máy cá nhân, mở thêm một terminal chạy `php artisan schedule:work` để bộ lập lịch hoạt động.
 
 ### Tài khoản demo (mật khẩu đều là `password`)
 

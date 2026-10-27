@@ -1,6 +1,6 @@
 {
     "source": "https://moveek.com",
-    "crawled_at": "2026-10-23T15:34:50+07:00",
+    "crawled_at": "2026-10-27T15:25:34+07:00",
     "movies": [
         {
             "source_url": "https://moveek.com/phim/an-mang-karaoke-1/",
@@ -56,42 +56,22 @@
             "poster": "quy-an-tang-4-ho-tinh.webp"
         },
         {
-            "source_url": "https://moveek.com/phim/ngu-mieu-pha-an/",
-            "title": "Ngự Miêu Phá Án",
-            "description": "Tại thành cổ Kim Lăng, Triển Ngao - cận vệ thân tín của Khấu Tướng Quân - cùng chàng thiếu niên Bao Chửng, Cẩm Mao Thử và Khấu Châu, con gái của Khấu Tướng Quân, hợp sức điều tra chân tướng, phá giải những vụ án bí ẩn và từng bước khám phá một âm mưu động trời.",
-            "director": "Liang Cao",
-            "cast": "Ketsu, Wen Yu, Xiaoyi Liu, Ma Zhengyang",
-            "duration": 98,
-            "release_date": "2026-10-30",
-            "age_rating": "P",
+            "source_url": "https://moveek.com/phim/coi-nguyen/",
+            "title": "Cõi Nguyền",
+            "description": "Dựa trên loạt truyền thuyết đô thị gây chấn động Nhật Bản, Cõi Nguyền bắt nguồn từ lời nguyền của một người phụ nữ kỳ bí đã ám cô gái trẻ tên Riko chỉ với một dòng tin nhắn: “Tất cả mọi người đều đáng chết”. Kể từ thời khắc lời nguyền linh ứng, lần lượt tất cả những người bạn xung quanh Riko đều chết một cách bí ẩn và các vụ án mạng đều được đưa ra kết luận với nguyên nhân tử vong là “tự sát”. Tuy nhiên, điều kinh hoàng hơn là số lượng những vụ án mạng ngày một gia tăng khiến Riko phải tự mình lao vào vòng xoáy chết chóc để lý giải “Cõi Nguyền” rốt cuộc được gieo rắc từ đâu và làm cách nào để bản thân không trở thành nạn nhân tiếp theo.",
+            "director": "Ken'ichi Ugana",
+            "cast": "Yukino Kaizu, YU, Yutaka Kyan, Tammy Lin, Mimi Shao, Ray Fan, Mondo Otani, Chen Wan-hao, Yuhei Shirakawa, Raion Yoza, Shiho, 艾瑪, Reika Oozeki, Hironobu Nomura, Yasukaze Motomiya",
+            "duration": 89,
+            "release_date": "2026-10-23",
+            "age_rating": "T18",
             "status": "now_showing",
             "genres": [
                 "Bí ẩn",
-                "Hoạt hình",
-                "Giả tưởng"
-            ],
-            "trailer_url": "https://www.youtube.com/watch?v=zFXDG7_fOOY",
-            "poster": "ngu-mieu-pha-an.webp"
-        },
-        {
-            "source_url": "https://moveek.com/phim/shaun-the-sheep-quai-la-ghe-nha/",
-            "title": "Shaun the Sheep: Quái Lạ Ghé Nhà",
-            "description": "Shaun the Sheep: Quái Lạ Ghé Nhà bắt đầu với sự cố Ông chủ vô tình phá hỏng vườn bí ngô mà đàn cừu đang chuẩn bị cho Halloween. Để cứu vãn tình hình, Shaun trổ tài làm “nhà khoa học”, nhưng thí nghiệm lại kéo theo hàng loạt rắc rối ngoài dự tính. Khi Ông chủ mất tích và một sinh vật bí ẩn xuất hiện trong rừng, cả đàn cừu lên đường tìm kiếm Ông chủ và đối mặt với một chuyến phiêu lưu vừa quái vừa nhộn.",
-            "director": "Steve Cox, Matthew Walker",
-            "cast": "Justin Fletcher, John Sparkes, Nina Sosanya, Kate Harbour, Andy Nyman, Simon Greenall, Emma Tate, Rich Webber, Paul Whitehouse, Roman Kemp, Dani Dyer, Chris Morrell, Matthew Walker, Steve Cox",
-            "duration": 81,
-            "release_date": "2026-10-16",
-            "age_rating": "P",
-            "status": "now_showing",
-            "genres": [
-                "Hài",
-                "Phiêu lưu",
-                "Hoạt hình",
-                "Gia đình",
+                "Hồi hộp",
                 "Kinh dị"
             ],
-            "trailer_url": "https://www.youtube.com/watch?v=8q6XZq8a0iA",
-            "poster": "shaun-the-sheep-quai-la-ghe-nha.webp"
+            "trailer_url": "https://www.youtube.com/watch?v=zsMuQUkduug",
+            "poster": "coi-nguyen.webp"
         },
         {
             "source_url": "https://moveek.com/phim/oan-linh-doi-mang/",
@@ -112,24 +92,6 @@
             "poster": "oan-linh-doi-mang.webp"
         },
         {
-            "source_url": "https://moveek.com/phim/coi-nguyen/",
-            "title": "Cõi Nguyền",
-            "description": "Dựa trên loạt truyền thuyết đô thị gây chấn động Nhật Bản, Cõi Nguyền bắt nguồn từ lời nguyền của một người phụ nữ kỳ bí đã ám cô gái trẻ tên Riko chỉ với một dòng tin nhắn: “Tất cả mọi người đều đáng chết”. Kể từ thời khắc lời nguyền linh ứng, lần lượt tất cả những người bạn xung quanh Riko đều chết một cách bí ẩn và các vụ án mạng đều được đưa ra kết luận với nguyên nhân tử vong là “tự sát”. Tuy nhiên, điều kinh hoàng hơn là số lượng những vụ án mạng ngày một gia tăng khiến Riko phải tự mình lao vào vòng xoáy chết chóc để lý giải “Cõi Nguyền” rốt cuộc được gieo rắc từ đâu và làm cách nào để bản thân không trở thành nạn nhân tiếp theo.",
-            "director": "Ken'ichi Ugana",
-            "cast": "Yukino Kaizu, YU, Yutaka Kyan, Tammy Lin, Mimi Shao, Ray Fan, Mondo Otani, Chen Wan-hao, Yuhei Shirakawa, Raion Yoza, Shiho, 艾瑪, Reika Oozeki, Hironobu Nomura, Yasukaze Motomiya",
-            "duration": 89,
-            "release_date": "2026-10-23",
-            "age_rating": "T18",
-            "status": "now_showing",
-            "genres": [
-                "Bí ẩn",
-                "Hồi hộp",
-                "Kinh dị"
-            ],
-            "trailer_url": "https://www.youtube.com/watch?v=zsMuQUkduug",
-            "poster": "coi-nguyen.webp"
-        },
-        {
             "source_url": "https://moveek.com/phim/bambi-lanh-dia-san-moi/",
             "title": "Bambi: Lãnh Địa Săn Mồi",
             "description": "Bộ phim kể về Bambi, một chú nai bị đột biến sau khi nai mẹ bị thợ săn sát hại và môi trường sống bị ô nhiễm nghiêm trọng. Trở thành một sinh vật khổng lồ và hung dữ, Bambi bắt đầu hành trình trả thù con người. Câu chuyện xoay quanh một người mẹ và con trai bị mắc kẹt giữa khu rừng, nơi họ trở thành con mồi của sinh vật đáng sợ này.",
@@ -145,6 +107,26 @@
             ],
             "trailer_url": "https://www.youtube.com/watch?v=_6mbpOiCWw0",
             "poster": "bambi-lanh-dia-san-moi.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/shaun-the-sheep-quai-la-ghe-nha/",
+            "title": "Shaun the Sheep: Quái Lạ Ghé Nhà",
+            "description": "Shaun the Sheep: Quái Lạ Ghé Nhà bắt đầu với sự cố Ông chủ vô tình phá hỏng vườn bí ngô mà đàn cừu đang chuẩn bị cho Halloween. Để cứu vãn tình hình, Shaun trổ tài làm “nhà khoa học”, nhưng thí nghiệm lại kéo theo hàng loạt rắc rối ngoài dự tính. Khi Ông chủ mất tích và một sinh vật bí ẩn xuất hiện trong rừng, cả đàn cừu lên đường tìm kiếm Ông chủ và đối mặt với một chuyến phiêu lưu vừa quái vừa nhộn.",
+            "director": "Steve Cox, Matthew Walker",
+            "cast": "Justin Fletcher, John Sparkes, Nina Sosanya, Kate Harbour, Andy Nyman, Simon Greenall, Emma Tate, Rich Webber, Paul Whitehouse, Roman Kemp, Dani Dyer, Chris Morrell, Matthew Walker, Steve Cox",
+            "duration": 81,
+            "release_date": "2026-10-16",
+            "age_rating": "P",
+            "status": "now_showing",
+            "genres": [
+                "Hài",
+                "Phiêu lưu",
+                "Hoạt hình",
+                "Gia đình",
+                "Kinh dị"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=8q6XZq8a0iA",
+            "poster": "shaun-the-sheep-quai-la-ghe-nha.webp"
         },
         {
             "source_url": "https://moveek.com/phim/bi-mat-bi-chon-vui/",
@@ -229,6 +211,23 @@
             ],
             "trailer_url": "https://www.youtube.com/watch?v=8qy8tHRKQoA",
             "poster": "nguoi-me-khac.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/blue-lock-cuoc-chien-cua-nhung-tien-dao/",
+            "title": "Blue Lock: Cuộc Chiến Của Những Tiền Đạo",
+            "description": "Nội Dung Phim Theo chân 300 cầu thủ bóng đá trung học tham gia những vòng tuyển chọn khắc nghiệt tại một cơ sở huấn luyện bí mật, nơi chỉ một người duy nhất có thể vươn lên trở thành tiền đạo xuất sắc nhất thế giới, còn những người bị loại sẽ bị cấm thi đấu cho Đội tuyển Quốc gia Nhật Bản. Bộ truyện tranh bán chạy hàng đầu Blue Lock được chuyển thể thành Live action.",
+            "director": "Yusuke Taki",
+            "cast": "Fumiya Takahashi, Kaito Sakurai, Kyohei Takahashi, Kouta Nomura, Yuzu Aoki, Sho Nishigaki, Yuki Tachibana, Raizou Ishikawa, Joey Iwanaga, Shunya Asano, Sakurai Yuki, Kura Yuki, K, Keito Tsuna, Kouhei Higuchi, Sousyo Tomimoto, Keisuke Kida, Ryota Miura",
+            "duration": 127,
+            "release_date": "2026-10-09",
+            "age_rating": "P",
+            "status": "now_showing",
+            "genres": [
+                "Hành động",
+                "Tâm lý"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=9spa9_P9dRY",
+            "poster": "blue-lock-cuoc-chien-cua-nhung-tien-dao.webp"
         },
         {
             "source_url": "https://moveek.com/phim/trai-tim-quai-thu/",
@@ -388,6 +387,25 @@
             "poster": "ho-linh-trang-si-bi-an-mo-vua-dinh-rut-gon.webp"
         },
         {
+            "source_url": "https://moveek.com/phim/chiikawa-bi-mat-dao-nguoi-ca/",
+            "title": "Chiikawa: Bí Mật Đảo Người Cá",
+            "description": "Bộ ba Chiikawa, Hachiware và Usagi nhận được một lời mời tham gia chuyến đi đến hòn đảo đặc biệt với những phần thưởng và đồ ăn miễn phí. Cả nhóm cùng lên đường phiêu lưu ra đảo cùng với nhân vật Rakko – người vốn mang lòng hoài nghi về những lời hứa hẹn trong tờ rơi. Hòn đảo tưởng chừng vui vẻ này lại ẩn chứa nhiều điều kỳ bí và bí mật lâu đời liên quan đến người cá.",
+            "director": "Kei Oikawa",
+            "cast": "Haruka Aoki, Makoto Tanaka, Ari Ozawa, Yuka Iguchi, Takayuki Asai, Yuma Uchida, Miyuri Shimabukuro, Momo Harumi, Tsuguo Mogami, Minori Suzuki, Momoka Terasawa, Sayumi Suzushiro, Saeko Oki, Ayaka Nanase",
+            "duration": 99,
+            "release_date": "2026-08-28",
+            "age_rating": "P",
+            "status": "now_showing",
+            "genres": [
+                "Phiêu lưu",
+                "Hoạt hình",
+                "Gia đình",
+                "Giả tưởng"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=8LJm14u1o-E",
+            "poster": "chiikawa-bi-mat-dao-nguoi-ca.webp"
+        },
+        {
             "source_url": "https://moveek.com/phim/tau-buon-nguoi/",
             "title": "Tàu Buôn Người",
             "description": "Mutiny (Tàu Buôn Người) kể về Cole Reed do Jason Statham thủ vai, sau khi tận mắt chứng kiến ông chủ tỷ phú của mình bị sát hại và bản thân trở thành kẻ thế thân bị vu oan, Cole Reed (Jason Statham) đã đột nhập lên một con tàu chở hàng để bắt đầu hành trình truy tìm sự thật và trả thù cho vị sếp cũ. Tuy nhiên, chuyến đi đơn độc này lại đẩy anh vào nguy hiểm khi Cole vô tình bóc trần một âm mưu quốc tế quy mô và cực kỳ nguy hiểm.",
@@ -441,23 +459,6 @@
             "poster": "the-odyssey.webp"
         },
         {
-            "source_url": "https://moveek.com/phim/5-centimet-tren-giay-live-action/",
-            "title": "5 Centimet Trên Giây live action",
-            "description": "Mùa xuân năm 1991, Takaki và Akari gặp nhau khi còn học tiểu học và nhanh chóng trở nên thân thiết. Dù Akari phải chuyển nhà, họ vẫn duy trì liên lạc bằng những lá thư chân thành. Trước khi Takaki chuyển đi xa hơn, hai người đã hẹn nhau sẽ gặp lại. Năm 2008, cả hai đã trưởng thành và sống những cuộc đời riêng. Những ký ức ngày xưa và linh cảm về lời hẹn năm nào vẫn âm ỉ trong họ. Những lời hứa ấy vẫn lặng lẽ trôi đi như cánh hoa anh đào rơi với vận tốc 5 centimet mỗi giây.",
-            "director": "Yoshiyuki Okuyama",
-            "cast": "Hokuto Matsumura, Mitsuki Takahata, Yuzu Aoki, Nana Mori, Mai Kiryu, Haruto Ueda, Noa Shiroyama, Aoi Miyazaki, Hidetaka Yoshioka, Takashi Okabe, Seina Nakata, Kentaro Tamura, Junki Tozuka, Naoki Matayoshi, Keiko Horiuchi",
-            "duration": 122,
-            "release_date": "2026-01-16",
-            "age_rating": "T13",
-            "status": "now_showing",
-            "genres": [
-                "Tình cảm",
-                "Tâm lý"
-            ],
-            "trailer_url": "https://www.youtube.com/watch?v=FymNEAMSgAA",
-            "poster": "5-centimet-tren-giay-live-action.webp"
-        },
-        {
             "source_url": "https://moveek.com/phim/spy-family-code-white/",
             "title": "Gia Đình x Điệp Viên Mã: Trắng",
             "description": "Trong phần phim điện ảnh lần này, sau khi nhận được yêu cầu thay thế mình trong Chiến dịch Strix, Loid Forger quyết định giúp con gái Anya chiến thắng trong cuộc thi nấu ăn tại Học viện Eden bằng cách nấu bữa ăn yêu thích của hiệu trưởng để tránh bị thay thế khỏi nhiệm vụ mật. Nhưng từ đây, gia đình Forger phát hiện ra bí mật kinh hoàng ảnh hưởng đến hòa bình thế giới.",
@@ -483,7 +484,7 @@
             "director": "Goro Miyazaki",
             "cast": "Masami Nagasawa, Junichi Okada, Keiko Takeshita, Yuriko Ishida, Rumi Hiiragi, Jun Fubuki, Takashi Naitô, Shunsuke Kazama, Nao Ōmori, Teruyuki Kagawa, Haruka Shiraishi, Tsubasa Kobayashi, Aoi Teshima, Goro Miyazaki",
             "duration": 91,
-            "release_date": "2026-10-23",
+            "release_date": "2026-10-27",
             "age_rating": "P",
             "status": "now_showing",
             "genres": [
@@ -492,6 +493,73 @@
             ],
             "trailer_url": null,
             "poster": "from-up-on-poppy-hill.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/seventeen-world-tour-new/",
+            "title": "SEVENTEEN World Tour [New_]",
+            "description": "SEVENTEEN mang chuyến lưu diễn thế giới New_ đến khán giả tại rạp. Đây là tour diễn đánh dấu chặng đường mới của nhóm sau cột mốc 10 năm hoạt động.",
+            "director": "Yum Tae-hwan",
+            "cast": "S.Coups, Yoon Jeong-han, Joshua Hong, Jun, Hoshi, Jeon Won-woo, Woozi, The8, Kim Min-gyu, DK, Boo Seung-kwan, Hansol Vernon Chwe, Dino",
+            "duration": 103,
+            "release_date": "2026-10-27",
+            "age_rating": "T13",
+            "status": "now_showing",
+            "genres": [
+                "Âm nhạc",
+                "Tài liệu"
+            ],
+            "trailer_url": null,
+            "poster": "seventeen-world-tour-new.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/txt-world-tour-act-tomorrow/",
+            "title": "TXT World Tour 'Act : Tomorrow'",
+            "description": "Tomorrow X Together xuất hiện với Act: Tomorrow, được ghi lại từ chuyến lưu diễn thế giới thứ tư của nhóm.",
+            "director": null,
+            "cast": "Soobin, Yeonjun, Beomgyu, Taehyun, HueningKai",
+            "duration": 97,
+            "release_date": "2026-10-27",
+            "age_rating": "P",
+            "status": "now_showing",
+            "genres": [
+                "Âm nhạc",
+                "Tài liệu"
+            ],
+            "trailer_url": null,
+            "poster": "txt-world-tour-act-tomorrow.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/enhypen-world-tour-blood-saga/",
+            "title": "ENHYPEN World Tour 'Blood Saga'",
+            "description": "Blood saga của Enhypen sẽ tái hiện concert mở màn tại Seoul với sân khấu lấy cảm hứng từ thế giới giả tưởng ma cà rồng quen thuộc của nhóm.",
+            "director": "Kim Yun-jeong",
+            "cast": "Jungwon, Jay, Jake, Sunghoon, Sunoo, NI-KI",
+            "duration": 101,
+            "release_date": "2026-10-27",
+            "age_rating": "T13",
+            "status": "now_showing",
+            "genres": [
+                "Âm nhạc",
+                "Tài liệu"
+            ],
+            "trailer_url": null,
+            "poster": "enhypen-world-tour-blood-saga.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/hybe-cheering-party/",
+            "title": "Hybe Cheering Party",
+            "description": "Trải nghiệm đồng điệu với concept \"Ánh sáng đoàn kết bởi sự cổ vũ\", nơi fan có thể hát theo (với lời bài hát La Mã hóa và fan chant hiển thị trên màn hình), dùng gậy phát sáng và xem video âm nhạc/trình diễn của 13 nghệ sĩ/nhóm nhạc thuộc HYBE (BTS, Seventeen, TXT, Enhypen, Le Sserafim, &Team, Boynextdoor, TWS, Illit, Katseye, aoen, Cortis, Santos Bravos).",
+            "director": "Park Sang-geun, Kim Jin-eui",
+            "cast": "Kim Nam-joon, Kim Seok-jin, Min Yoon-gi, Jung Ho-seok, Park Ji-min, Kim Tae-hyung, Jeon Jung-kook, Soobin, Yeonjun, Beomgyu, Taehyun, HueningKai, Jungwon, Jay, Jake, Sunghoon, Sunoo, NI-KI, Kim Chae-won, Sakura Miyawaki, HUH YUNJIN, KAZUHA, HONG EUNCHAE",
+            "duration": 60,
+            "release_date": "2026-10-27",
+            "age_rating": "T13",
+            "status": "now_showing",
+            "genres": [
+                "Âm nhạc"
+            ],
+            "trailer_url": null,
+            "poster": "hybe-cheering-party.webp"
         },
         {
             "source_url": "https://moveek.com/phim/khoa-chat-cua-nao-suzume/",
@@ -519,7 +587,7 @@
             "director": "killerin",
             "cast": "Aki Asakura, Kengo Kôra, Nobuko Miyamoto, Atsuko Takahata, Tomoko Tabata, Hidetoshi Nishijima, Chloe Moretz, Darren Criss, James Caan, Mary Steenburgen, Lucy Liu, Hynden Walch, George Segal, James Marsden, Dean Cain, Beau Bridges, Oliver Platt",
             "duration": 137,
-            "release_date": "2026-10-23",
+            "release_date": "2026-10-27",
             "age_rating": "P",
             "status": "now_showing",
             "genres": [
@@ -529,23 +597,6 @@
             ],
             "trailer_url": "https://www.youtube.com/watch?v=zfUP3ljq23o",
             "poster": "the-tale-of-the-princess-kaguya.webp"
-        },
-        {
-            "source_url": "https://moveek.com/phim/phim-dien-anh-ve-bo-doi-anh-hung-2026-kamen-rider-zeztz-sieu-canh-sat-vu-tru-gavan-infinity/",
-            "title": "Bộ Đôi Anh Hùng 2026: Kamen Rider Zeztz & Siêu Cảnh sát Vũ trụ Gavan Infinity",
-            "description": "Trụ sở Cảnh sát Quốc gia bị đánh bom, Yorozu Baku (Zeztz) trở thành nghi phạm số một và bị truy nã toàn quốc. Odaka Kensei (Nox) quyết tâm tìm ra kẻ đứng sau – Kamen Rider Mugen. Cùng sát cánh, Zeztz và Nox đối đầu Mugen, nhưng bí ẩn đã ập đảo bởi năng lực “Mộng giữa Ban ngày” có thể thao túng thực tại. Baku buộc phải đưa ra quyết định tàn khốc. Mặt Trời của Trái Đất Đa Nguyên A0073 bị Không Gian Ma Giới nuốt chửng, đổi lại kẻ thù yêu cầu mạng Gavan. Reiji bàng hoàng phát hiện Gavan Killer chính là Hase Makoto, tiền bối anh kính trọng. Khi Reiji rơi vào tuyệt vọng, các Gavan từ khắp đa chiều không gian đồng loạt hội tụ, mở màn trận chiến đa vũ trụ nhằm vạch trần âm mưu thực sự.",
-            "director": "Kazuya Kamihoriuchi",
-            "cast": "Ryutaro Imai, Yuki Furukawa, Shunta Sono, Maho Horiguchi, Kenta Mishima, Rina Onuki, Yagi Miki, Yuki Tamaki, Shin Koyanagi, Yuzuki Hirakawa, Jay Kabira, Kousei Amano, Mimura, Aoyama Himeno, Ayana Taketatsu, Nakamoto Yuta, Kouichi Yamadera, Hiro Shimono",
-            "duration": 95,
-            "release_date": "2026-10-30",
-            "age_rating": "P",
-            "status": "coming_soon",
-            "genres": [
-                "Hành động",
-                "Khoa học viễn tưởng"
-            ],
-            "trailer_url": "https://www.youtube.com/watch?v=nAITH2SRdSE",
-            "poster": "phim-dien-anh-ve-bo-doi-anh-hung-2026-kamen-rider-zeztz-sieu-canh-sat-vu-tru-gavan-infinity.webp"
         },
         {
             "source_url": "https://moveek.com/phim/clayface/",
@@ -566,6 +617,23 @@
             "poster": "clayface.webp"
         },
         {
+            "source_url": "https://moveek.com/phim/phim-dien-anh-ve-bo-doi-anh-hung-2026-kamen-rider-zeztz-sieu-canh-sat-vu-tru-gavan-infinity/",
+            "title": "Bộ Đôi Anh Hùng 2026: Kamen Rider Zeztz & Siêu Cảnh sát Vũ trụ Gavan Infinity",
+            "description": "Trụ sở Cảnh sát Quốc gia bị đánh bom, Yorozu Baku (Zeztz) trở thành nghi phạm số một và bị truy nã toàn quốc. Odaka Kensei (Nox) quyết tâm tìm ra kẻ đứng sau – Kamen Rider Mugen. Cùng sát cánh, Zeztz và Nox đối đầu Mugen, nhưng bí ẩn đã ập đảo bởi năng lực “Mộng giữa Ban ngày” có thể thao túng thực tại. Baku buộc phải đưa ra quyết định tàn khốc. Mặt Trời của Trái Đất Đa Nguyên A0073 bị Không Gian Ma Giới nuốt chửng, đổi lại kẻ thù yêu cầu mạng Gavan. Reiji bàng hoàng phát hiện Gavan Killer chính là Hase Makoto, tiền bối anh kính trọng. Khi Reiji rơi vào tuyệt vọng, các Gavan từ khắp đa chiều không gian đồng loạt hội tụ, mở màn trận chiến đa vũ trụ nhằm vạch trần âm mưu thực sự.",
+            "director": "Kazuya Kamihoriuchi",
+            "cast": "Ryutaro Imai, Yuki Furukawa, Shunta Sono, Maho Horiguchi, Kenta Mishima, Rina Onuki, Yagi Miki, Yuki Tamaki, Shin Koyanagi, Yuzuki Hirakawa, Jay Kabira, Kousei Amano, Mimura, Aoyama Himeno, Ayana Taketatsu, Nakamoto Yuta, Kouichi Yamadera, Hiro Shimono",
+            "duration": 95,
+            "release_date": "2026-10-30",
+            "age_rating": "P",
+            "status": "coming_soon",
+            "genres": [
+                "Hành động",
+                "Khoa học viễn tưởng"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=nAITH2SRdSE",
+            "poster": "phim-dien-anh-ve-bo-doi-anh-hung-2026-kamen-rider-zeztz-sieu-canh-sat-vu-tru-gavan-infinity.webp"
+        },
+        {
             "source_url": "https://moveek.com/phim/chi-chi-em-em-3/",
             "title": "Chị Chị Em Em 3",
             "description": "Giữa xã hội Bắc Bộ cũ đầy lễ giáo và những khuôn phép khắt khe, Thị Mầu – tiểu thư nổi tiếng tài sắc nhất vùng – bước vào một thế giới nơi tình yêu chưa bao giờ là chuyện của riêng hai người. Những rung động bị che giấu, những mối quan hệ chồng chéo và những lựa chọn trái với khuôn phép dần tạo nên một mạng nhện tình cảm rối ren, nơi mỗi người đều có một bí mật, một toan tính và một người không thể gọi tên. Khi tình yêu và danh dự không thể cùng tồn tại, liệu ai sẽ là người thoát khỏi mạng nhện ấy – và ai sẽ phải trả giá cho thứ tình cảm mình không thể cưỡng lại?",
@@ -581,6 +649,42 @@
             ],
             "trailer_url": "https://www.youtube.com/watch?v=VscsxZKSBf4",
             "poster": "chi-chi-em-em-3.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/ngu-mieu-pha-an/",
+            "title": "Ngự Miêu Phá Án",
+            "description": "Tại thành cổ Kim Lăng, Triển Ngao - cận vệ thân tín của Khấu Tướng Quân - cùng chàng thiếu niên Bao Chửng, Cẩm Mao Thử và Khấu Châu, con gái của Khấu Tướng Quân, hợp sức điều tra chân tướng, phá giải những vụ án bí ẩn và từng bước khám phá một âm mưu động trời.",
+            "director": "Liang Cao",
+            "cast": "Ketsu, Wen Yu, Xiaoyi Liu, Ma Zhengyang",
+            "duration": 98,
+            "release_date": "2026-10-30",
+            "age_rating": "P",
+            "status": "coming_soon",
+            "genres": [
+                "Bí ẩn",
+                "Hoạt hình",
+                "Giả tưởng"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=zFXDG7_fOOY",
+            "poster": "ngu-mieu-pha-an.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/thien-duong-tam-toi/",
+            "title": "Thiên Đường Tăm Tối",
+            "description": "Thiên Đường Tăm Tối xoay quanh hành trình bi thương của So-young - một người mẹ bất ngờ mất đi đứa con của mình. Giữa nỗi đau tận cùng, So-young tìm thấy niềm an ủi khi kết nối với hình ảnh cậu con trai Sun-woo đã mất tích thông qua kính AR. Chín năm sau, điều tưởng như không thể xảy ra: Sun-woo thật sự trở về, nay đã là một chàng trai trưởng thành. Thế nhưng, cuộc đoàn tụ không mang đến hạnh phúc mà một lần nữa đẩy So-young vào tuyệt vọng khi người con trai trở về giờ đây xa lạ và lạnh lùng, trong khi phiên bản Sun-woo ảo lại ngày càng cần đến cô, buộc cô phải đối diện với lựa chọn đau đớn giữa thực tại và một thế giới được tạo nên từ ký ức.",
+            "director": "Yeon Sang-ho",
+            "cast": "Kim Hyun-joo, Bae Hyun-sung, Kim Jong-tae, Lee Hyun-kyun, Koo Kyo-hwan, Lee Yoo-joo, Yu Ji-wan",
+            "duration": 101,
+            "release_date": "2026-11-06",
+            "age_rating": "P",
+            "status": "coming_soon",
+            "genres": [
+                "Tâm lý",
+                "Hồi hộp",
+                "Khoa học viễn tưởng"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=Ut4iV_ttQB4",
+            "poster": "thien-duong-tam-toi.webp"
         },
         {
             "source_url": "https://moveek.com/phim/paket-santet-don-hang-ma-am/",
@@ -599,6 +703,24 @@
             ],
             "trailer_url": null,
             "poster": "paket-santet-don-hang-ma-am.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/godzilla-tru-khong/",
+            "title": "Godzilla Trừ Không",
+            "description": "Chiến tranh đã đưa Nhật Bản về con số 0, Godzilla đã kéo con số ấy lao dốc xuống số âm. Đã hai năm kể từ cuộc chiến, đất nước đang đấu tranh để phục hồi và họ cuối cùng đã lấy lại được cuộc sống thường nhật. Ngay khi nhân loại cố bám giữ sự yên bình mong manh vừa giành lại được, thì một mối đe dọa mới xuất hiện, nghiền nát tất cả hy vọng. Không còn cơ hội nào nữa. Tất cả sẽ kết thúc tại đây.",
+            "director": "Takashi Yamazaki",
+            "cast": "Ryûnosuke Kamiki, Minami Hamabe, Yuki Yamada, Kuranosuke Sasaki, Jun Kunimura, Miou Tanaka, Sakura Ando, Masami Nagasawa, Min Tanaka, Hidetaka Yoshioka, Munetaka Aoki, Saki Nakatani, Wes Wing",
+            "duration": 135,
+            "release_date": "2026-11-06",
+            "age_rating": "P",
+            "status": "coming_soon",
+            "genres": [
+                "Hành động",
+                "Kinh dị",
+                "Khoa học viễn tưởng"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=-HhqsE1gK38",
+            "poster": "godzilla-tru-khong.webp"
         },
         {
             "source_url": "https://moveek.com/phim/chang-meo-mang-mu/",
@@ -638,56 +760,6 @@
             "poster": "bo-sua-bay.webp"
         },
         {
-            "source_url": "https://moveek.com/phim/thien-duong-da-mat/",
-            "title": "Thiên Đường Đã Mất",
-            "description": "Bộ phim Thiên Đường Tăm Tối xoay quanh hành trình bi thương của So-young - một người mẹ bất ngờ mất đi đứa con của mình. Giữa nỗi đau tận cùng, So-young tìm thấy niềm an ủi khi kết nối với hình ảnh cậu con trai Sun-woo đã mất tích thông qua một chiếc kính tích hợp công nghệ AI. Chín năm sau, điều tưởng như không thể xảy ra: Sun-woo “bằng xương bằng thịt” thật sự trở về, nay đã là một chàng trai trưởng thành. Thế nhưng, cuộc đoàn tụ không mang đến hạnh phúc mà một lần nữa đẩy So-young vào tuyệt vọng khi người con trai trở về giờ đây xa lạ và lạnh lùng, trong khi phiên bản Sun-woo ảo lại ngày càng cần đến cô, buộc cô phải đối diện với lựa chọn đau đớn giữa thực tại và một thế giới được tạo nên từ ký ức.",
-            "director": "Yeon Sang-ho",
-            "cast": "Kim Hyun-joo, Bae Hyun-sung, Kim Jong-tae, Lee Hyun-kyun, Koo Kyo-hwan, Lee Yoo-joo, Yu Ji-wan",
-            "duration": 101,
-            "release_date": "2026-11-06",
-            "age_rating": "P",
-            "status": "coming_soon",
-            "genres": [
-                "Tâm lý",
-                "Hồi hộp",
-                "Khoa học viễn tưởng"
-            ],
-            "trailer_url": null,
-            "poster": "thien-duong-da-mat.webp"
-        },
-        {
-            "source_url": "https://moveek.com/phim/godzilla-tru-khong/",
-            "title": "Godzilla Trừ Không",
-            "description": "Chiến tranh đã đưa Nhật Bản về con số 0, Godzilla đã kéo con số ấy lao dốc xuống số âm. Đã hai năm kể từ cuộc chiến, đất nước đang đấu tranh để phục hồi và họ cuối cùng đã lấy lại được cuộc sống thường nhật. Ngay khi nhân loại cố bám giữ sự yên bình mong manh vừa giành lại được, thì một mối đe dọa mới xuất hiện, nghiền nát tất cả hy vọng. Không còn cơ hội nào nữa. Tất cả sẽ kết thúc tại đây.",
-            "director": "Takashi Yamazaki",
-            "cast": "Ryûnosuke Kamiki, Minami Hamabe, Yuki Yamada, Kuranosuke Sasaki, Jun Kunimura, Miou Tanaka, Sakura Ando, Masami Nagasawa, Min Tanaka, Hidetaka Yoshioka, Munetaka Aoki, Saki Nakatani, Wes Wing",
-            "duration": 135,
-            "release_date": "2026-11-06",
-            "age_rating": "P",
-            "status": "coming_soon",
-            "genres": [
-                "Hành động",
-                "Kinh dị",
-                "Khoa học viễn tưởng"
-            ],
-            "trailer_url": "https://www.youtube.com/watch?v=-HhqsE1gK38",
-            "poster": "godzilla-tru-khong.webp"
-        },
-        {
-            "source_url": "https://moveek.com/phim/nguoi-duoc-chon/",
-            "title": "Người Được Chọn",
-            "description": "Phim điện ảnh đầu tiên của Việt Nam về hầu đồng",
-            "director": "Mai Thế Hiệp, Tạ Nguyên Hiệp",
-            "cast": "Hoài Linh, Hạnh Thúy",
-            "duration": null,
-            "release_date": "2026-11-06",
-            "age_rating": "P",
-            "status": "coming_soon",
-            "genres": [],
-            "trailer_url": null,
-            "poster": "nguoi-duoc-chon.webp"
-        },
-        {
             "source_url": "https://moveek.com/phim/ngay-con-con-me/",
             "title": "Ngày Con Còn Mẹ",
             "description": "Có những đứa con dành cả tuổi thơ chỉ để chứng minh mình xứng đáng được yêu thương. Và cũng có những người mẹ dành cả đời để yêu con theo cách mà con chẳng thể nào hiểu nổi.\nMây lớn lên với niềm tin sắt đá rằng trong tim bà Tím, anh Hai Pháo luôn là tất cả. Nỗi đau bị \"bỏ quên\" khiến cô biến mọi câu chuyện thành tranh cãi, dựng nên bức tường im lặng giữa hai mẹ con. Cho đến khi biến cố bất ngờ ập xuống, Mây mới bàng hoàng nhận ra: điều đau đớn nhất không phải là chưa từng được yêu, mà là cô đã dành trọn thanh xuân để trách một người mẹ... mà chưa từng thật sự hiểu bà.",
@@ -718,7 +790,7 @@
                 "Hoạt hình",
                 "Gia đình"
             ],
-            "trailer_url": null,
+            "trailer_url": "https://www.youtube.com/watch?v=VQHhGUTvVcc",
             "poster": "tham-tu-sieu-mong-ngoi-sao-va-mat-trang.webp"
         },
         {
@@ -735,26 +807,8 @@
                 "Hài",
                 "Giả tưởng"
             ],
-            "trailer_url": null,
+            "trailer_url": "https://www.youtube.com/watch?v=PiaHewTuzSk",
             "poster": "ebenezer-phep-mau-dem-giang-sinh.webp"
-        },
-        {
-            "source_url": "https://moveek.com/phim/dau-truong-sinh-tu-binh-minh-ngay-chieu-quan/",
-            "title": "Đấu Trường Sinh Tử: Bình Minh Ngày Chiêu Quân",
-            "description": "Được chuyển thể từ cuốn tiểu thuyết cùng tên, Đấu Trường Sinh Tử: Bình Minh Ngày Chiêu Quân sẽ đưa khán giả trở lại Panem 24 năm trước những sự kiện trong phần phim Đấu Trường Sinh Tử đầu tiên, bắt đầu vào buổi sáng diễn ra Lễ Chiêu Quân lần thứ 50, hay còn được biết đến với tên gọi Huyết trường Tứ phân lần thứ hai.",
-            "director": "Francis Lawrence",
-            "cast": "Joseph Zada, Ralph Fiennes, Jesse Plemons, Mckenna Grace, Whitney Peak, Elle Fanning, Maya Hawke, Lili Taylor, Glenn Close, Kieran Culkin, Kelvin Harrison Jr., Ben Wang, Molly McCann, Iona Bell, Billy Porter, Jhaleil Swaby, Laura Marcus, Percy Daggs IV",
-            "duration": 158,
-            "release_date": "2026-11-20",
-            "age_rating": "P",
-            "status": "coming_soon",
-            "genres": [
-                "Hành động",
-                "Phiêu lưu",
-                "Khoa học viễn tưởng"
-            ],
-            "trailer_url": null,
-            "poster": "dau-truong-sinh-tu-binh-minh-ngay-chieu-quan.webp"
         },
         {
             "source_url": "https://moveek.com/phim/trai-giam-hanh-phuc/",
@@ -773,6 +827,57 @@
             ],
             "trailer_url": "https://www.youtube.com/watch?v=bELTu3osdPo",
             "poster": "trai-giam-hanh-phuc.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/dau-truong-sinh-tu-binh-minh-ngay-chieu-quan/",
+            "title": "Đấu Trường Sinh Tử: Bình Minh Ngày Chiêu Quân",
+            "description": "Được chuyển thể từ cuốn tiểu thuyết cùng tên, Đấu Trường Sinh Tử: Bình Minh Ngày Chiêu Quân sẽ đưa khán giả trở lại Panem 24 năm trước những sự kiện trong phần phim Đấu Trường Sinh Tử đầu tiên, bắt đầu vào buổi sáng diễn ra Lễ Chiêu Quân lần thứ 50, hay còn được biết đến với tên gọi Huyết trường Tứ phân lần thứ hai.",
+            "director": "Francis Lawrence",
+            "cast": "Joseph Zada, Ralph Fiennes, Jesse Plemons, Mckenna Grace, Whitney Peak, Elle Fanning, Maya Hawke, Lili Taylor, Glenn Close, Kieran Culkin, Kelvin Harrison Jr., Ben Wang, Molly McCann, Iona Bell, Billy Porter, Jhaleil Swaby, Laura Marcus, Percy Daggs IV",
+            "duration": 158,
+            "release_date": "2026-11-20",
+            "age_rating": "P",
+            "status": "coming_soon",
+            "genres": [
+                "Hành động",
+                "Phiêu lưu",
+                "Khoa học viễn tưởng"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=xRqWx_hQEI8",
+            "poster": "dau-truong-sinh-tu-binh-minh-ngay-chieu-quan.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/me-min/",
+            "title": "Mẹ Mìn",
+            "description": "Mẹ Mìn là phim điện ảnh Việt Nam mang màu sắc bí ẩn, tâm lý và hồi hộp, do Jack Carry On đạo diễn. Phim xoay quanh Mẹ Mìn, nhân vật đầy bí ẩn với khả năng đáp ứng mong ước của mọi người. Thế nhưng không điều ước nào được thực hiện mà không kèm theo một điều kiện. Tham gia diễn xuất có Minh Hằng, Nhật Kim Anh, Rima Thanh Vy, Khương Lê và Đại Nghĩa.",
+            "director": "Jack Carry On",
+            "cast": "Minh Hằng, Nhật Kim Anh, Rima Thanh Vy, Khương Lê, Phát La, Đại Nghĩa",
+            "duration": null,
+            "release_date": "2026-11-27",
+            "age_rating": "P",
+            "status": "coming_soon",
+            "genres": [
+                "Tâm lý",
+                "Bí ẩn"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=id8VtoJBQr4",
+            "poster": "me-min.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/you-can-see-everything/",
+            "title": "You Can See Everything",
+            "description": "Thirty-four days before she's sent to prison, notorious Silicon Valley founder Elizabeth Holmes invites a skeptical film crew to document her every move. What begins as an intimate portrait of an enigmatic felon becomes a mind-bending three-year journey into the abyss.",
+            "director": "Nathan Fielder, Lance Oppenheim",
+            "cast": "Elizabeth Holmes, Nathan Fielder, Billy Evans, Amanda Seyfried, Christopher Abbott, Lance Oppenheim, Christian Rasmus Holmes IV, Noel Anne, Gary Wilmes, Phillip Andre Botello",
+            "duration": 174,
+            "release_date": "2026-11-27",
+            "age_rating": "P",
+            "status": "coming_soon",
+            "genres": [
+                "Tài liệu"
+            ],
+            "trailer_url": null,
+            "poster": "you-can-see-everything.webp"
         },
         {
             "source_url": "https://moveek.com/phim/hexed-the-gioi-phep-thuat/",
@@ -812,21 +917,21 @@
             "poster": "focker-in-law.webp"
         },
         {
-            "source_url": "https://moveek.com/phim/me-min/",
-            "title": "Mẹ Mìn",
-            "description": "Mẹ Mìn là phim điện ảnh Việt Nam mang màu sắc bí ẩn, tâm lý và hồi hộp, do Jack Carry On đạo diễn. Phim xoay quanh Mẹ Mìn, nhân vật đầy bí ẩn với khả năng đáp ứng mong ước của mọi người. Thế nhưng không điều ước nào được thực hiện mà không kèm theo một điều kiện. Tham gia diễn xuất có Minh Hằng, Nhật Kim Anh, Rima Thanh Vy, Khương Lê và Đại Nghĩa.",
-            "director": "Jack Carry On",
-            "cast": "Minh Hằng, Nhật Kim Anh, Rima Thanh Vy, Khương Lê, Phát La, Đại Nghĩa",
+            "source_url": "https://moveek.com/phim/bat-ca-ba-tay/",
+            "title": "Bắt Cá Ba Tay",
+            "description": "Cánh cửa mở ra, trước mắt nàng là ba chàng trai. Một người trưởng thành lịch lãm, một người dịu dàng ấm áp và một \"hồng hài nhi\" tươi trẻ cá tính. Mỗi chàng đều có những sức hút riêng, liệu nàng sẽ chọn ai trao trái tim mình?",
+            "director": "Như Trang",
+            "cast": "Steven Nguyễn, Ngô Kiến Huy, Thúy Ngân, Otis",
             "duration": null,
-            "release_date": "2026-11-27",
+            "release_date": "2026-12-04",
             "age_rating": "P",
             "status": "coming_soon",
             "genres": [
-                "Tâm lý",
-                "Bí ẩn"
+                "Tình cảm",
+                "Tâm lý"
             ],
-            "trailer_url": "https://www.youtube.com/watch?v=id8VtoJBQr4",
-            "poster": "me-min.webp"
+            "trailer_url": null,
+            "poster": "bat-ca-ba-tay.webp"
         },
         {
             "source_url": "https://moveek.com/phim/con-mat-thu-ba/",
@@ -845,38 +950,267 @@
             "poster": "con-mat-thu-ba.webp"
         },
         {
-            "source_url": "https://moveek.com/phim/bat-ca-ba-tay/",
-            "title": "Bắt Cá Ba Tay",
-            "description": "Cánh cửa mở ra, trước mắt nàng là ba chàng trai. Một người trưởng thành lịch lãm, một người dịu dàng ấm áp và một \"hồng hài nhi\" tươi trẻ cá tính. Mỗi chàng đều có những sức hút riêng, liệu nàng sẽ chọn ai trao trái tim mình?",
-            "director": null,
-            "cast": "Steven Nguyễn, Ngô Kiến Huy",
-            "duration": null,
-            "release_date": "2026-12-04",
-            "age_rating": "P",
-            "status": "coming_soon",
+            "source_url": "https://moveek.com/phim/hanh-trinh-bat-hao/",
+            "title": "Hành Trình Bất Hảo",
+            "description": "Bị bóp nghẹt bởi nỗi đau mất đi đứa con gái út, bốn mẹ con quyết tâm thực hiện kế hoạch bắt cóc kẻ giết người vừa được tại ngoại sau 8 năm thụ án. Chuyến du lịch ‘chữa lành’ sẽ là chứng cứ ngoại phạm hoàn hảo hay sẽ là hành trình đầy sóng gió cho những “sát thủ nghiệp dư”?",
+            "director": "Kim Mi-jo",
+            "cast": "Lee Jung-eun, Gong Hyo-jin, Park So-dam, Lee Yeon, Kim Young-sung, Kim Se-ah, Byun Yo-Han",
+            "duration": 111,
+            "release_date": "2026-09-04",
+            "age_rating": "T18",
+            "status": "ended",
             "genres": [
-                "Tình cảm",
-                "Tâm lý"
+                "Tâm lý",
+                "Bí ẩn",
+                "Hồi hộp",
+                "Tội phạm"
             ],
-            "trailer_url": null,
-            "poster": "bat-ca-ba-tay.webp"
+            "trailer_url": "https://www.youtube.com/watch?v=gRLEmFrvXVw",
+            "poster": "hanh-trinh-bat-hao.webp"
         },
         {
-            "source_url": "https://moveek.com/phim/dune-part-three/",
-            "title": "Dune 3",
-            "description": "Dune: Hành Tinh Cát - Phần Ba lấy bối cảnh gần hai thập kỷ sau khi Paul Atreides nắm quyền kiểm soát Đế chế. Giờ đây, khi đã trở thành một Hoàng đế tàn nhẫn, Paul phải đối mặt với những hậu quả từ chính sự cai trị của mình. Những đồng minh cũ trở lại, những mỗi đe dọa mới trỗi dậy, và cả sự phản bội luôn lẩn khuất trong bóng tối. Bị ám ảnh bởi viễn cảnh Đế chế sụp đổ cùng sự trở lại của một người anh từng yêu thương, Paul bị cuốn vào một âm mưu hủy diệt - mà trung tâm của bí mật ấy lại chính là Chani. Cuộc nổi dậy dần nhen nhóm, những kẻ thù ngày một áp sát. Chính lúc này đây, Paul sẽ phải đối diện với cái giá thực sự của quyền lực, đánh đổi bằng định mệnh của những người quan trọng nhất cuộc đời anh.",
-            "director": "Denis Villeneuve",
-            "cast": "Timothee Chalamet, Florence Pugh, Anya Taylor-Joy, Zendaya, Jason Momoa, Robert Pattinson, Lea Seydoux, Nakoa-Wolf Momoa, Ida Brooke",
-            "duration": null,
-            "release_date": "2026-12-18",
-            "age_rating": "P",
-            "status": "coming_soon",
+            "source_url": "https://moveek.com/phim/than-su-chung-quy-linh-gioi-dai-chien/",
+            "title": "Thần Sư Chung Quỳ: Linh Giới Đại Chiến",
+            "description": "Suốt nhiều thế hệ, gia tộc Chung Quỳ luôn giữ gìn hòa bình giữa loài người và yêu quái. Sau khi được vị thợ săn yêu huyền thoại cứu mạng và đưa xuống âm giới, cô gái phàm trần Sơ Cửu gặp gỡ những người bạn kỳ lạ: một vị thần có năng lực tâm linh, một bà chủ hiền hậu và hai hộ vệ ngốc nghếch. Quyết tâm bái vị thợ săn yêu làm sư phụ, cô kề vai chiến đấu cùng anh và dần nhận được sự công nhận. Thế nhưng, lũ yêu quái ngày càng trở nên nguy hiểm và đằng sau chúng là một âm mưu có thể phá hủy sự cân bằng giữa cả hai thế giới.",
+            "director": "Yuxi Wang, 黄山川",
+            "cast": "Duan Yixuan, 余昊威, Liangwei Hu, Zhao Chengchen, Ba He, Zhengjian Hu, Lu Xi",
+            "duration": 96,
+            "release_date": "2026-10-02",
+            "age_rating": "T13",
+            "status": "ended",
             "genres": [
-                "Phiêu lưu",
+                "Hành động",
+                "Hoạt hình",
+                "Giả tưởng"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=KEBDVoBTeTk",
+            "poster": "than-su-chung-quy-linh-gioi-dai-chien.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/te-nhi-cai-menh/",
+            "title": "Tế Nhi Cải Mệnh",
+            "description": "Vì nợ cờ bạc chồng chất, Chấn Khải cùng vợ Nam Tương và gia đình buộc phải chuyển nhà để trốn chủ nợ. Trong bước đường cùng, anh tìm đến tà thuật cấm kỵ, thậm chí hiến tế vận mệnh của con trai để đổi lấy tiền bạc.\n\nTiền vừa đến tay, tai họa cũng ập đến khi cả gia đình liên tiếp gặp những hiện tượng kinh hoàng. Một chàng trai có năng lực tâm linh phát hiện oán khí từ nghi lễ hiến tế, hé lộ bí mật đáng sợ phía sau.\n\nNghi thức máu đã bắt đầu và tai kiếp giờ đây không thể tránh khỏi",
+            "director": "Chiou Hau-jou",
+            "cast": "Tsao Yu-ning, Tien Hsin, Kaiser Chuang, Chloe Xiang, Alex Ko, Fan Kuang-Yao, Lin Si Yu, Li Xing, Hui-Min Lin, Mimi Shao, Mizuki Lin, Chun-Hao Hung, Amanda Liu, Richard Rim, Techuan Lee, Brian Yu",
+            "duration": 104,
+            "release_date": "2026-09-18",
+            "age_rating": "T18",
+            "status": "ended",
+            "genres": [
+                "Kinh dị"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=kuIsfKAQmuY",
+            "poster": "te-nhi-cai-menh.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/yeu-nhan-than-tham-ky-an-truong-an/",
+            "title": "Yêu Nhân Thần Thám: Kỳ Án Trường An",
+            "description": "Giữa Trường An tráng lệ và kỳ ảo dưới triều Đường, nơi những cỗ máy cơ khí tinh xảo hòa quyện cùng mái ngói cong vút, con người và yêu quái cùng chung sống. Địch Thiếu, thiếu niên thiên tài luôn mơ ước trở thành “Đại Thám Tử Số Một Trường An”, sở hữu khả năng suy luận sắc bén cùng tài ăn nói hơn người. Đồng hành cùng cậu là A Sa, tân binh yêu sói của đội tuần tra, giỏi võ nhưng mang trong mình trái tim lương thiện. Một vụ án mạng bí ẩn bất ngờ khiến đôi oan gia này phải hợp tác. Vừa đấu khẩu, vừa phối hợp phá án, cả hai dấn thân vào hành trình điều tra đầy bất ngờ và hiểm nguy. Khi mọi manh mối đều dẫn về trung tâm Trường An, liệu họ có thể bảo vệ sự bình yên của thành? Và đằng sau vẻ phồn hoa của Trường An đang ẩn giấu bí mật kinh thiên động địa nào?",
+            "director": "Cheng Teng",
+            "cast": "Lei Songran, Zhang Cheng, Cai Haiting, Zhang Zhe, Kai Wang, Fan Zhechen",
+            "duration": 117,
+            "release_date": "2026-09-18",
+            "age_rating": "P",
+            "status": "ended",
+            "genres": [
+                "Hài",
+                "Bí ẩn",
+                "Hoạt hình"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=-f9pxNdJ8K8",
+            "poster": "yeu-nhan-than-tham-ky-an-truong-an.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/practical-magic-2/",
+            "title": "Bùa Yêu: Bí Mật Gia Tộc",
+            "description": "Với sự góp mặt của Sandra Bullock và Nicole Kidman, Bùa Yêu: Bí Mật Gia Tộc đưa khán giả đến thế giới phép thuật đầy mê hoặc, nơi những bí ẩn dưới ánh trăng và sức mạnh ma thuật gia truyền vẫn luôn hiện hữu. Lần này, hai chị em nhà Owens phải cùng nhau đối mặt với một lời nguyền đen tối đang đe dọa chia cắt gia đình mãi mãi. Một cuộc phiêu lưu ngập tràn phép thuật, hài hước và những tình huống đầy hỗn loạn đang chờ đón khán giả trên màn ảnh rộng.",
+            "director": "Susanne Bier",
+            "cast": "Sandra Bullock, Nicole Kidman, Joey King, Maisie Williams, Xolo Mariduena, Lee Pace, Dianne Wiest, Stockard Channing, Solly McLeod",
+            "duration": 130,
+            "release_date": "2026-09-11",
+            "age_rating": "T13",
+            "status": "ended",
+            "genres": [
+                "Hài",
+                "Tình cảm",
+                "Giả tưởng"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=QOwxKjeyKUQ",
+            "poster": "practical-magic-2.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/ta-su-sam-hoi/",
+            "title": "Tà Sư Sám Hối",
+            "description": "Bị dồn vào bước đường cùng bởi những bất công và sự bất lực của luật pháp, Tor, từ một người tu hành, đã quyết định vứt bỏ đức tin để sa chân vào thế giới tà thuật đen tối. Anh lập huyết ước với một thầy pháp quyền năng, tu luyện cấm thuật và nuôi dưỡng một ác linh chết chóc để gieo rắc nỗi hận thù lên những kẻ đã hãm hại mình. Nhưng Tor không ngờ rằng, càng lún sâu vào thế giới tâm linh, anh càng bị các thế lực hắc ám thao túng. Những bí mật kinh hoàng dần được phơi bày, kéo theo một bản án tàn khốc vượt xa mọi trí tưởng tượng. Tác phẩm được lấy cảm hứng từ hiện tượng tâm linh từng làm khuynh đảo The Ghost Radio với hơn 8 triệu lượt theo dõi.",
+            "director": "Nattanont Cholumpi",
+            "cast": "Teeradetch Metawarayut, Shahkrit Yamnarm, Denise Jelilcha Kapaun, Wayne Falconer, Amarin Nitipon, Ranya Siyanon, Chalad Na Songkhla, Seadthawut Porntanawut, Nathawat Kongthong, Kittiphan Bunplabwaree, Pheenasith Nettasut, Paibool Poolsuk",
+            "duration": 126,
+            "release_date": "2026-09-18",
+            "age_rating": "P",
+            "status": "ended",
+            "genres": [
+                "Hồi hộp",
+                "Kinh dị"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=Ar0l7zY4M7Y",
+            "poster": "ta-su-sam-hoi.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/ghost-in-the-cell/",
+            "title": "Ma Tù",
+            "description": "Một tù nhân bí ẩn xuất hiện trong một nhà tù khét tiếng bạo lực nhất Indonesia, mang theo một thực thể siêu nhiên chỉ săn lùng những kẻ có năng lượng tiêu cực. Để sống sót, các tù nhân buộc phải cùng nhau làm việc thiện nhằm xóa bỏ bóng tối trong tâm hồn. Hoặc chết từng người một.",
+            "director": "Joko Anwar",
+            "cast": "Abimana Aryasatya, Bront Palarae, Dimas Danang, Endy Arfian, Lukman Sardi, Mike Lucock, Yoga Pratama, Morgan Oey, Aming Sugandhi, Rio Dewanto, Tora Sudiro, Almanzo Konoralma, Kiki Narendra, Haydar Salishz, Arswendi Nasution, Dewa Dayana, Faiz Vishal",
+            "duration": 104,
+            "release_date": "2026-09-04",
+            "age_rating": "T18",
+            "status": "ended",
+            "genres": [
+                "Hài",
+                "Hồi hộp",
+                "Kinh dị"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=w0MIgDqwZBA",
+            "poster": "ghost-in-the-cell.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/hope-vung-tu-dia/",
+            "title": "Hope Vùng Tử Địa",
+            "description": "Tại Hope Harbor, một ngôi làng hẻo lánh nằm gần khu vực phi quân sự, cảnh sát trưởng Bum-seok đã nhận được tin báo khẩn cấp từ người dân địa phương về sự xuất hiện của một con hổ. Khi cả ngôi làng chìm trong hoảng loạn, Bum-seok ngỡ ngàng khi phát hiện một sự thật nằm ngoài sức tưởng tượng của con người.",
+            "director": "Na Hong-Jin",
+            "cast": "Hwang Jung-min, Zo In-sung, Jung Ho-yeon, Alicia Vikander, Michael Fassbender, Taylor Russell, Cameron Britton, Lee Jang-yoo, Um Mun-suk, Im Hyun-sik, Hwang Suk-jung, Han Woo-yeol, Chyu Kwang-hyun, Oh Doo-won, Yoo Jun-hong, Seo Beom-sik, Baek Seung-chul",
+            "duration": 157,
+            "release_date": "2026-09-04",
+            "age_rating": "T16",
+            "status": "ended",
+            "genres": [
+                "Hành động",
+                "Bí ẩn",
                 "Khoa học viễn tưởng"
             ],
-            "trailer_url": "https://www.youtube.com/watch?v=CrDDatdCtUk",
-            "poster": "dune-part-three.webp"
+            "trailer_url": "https://www.youtube.com/watch?v=ZPf1I1Shnhs",
+            "poster": "hope-vung-tu-dia.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/coi-bao-tu/",
+            "title": "Còi Báo Tử",
+            "description": "Một nhóm học sinh cá biệt vô tình nhặt được một cổ vật Aztec bị nguyền rủa. Mỗi khi tiếng còi ám ảnh ấy cất lên, nó không chỉ xé tan không gian bằng âm thanh rợn người, mà còn đánh thức và triệu hồi chính \"cái chết trong tương lai\" của từng người tìm đến đi săn họ. Liệu nhóm bạn có thể giải mã bí ẩn của lời nguyền trước khi từng người một phải đối mặt với kết cục thảm khốc của chính mình?",
+            "director": "Greg Franklin",
+            "cast": null,
+            "duration": 100,
+            "release_date": "2026-08-21",
+            "age_rating": "T18",
+            "status": "ended",
+            "genres": [
+                "Kinh dị"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=jeueujvqhy8",
+            "poster": "coi-bao-tu.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/mot-dem-duy-nhat/",
+            "title": "Một Đêm Duy Nhất",
+            "description": "Sẽ ra sao nếu một đêm hỗn độn lại trở thành điều tuyệt vời nhất từng xảy ra trong đời bạn? Allie và Owen, hai kẻ xa lạ đang \"đói khát\" tình yêu, vô tình va vào nhau giữa lòng New York phiên bản được hư cấu đôi chút, vào đúng đêm duy nhất trong năm hội độc thân được phép \"làm chuyện ấy\". Chàng trai Owen vừa bị đá và cô nàng Allie mộng mơ có lẽ là hai kẻ độc thân duy nhất trong thành phố đang tìm kiếm điều gì đó ý nghĩa hơn là một cuộc tình chóng vánh. Cả hai dường như đã rung động ngay từ lần đầu gặp gỡ, nhưng hàng loạt tình huống dở khóc dở cười cùng những rắc rối phát sinh càng khiến đêm hôm đó trở nên phức tạp và đẩy họ ra xa nhau. Trong lúc mải miết đuổi theo rồi lại vuột mất nhau khắp thành phố, Owen và Allie dần nhận ra rằng, có lẽ điều bản thân khao khát nhất thực chất lại ở gần hơn họ tưởng",
+            "director": "Will Gluck",
+            "cast": "Monica Barbaro, Callum Turner, Maya Hawke, King Princess, Molly Ringwald, LeVar Burton, Charlie Gillespie, Quintessa Swindell, Mateo Ray Garcia, Okieriete Onaodowan, Julia Fox, Este Haim, Ben Marshall, Nicholas Braun, Michelle Hurd, Sydney Cole Alexander",
+            "duration": 103,
+            "release_date": "2026-09-04",
+            "age_rating": "T18",
+            "status": "ended",
+            "genres": [
+                "Hài",
+                "Tình cảm"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=zF1OV1hK04M",
+            "poster": "mot-dem-duy-nhat.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/charlie-the-wonderdog/",
+            "title": "Siêu Chó Đạp Gió Đón Lễ",
+            "description": "Charlie – chú chó cưng đáng yêu của Danny – bất ngờ bị người ngoài hành tinh bắt cóc và trao cho những siêu năng lực đặc biệt. Nhưng Charlie không phải là “siêu thú” duy nhất trong khu phố khi Puddy – chú mèo tinh quái nhà bên – cũng sở hữu những năng lực phi thường.\n\nCuộc đối đầu giữa hai “siêu thú” mở ra hàng loạt tình huống hài hước, bất ngờ và đầy thú vị, đồng thời mang đến những khoảnh khắc đáng yêu về tình bạn, tình cảm gia đình và tình yêu dành cho các loài vật. Liệu Charlie có thể làm chủ sức mạnh mới và vượt qua những thử thách đang chờ đợi phía trước?",
+            "director": "Shea Wageman",
+            "cast": "Owen Wilson, Ruairi MacDonald, Dawson Littman, Tabitha St. Germain, Vincent Tong, Elishia Perosa, Sebastian Billingsley-Rodriguez, Rhona Rees, Shawn Youngchief, Anthony Bolognese, Caitlynne Medrek, Emily Delahunty, Mela Pietropaolo, Lindsay Gibson",
+            "duration": 95,
+            "release_date": "2026-08-28",
+            "age_rating": "P",
+            "status": "ended",
+            "genres": [
+                "Hài",
+                "Hành động",
+                "Phiêu lưu",
+                "Hoạt hình",
+                "Gia đình"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=LhvLemQP5KA",
+            "poster": "charlie-the-wonderdog.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/diem-mu/",
+            "title": "Điểm Mù",
+            "description": "Phát hiện người chị em song sinh qua đời bất thường dưới vỏ bọc tự sát, Seo-jin (Shin Min-A) quyết tâm dấn thân vào cuộc săn đuổi vạch mặt kẻ thủ ác. Đối mặt với căn bệnh di truyền đang rút cạn thị lực từng ngày và chính bản thân cô trở thành mục tiêu tiếp theo của kẻ sát nhân, hành trình giải mã ma trận tâm lý và truy lùng hung thủ của Seo-jin trở nên căng thẳng và nguy cấp hơn bao giờ hết.",
+            "director": "Yeom Ji-ho",
+            "cast": "Shin Min-a, Kim Nam-hee, Kim Young-ah, Lee Seung-ryong",
+            "duration": 105,
+            "release_date": "2026-08-14",
+            "age_rating": "T18",
+            "status": "ended",
+            "genres": [
+                "Hồi hộp",
+                "Kinh dị"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=7Vz5ynAhL2M",
+            "poster": "diem-mu.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/mai-no-mot-loi-tam-biet/",
+            "title": "Mãi Nợ Một Lời Tạm Biệt",
+            "description": "Một tuổi thơ bị bỏ lại giữa những biến động. Một người bà vẫn ở lại trong ký ức. Một người đàn ông trưởng thành nhưng chưa từng thật sự bước ra khỏi quá khứ. Mãi Nợ Một Lời Tạm Biệt là hành trình Daniel tìm lại những mảnh ký ức đã mất, để đối diện với gia đình, mất mát và điều anh chưa kịp nói lời tạm biệt.",
+            "director": "Jordan Schulz",
+            "cast": "Kiều Chinh, Daniel Winn, Tien Pham, Samuel An",
+            "duration": 120,
+            "release_date": "2026-09-11",
+            "age_rating": "P",
+            "status": "ended",
+            "genres": [
+                "Tâm lý",
+                "Phiêu lưu"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=OYA30XqHg94",
+            "poster": "mai-no-mot-loi-tam-biet.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/quy-moc-mat/",
+            "title": "Quỷ Móc Mắt",
+            "description": "Phim theo chân Deana (Mim Rattanawadee Wongthong) - cô gái trẻ vừa kết hôn với Anas (Euro Yotsawat Tawapee). Sau khi mất tích suốt hai ngày trong khu rừng Budo, Deana trở về với những biểu hiện kỳ lạ. Từ một người vợ hiền lành, cô dần trở nên hung bạo, điên cuồng tấn công tất cả mọi người trong nhà. Anas buộc phải đưa ra quyết định đau đớn nhất khi tự tay nổ súng bắn chính người vợ của mình để kết thúc thảm kịch.\n\n \n\nTuy nhiên, cái chết của Deana trở thành nỗi ám ảnh không thể nguôi ngoai với Anas, anh tin rằng linh hồn Deana vẫn còn bị mắc kẹt trong thế giới của Djinn - một khái niệm trong tín ngưỡng Hồi giáo, nơi các linh hồn con người bị giam giữ ở chiều không gian song song. Anas quyết tâm bước vào khu rừng Budo một lần nữa để đưa linh hồn vợ trở về, tuy nhiên việc dấn thân vào cõi giới của Djinn khiến Anas phải đối mặt với cái giá khủng khiếp cho lựa chọn của mình.",
+            "director": "Kriangkrai Monvichit",
+            "cast": "Yotsawat Tawapee, Rattanawadee Wongtong, Sutida Buatig, Sonthaya Chitmanee, Peeyarat Jatupo, Hakim Donlapavijit, Adull Borsu, Amadkuciasree Dohloh",
+            "duration": 98,
+            "release_date": "2026-08-21",
+            "age_rating": "T18",
+            "status": "ended",
+            "genres": [
+                "Hồi hộp",
+                "Kinh dị"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=5bqPh3_Kxik",
+            "poster": "quy-moc-mat.webp"
+        },
+        {
+            "source_url": "https://moveek.com/phim/ut-lan-2/",
+            "title": "Út Lan 2",
+            "description": "Từ lúc một con rắn hai đầu xuất hiện, ngôi làng ven sông liên tiếp xảy ra những cái chết bí ẩn. Khi những bí mật bị lãng quên dần trồi lên mặt nước, người dân nhận ra có những lời nguyền chưa bao giờ thực sự biến mất.",
+            "director": "Trần Trọng Dần",
+            "cast": "Phương Nam, Kiều Oanh, NSƯT Kim Phương",
+            "duration": 107,
+            "release_date": "2026-09-25",
+            "age_rating": "T18",
+            "status": "ended",
+            "genres": [
+                "Tâm lý",
+                "Kinh dị"
+            ],
+            "trailer_url": "https://www.youtube.com/watch?v=f9fGXp9yan0",
+            "poster": "ut-lan-2.webp"
         }
     ]
 }

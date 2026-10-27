@@ -25,7 +25,7 @@ class MovieController extends Controller
             ->paginate(8)
             ->withQueryString();
 
-        $genres = Genre::orderBy('name')->get();
+        $genres = Genre::withShowingMovies()->orderBy('name')->get();
 
         return view('movies.index', compact('movies', 'genres', 'keyword'));
     }
