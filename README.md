@@ -65,6 +65,8 @@ Seeder chỉ tạo suất chiếu đến 7 ngày sau ngày seed. Để web luôn
 php artisan showtimes:refresh   # chuyển phim đến ngày khởi chiếu sang "Đang chiếu" + xếp suất chiếu 7 ngày tới
 ```
 
+Cách xếp lịch (`app/Services/ShowtimeScheduler.php`): 10 phòng chiếu từ 9h đến 23h, phim nào cũng có suất mỗi ngày; phim khởi chiếu trong 2 tuần được nhiều suất hơn (~3 suất/ngày rải sáng – chiều – tối), phim cũ 1–2 suất/ngày; các suất trong cùng phòng không bao giờ trùng giờ.
+
 Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày; khi phát triển trên máy cá nhân, mở thêm một terminal chạy `php artisan schedule:work` để bộ lập lịch hoạt động.
 
 ### Tài khoản demo (mật khẩu đều là `password`)
@@ -84,7 +86,7 @@ Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày
 php artisan test
 ```
 
-48 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+50 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -139,7 +141,7 @@ php artisan test
 | DB Transaction + `lockForUpdate` | `BookingController@store` |
 | Feature Test | `tests/Feature/` |
 | Artisan command + HTTP Client (cào dữ liệu) | `app/Console/Commands/CrawlMovies.php` |
-| Task Scheduling (tự xếp lịch chiếu hằng ngày) | `app/Console/Commands/RefreshShowtimes.php`, `routes/console.php` |
+| Task Scheduling (tự xếp lịch chiếu hằng ngày) | `app/Console/Commands/RefreshShowtimes.php`, `app/Services/ShowtimeScheduler.php`, `routes/console.php` |
 | Gửi email: Password Broker, Notification, Mailable (Markdown) | `PasswordResetController`, `app/Notifications/`, `app/Mail/BookingConfirmed.php` |
 | Xuất file Excel (.xlsx) | `app/Exports/BookingsExport.php` (thư viện `openspout/openspout`) |
 
