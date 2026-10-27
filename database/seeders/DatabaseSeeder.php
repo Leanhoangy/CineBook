@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             RoomSeeder::class,
             ShowtimeSeeder::class,
             BookingSeeder::class,
+            ReviewSeeder::class,
         ]);
     }
 }

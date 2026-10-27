@@ -102,6 +102,103 @@
             @endif
         </section>
 
+        <section id="danh-gia" class="mb-5">
+            <h2 class="cb-section-title mb-4">Đánh giá từ khán giả</h2>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="cb-card p-4 text-center">
+                        @if ($ratingStats['count'])
+                            <div class="cb-rating-big">{{ number_format($ratingStats['average'], 1, ',') }}<small>/5</small></div>
+                            <x-stars :rating="$ratingStats['average']" class="fs-5 mb-1" />
+                            <div class="small text-muted mb-3">{{ $ratingStats['count'] }} lượt đánh giá</div>
+                            @foreach (range(5, 1) as $star)
+                                @php $percent = round(($ratingStats['distribution'][$star] ?? 0) * 100 / $ratingStats['count']); @endphp
+                                <div class="d-flex align-items-center gap-2 small">
+                                    <span class="text-nowrap" style="width: 2.2rem">{{ $star }} <i class="bi bi-star-fill cb-star"></i></span>
+                                    <div class="progress flex-grow-1" style="height: 6px" role="progressbar" aria-label="{{ $star }} sao" aria-valuenow="{{ $percent }}" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar bg-warning" style="width: {{ $percent }}%"></div>
+                                    </div>
+                                    <span class="text-muted text-end" style="width: 2.4rem">{{ $percent }}%</span>
+                                </div>
+                            @endforeach
+                        @else
+                            <i class="bi bi-chat-square-heart fs-1 text-muted d-block mb-2"></i>
+                            <p class="text-muted mb-0">Chưa có đánh giá nào cho phim này.</p>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    @if ($canReview)
+                        <div class="cb-card p-3 p-md-4 mb-4">
+                            <h3 class="h6 fw-bold mb-3">{{ $myReview ? 'Đánh giá của bạn' : 'Bạn thấy phim thế nào?' }}</h3>
+                            @if ($myReview?->is_hidden)
+                                <div class="alert alert-warning small py-2">Đánh giá của bạn đã bị quản trị viên ẩn do vi phạm quy định bình luận.</div>
+                            @endif
+                            <form method="POST" action="{{ route('reviews.store', $movie) }}" novalidate>
+                                @csrf
+                                <div class="cb-star-input mb-2" role="radiogroup" aria-label="Chọn số sao">
+                                    @foreach (range(5, 1) as $star)
+                                        <input type="radio" name="rating" id="star{{ $star }}" value="{{ $star }}" @checked(old('rating', $myReview?->rating) == $star)>
+                                        <label for="star{{ $star }}" title="{{ $star }} sao"><i class="bi bi-star-fill"></i></label>
+                                    @endforeach
+                                </div>
+                                @error('rating') <div class="text-danger small mb-2">{{ $message }}</div> @enderror
+                                <textarea name="content" rows="3" maxlength="1000" class="form-control mb-3 @error('content') is-invalid @enderror" placeholder="Chia sẻ cảm nhận của bạn về phim (không bắt buộc)">{{ old('content', $myReview?->content) }}</textarea>
+                                @error('content') <div class="invalid-feedback d-block mb-2">{{ $message }}</div> @enderror
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-primary rounded-pill px-4">{{ $myReview ? 'Cập nhật đánh giá' : 'Gửi đánh giá' }}</button>
+                                </div>
+                            </form>
+                            @if ($myReview)
+                                <form method="POST" action="{{ route('reviews.destroy', $myReview) }}" class="mt-2" data-confirm="Xóa đánh giá của bạn?">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-link btn-sm text-danger p-0">Xóa đánh giá</button>
+                                </form>
+                            @endif
+                        </div>
+                    @else
+                        <p class="small text-muted mb-4">
+                            <i class="bi bi-info-circle me-1"></i>
+                            @guest
+                                <a href="{{ route('login') }}">Đăng nhập</a> và xem phim tại CineBook để gửi đánh giá.
+                            @else
+                                Chỉ khách đã xem phim tại CineBook (có vé của suất chiếu đã diễn ra) mới có thể đánh giá.
+                            @endguest
+                        </p>
+                    @endif
+
+                    @forelse ($reviews as $review)
+                        <div class="cb-review">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                @if ($review->user->avatar_url)
+                                    <img src="{{ $review->user->avatar_url }}" alt="" class="cb-avatar">
+                                @else
+                                    <span class="cb-avatar">{{ $review->user->initials }}</span>
+                                @endif
+                                <div>
+                                    <div class="fw-semibold small">{{ $review->user->name }} <span class="badge text-bg-success fw-normal ms-1"><i class="bi bi-patch-check me-1"></i>Đã xem phim</span></div>
+                                    <x-stars :rating="$review->rating" class="small" />
+                                </div>
+                                <small class="text-muted ms-auto">{{ $review->created_at->diffForHumans() }}</small>
+                            </div>
+                            @if ($review->content)
+                                <p class="mb-0 mt-2">{{ $review->content }}</p>
+                            @endif
+                        </div>
+                    @empty
+                        @if ($ratingStats['count'] === 0 && ! $canReview)
+                            <div class="cb-card cb-empty"><i class="bi bi-chat-dots"></i>Hãy là người đầu tiên đánh giá phim này sau khi xem!</div>
+                        @endif
+                    @endforelse
+
+                    @if ($reviews->hasPages())
+                        <div class="mt-3">{{ $reviews->links() }}</div>
+                    @endif
+                </div>
+            </div>
+        </section>
+
         @if ($movie->trailer_embed_url)
             <div class="modal fade" id="trailerModal" tabindex="-1" aria-label="Trailer" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered">

@@ -15,6 +15,7 @@
             ['admin.genres.index', 'admin.genres.*', 'bi-tags', 'Thể loại'],
             ['admin.rooms.index', 'admin.rooms.*', 'bi-door-open', 'Phòng chiếu'],
             ['admin.showtimes.index', 'admin.showtimes.*', 'bi-calendar3', 'Suất chiếu'],
+            ['admin.reviews.index', 'admin.reviews.*', 'bi-chat-square-text', 'Đánh giá'],
             'Kinh doanh',
             ['admin.bookings.index', 'admin.bookings.*', 'bi-receipt', 'Đơn đặt vé'],
             ['admin.users.index', 'admin.users.*', 'bi-people', 'Người dùng'],

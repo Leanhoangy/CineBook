@@ -78,6 +78,22 @@ class Movie extends Model
         return $this->hasMany(Showtime::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /** Khách đã xem phim (có vé hợp lệ của suất đã bắt đầu) mới được đánh giá */
+    public function canBeReviewedBy(?User $user): bool
+    {
+        return $user !== null && ! $user->isAdmin() && $user->bookings()
+            ->where('status', Booking::STATUS_CONFIRMED)
+            ->whereHas('showtime', fn (Builder $q) => $q
+                ->where('movie_id', $this->id)
+                ->where('start_time', '<=', now()))
+            ->exists();
+    }
+
     public function upcomingShowtimes(): HasMany
     {
         return $this->showtimes()->where('start_time', '>', now())->orderBy('start_time');

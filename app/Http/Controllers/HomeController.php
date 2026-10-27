@@ -13,6 +13,7 @@ class HomeController extends Controller
         $nowShowing = Movie::with('genres')
             ->where('status', 'now_showing')
             ->withCount(['showtimes as upcoming_count' => fn ($q) => $q->upcoming()])
+            ->withAvg(['reviews' => fn ($q) => $q->visible()], 'rating')
             ->orderByDesc('release_date')
             ->take(8)
             ->get();

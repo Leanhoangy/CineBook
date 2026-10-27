@@ -11,6 +11,9 @@
     <h3>{{ $movie->title }}</h3>
     <div class="cb-movie-meta">
         <i class="bi bi-clock"></i> {{ $movie->duration }} phút
+        @if ($movie->reviews_avg_rating)
+            · <span class="cb-rating-inline"><i class="bi bi-star-fill"></i> {{ number_format($movie->reviews_avg_rating, 1, ',') }}</span>
+        @endif
         @if ($movie->status === 'coming_soon')
             · <i class="bi bi-calendar-event"></i> {{ $movie->release_date->format('d/m/Y') }}
         @endif

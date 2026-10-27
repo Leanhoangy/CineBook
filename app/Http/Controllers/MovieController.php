@@ -16,6 +16,7 @@ class MovieController extends Controller
         $keyword = trim((string) $request->query('q'));
 
         $movies = Movie::with('genres')
+            ->withAvg(['reviews' => fn ($q) => $q->visible()], 'rating')
             ->search($keyword)
             ->ofGenre($request->query('the-loai'))
             ->ofStatus($request->query('trang-thai'))
@@ -30,7 +31,7 @@ class MovieController extends Controller
         return view('movies.index', compact('movies', 'genres', 'keyword'));
     }
 
-    public function show(Movie $movie): View
+    public function show(Request $request, Movie $movie): View
     {
         $movie->load('genres');
 
@@ -50,7 +51,22 @@ class MovieController extends Controller
             ->take(4)
             ->get();
 
-        return view('movies.show', compact('movie', 'showtimesByDate', 'related'));
+        // Đánh giá: điểm trung bình, phân bố số sao và danh sách bình luận (phân trang riêng)
+        $visibleReviews = $movie->reviews()->visible();
+        $ratingStats = [
+            'average' => round((float) (clone $visibleReviews)->avg('rating'), 1),
+            'count' => (clone $visibleReviews)->count(),
+            'distribution' => (clone $visibleReviews)->selectRaw('rating, COUNT(*) as total')->groupBy('rating')->pluck('total', 'rating'),
+        ];
+        $reviews = (clone $visibleReviews)->with('user')->latest()
+            ->paginate(5, pageName: 'trang-danh-gia')
+            ->fragment('danh-gia');
+
+        $user = $request->user();
+        $myReview = $user ? $movie->reviews()->where('user_id', $user->id)->first() : null;
+        $canReview = $movie->canBeReviewedBy($user);
+
+        return view('movies.show', compact('movie', 'showtimesByDate', 'related', 'ratingStats', 'reviews', 'myReview', 'canReview'));
     }
 
     /** API gợi ý tìm kiếm trực tiếp (AJAX) */

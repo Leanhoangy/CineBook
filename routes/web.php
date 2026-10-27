@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +58,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/ve-cua-toi', [BookingController::class, 'index'])->name('bookings.index');
         Route::get('/ve-cua-toi/{booking:code}', [BookingController::class, 'show'])->name('bookings.show');
         Route::patch('/ve-cua-toi/{booking:code}/huy', [BookingController::class, 'cancel'])->name('bookings.cancel');
+
+        Route::post('/phim/{movie}/danh-gia', [ReviewController::class, 'store'])->name('reviews.store');
+        Route::delete('/danh-gia/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     });
 });
 
@@ -79,6 +83,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('showtimes', Admin\ShowtimeController::class)->except('show');
 
     Route::resource('bookings', Admin\BookingController::class)->only(['index', 'show', 'update', 'destroy']);
+
+    Route::resource('reviews', Admin\ReviewController::class)->only(['index', 'update', 'destroy']);
 
     Route::resource('users', Admin\UserController::class)->except('show');
 });
