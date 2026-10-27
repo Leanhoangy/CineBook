@@ -139,4 +139,20 @@ class VoucherTest extends TestCase
 
         $this->assertModelExists($voucher);
     }
+
+    public function test_booking_page_suggests_only_vouchers_the_customer_can_still_use(): void
+    {
+        Voucher::factory()->create(['code' => 'CONDUNG', 'description' => 'Mã còn dùng được']);
+        Voucher::factory()->create(['code' => 'DONLON', 'min_order' => 500000]); // chưa đủ đơn vẫn gợi ý, trình duyệt báo "Cần thêm"
+        Voucher::factory()->expired()->create(['code' => 'HETHAN']);
+        Voucher::factory()->create(['code' => 'SAPTOI', 'starts_at' => now()->addWeek(), 'expires_at' => now()->addMonth()]);
+        Voucher::factory()->create(['code' => 'DADUNG']);
+        $this->book(['A1'], 'DADUNG');
+
+        $this->actingAs($this->user)->get(route('bookings.create', $this->showtime))
+            ->assertOk()
+            ->assertSee(['Mã dành cho bạn (2)', 'CONDUNG', 'Mã còn dùng được', 'DONLON'])
+            ->assertDontSee(['HETHAN', 'SAPTOI', 'DADUNG']);
+    }
 }
+

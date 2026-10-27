@@ -109,6 +109,22 @@
                                 <button type="button" class="btn btn-outline-light" id="voucherApply">Áp dụng</button>
                             </div>
                             <div id="voucherMessage" class="small mt-1 {{ $errors->has('voucher_code') ? 'text-danger' : '' }}">@error('voucher_code'){{ $message }}@enderror</div>
+
+                            @if ($vouchers->isNotEmpty())
+                                <div class="small text-muted mt-3 mb-2">Mã dành cho bạn ({{ $vouchers->count() }}) · bấm để áp dụng</div>
+                                <div class="cb-voucher-options" id="voucherOptions">
+                                    @foreach ($vouchers as $v)
+                                        <button type="button" class="cb-voucher-option" data-voucher='@json($v)'>
+                                            <span class="d-flex justify-content-between align-items-center gap-2">
+                                                <code class="cb-voucher-code">{{ $v['code'] }}</code>
+                                                <span class="cb-voucher-hint"></span>
+                                            </span>
+                                            <span class="d-block text-muted mt-1">{{ $v['description'] ?: $v['label'] }}</span>
+                                        </button>
+                                    @endforeach
+                                </div>
+                                <a href="{{ route('promotions') }}#ma-giam-gia" target="_blank" class="small d-inline-block mt-2">Xem điều kiện các mã <i class="bi bi-box-arrow-up-right"></i></a>
+                            @endif
                         </div>
 
                         <div class="d-flex justify-content-between small text-muted mb-1 d-none" id="subtotalRow">

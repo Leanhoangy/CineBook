@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Room;
 use App\Models\Voucher;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 
 /** Các trang thông tin: Ưu đãi & bảng giá vé, Hỗ trợ khách hàng */
@@ -15,7 +14,7 @@ class PageController extends Controller
         return view('pages.promotions', [
             'programs' => self::programs(),
             'pricing' => config('cinema.pricing'),
-            'vouchers' => self::publicVouchers(),
+            'vouchers' => Voucher::listedForCustomers(),
             'rooms' => Room::active()->get()->sortByDesc('capacity'),
         ]);
     }
@@ -51,21 +50,5 @@ class PageController extends Controller
                 'url' => route('movies.index', ['trang-thai' => 'coming_soon']),
             ],
         ];
-    }
-
-    /**
-     * Mã giảm giá khách nhìn thấy được: đang bật, chưa hết hạn và còn lượt.
-     * Mã sắp diễn ra vẫn hiện (kèm ngày bắt đầu) để khách biết trước.
-     */
-    public static function publicVouchers(): Collection
-    {
-        return Voucher::query()
-            ->where('is_active', true)
-            ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
-            ->withCount(['confirmedBookings as used_count'])
-            ->orderBy('starts_at')
-            ->get()
-            ->reject(fn (Voucher $v) => $v->usage_limit !== null && $v->used_count >= $v->usage_limit)
-            ->values();
     }
 }

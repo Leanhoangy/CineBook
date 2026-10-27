@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -109,6 +110,31 @@ class Voucher extends Model
             $this->usage_limit !== null && ($this->used_count ?? $this->confirmedBookings()->count()) >= $this->usage_limit => ['warning', 'Hết lượt'],
             default => ['success', 'Đang áp dụng'],
         };
+    }
+
+    /**
+     * Mã hiển thị cho khách (trang Ưu đãi, trang chủ): đang bật, chưa hết hạn và còn lượt.
+     * Mã sắp diễn ra vẫn hiện (kèm ngày bắt đầu) để khách biết trước.
+     */
+    public static function listedForCustomers(): Collection
+    {
+        return static::query()
+            ->where('is_active', true)
+            ->where(fn (Builder $q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->withCount(['confirmedBookings as used_count'])
+            ->orderBy('starts_at')
+            ->get()
+            ->reject(fn (self $v) => $v->usage_limit !== null && $v->used_count >= $v->usage_limit)
+            ->values();
+    }
+
+    /** Mã khách $user dùng được ngay ở bước đặt vé (đã bắt đầu, khách chưa dùng); điều kiện đơn tối thiểu được kiểm tra khi chọn ghế */
+    public static function usableBy(User $user): Collection
+    {
+        return static::listedForCustomers()
+            ->reject(fn (self $v) => $v->starts_at?->isFuture())
+            ->reject(fn (self $v) => $v->confirmedBookings()->where('user_id', $user->id)->exists())
+            ->values();
     }
 
     public function scopeSearch(Builder $query, ?string $keyword): Builder

@@ -339,6 +339,17 @@ main { flex: 1; }
 .cb-voucher-terms li::before { content: '•'; color: var(--cb-accent); margin-right: .4rem; }
 .cb-voucher.is-upcoming .cb-voucher-value { background: linear-gradient(160deg, #4a5262, #2c323d); }
 [data-copy] { white-space: nowrap; }
+.cb-voucher-options { display: grid; gap: .5rem; }
+.cb-voucher-option {
+    text-align: left; width: 100%; padding: .6rem .75rem; border-radius: 10px; font-size: .8rem;
+    border: 1px solid var(--cb-border); background: var(--cb-surface-2); color: var(--cb-text);
+    transition: border-color .15s ease, background .15s ease;
+}
+.cb-voucher-option:hover { border-color: var(--cb-gold); }
+.cb-voucher-option.active { border-color: var(--cb-accent); background: rgba(255, 77, 90, .1); box-shadow: inset 3px 0 0 var(--cb-accent); }
+.cb-voucher-option.is-locked { opacity: .55; }
+.cb-voucher-option .cb-voucher-code { font-size: .78rem; padding: .1rem .45rem; }
+.cb-voucher-hint { white-space: nowrap; color: var(--cb-muted); }
 @media (max-width: 576px) {
     .cb-voucher-value { flex-basis: 78px; }
     .cb-voucher-value strong { font-size: 1.45rem; }

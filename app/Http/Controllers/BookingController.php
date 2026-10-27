@@ -36,7 +36,7 @@ class BookingController extends Controller
     }
 
     /** Trang chọn ghế */
-    public function create(Showtime $showtime): View|RedirectResponse
+    public function create(Request $request, Showtime $showtime): View|RedirectResponse
     {
         $showtime->load(['movie.genres', 'room']);
 
@@ -52,7 +52,18 @@ class BookingController extends Controller
             ->whereDate('start_time', $showtime->start_time)
             ->get();
 
-        return view('bookings.create', compact('showtime', 'bookedSeats', 'otherShowtimes'));
+        // Gợi ý các mã giảm giá khách còn dùng được (dữ liệu để trình duyệt tự tính mức giảm khi chọn ghế)
+        $vouchers = Voucher::usableBy($request->user())->map(fn (Voucher $v) => [
+            'code' => $v->code,
+            'type' => $v->type,
+            'value' => $v->value,
+            'max_discount' => $v->max_discount,
+            'min_order' => $v->min_order,
+            'label' => $v->label,
+            'description' => $v->description,
+        ]);
+
+        return view('bookings.create', compact('showtime', 'bookedSeats', 'otherShowtimes', 'vouchers'));
     }
 
     /** Lưu đặt vé, dùng transaction + khóa dòng để tránh 2 người đặt trùng ghế */

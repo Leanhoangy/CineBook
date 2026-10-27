@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Genre;
 use App\Models\Movie;
+use App\Models\Voucher;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -29,7 +30,7 @@ class HomeController extends Controller
 
         // Mục ưu đãi: các chương trình giá vé + mã giảm giá đang áp dụng không có điều kiện đơn tối thiểu
         $programs = PageController::programs();
-        $voucher = PageController::publicVouchers()
+        $voucher = Voucher::listedForCustomers()
             ->first(fn ($v) => ! $v->starts_at?->isFuture() && ! $v->min_order);
 
         return view('home', compact('nowShowing', 'comingSoon', 'featured', 'genres', 'programs', 'voucher'));

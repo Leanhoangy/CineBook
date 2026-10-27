@@ -23,11 +23,35 @@
     const voucherMsg = document.getElementById('voucherMessage');
     let voucher = null;
 
-    const discountFor = (subtotal) => {
-        if (!voucher || subtotal < voucher.min_order) return 0;
-        let discount = voucher.type === 'percent' ? Math.floor(subtotal * voucher.value / 100) : voucher.value;
-        if (voucher.max_discount) discount = Math.min(discount, voucher.max_discount);
+    // Cùng công thức với Voucher::discountFor() bên PHP
+    const discountFor = (v, subtotal) => {
+        if (!v || subtotal < v.min_order) return 0;
+        let discount = v.type === 'percent' ? Math.floor(subtotal * v.value / 100) : v.value;
+        if (v.max_discount) discount = Math.min(discount, v.max_discount);
         return Math.min(discount, subtotal);
+    };
+
+    // Danh sách "Mã dành cho bạn": hiện mức giảm theo ghế đang chọn, đánh dấu mã tiết kiệm nhất
+    const options = [...document.querySelectorAll('.cb-voucher-option')].map((el) => ({ el, data: JSON.parse(el.dataset.voucher) }));
+
+    const renderOptions = (subtotal) => {
+        const best = Math.max(0, ...options.map((o) => discountFor(o.data, subtotal)));
+        options.forEach(({ el, data }) => {
+            const hint = el.querySelector('.cb-voucher-hint');
+            const discount = discountFor(data, subtotal);
+            const short = subtotal < data.min_order;
+
+            el.classList.toggle('active', voucher?.code === data.code);
+            el.classList.toggle('is-locked', selected.size > 0 && short);
+            if (!selected.size) {
+                hint.innerHTML = data.min_order ? `Đơn từ ${money(data.min_order)}` : data.label;
+            } else if (short) {
+                hint.innerHTML = `Cần thêm ${money(data.min_order - subtotal)}`;
+            } else {
+                hint.innerHTML = `<strong class="text-success">-${money(discount)}</strong>`
+                    + (discount === best && best > 0 ? ' <span class="badge text-bg-success">Tiết kiệm nhất</span>' : '');
+            }
+        });
     };
 
     const showVoucherMessage = (text, type) => {
@@ -46,7 +70,8 @@
             tagBox.insertAdjacentHTML('beforeend', `<span class="badge rounded-pill text-bg-danger me-1 mb-1">${code}</span>`);
         });
 
-        const discount = discountFor(subtotal);
+        const discount = discountFor(voucher, subtotal);
+        renderOptions(subtotal);
         document.getElementById('subtotalRow').classList.toggle('d-none', !voucher);
         document.getElementById('discountRow').classList.toggle('d-none', !voucher);
         document.getElementById('subtotalPrice').textContent = money(subtotal);
@@ -98,6 +123,11 @@
     };
 
     voucherBtn.addEventListener('click', applyVoucher);
+    options.forEach(({ el, data }) => el.addEventListener('click', () => {
+        // Bấm lại mã đang dùng để bỏ mã
+        voucherInput.value = voucher?.code === data.code ? '' : data.code;
+        applyVoucher();
+    }));
     voucherInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault(); // Enter trong ô mã không gửi form đặt vé

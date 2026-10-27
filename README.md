@@ -94,7 +94,7 @@ Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày
 php artisan test
 ```
 
-57 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+58 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -113,7 +113,7 @@ php artisan test
 - **Chọn ghế trên sơ đồ phòng chiếu**: ghế thường / ghế VIP (phụ thu), tính tiền tức thì.
 - Sơ đồ ghế **tự động cập nhật bằng AJAX mỗi 10 giây**; nếu ghế đang chọn bị người khác đặt sẽ được thông báo.
 - Đặt vé an toàn: dùng **transaction + khóa dòng (`lockForUpdate`)** để 2 người không thể đặt trùng ghế.
-- **Mã giảm giá**: kiểm tra bằng AJAX, tự tính lại khi đổi ghế (giảm % có mức tối đa / giảm tiền cố định, đơn tối thiểu, giới hạn lượt, mỗi khách 1 lần).
+- **Mã giảm giá**: danh sách "Mã dành cho bạn" ngay ở bước chọn ghế (hiện số tiền được giảm theo ghế đang chọn, gợi ý mã tiết kiệm nhất, báo còn thiếu bao nhiêu để đủ điều kiện), bấm để áp dụng; kiểm tra bằng AJAX, tự tính lại khi đổi ghế (giảm % có mức tối đa / giảm tiền cố định, đơn tối thiểu, giới hạn lượt, mỗi khách 1 lần).
 - Vé điện tử có mã vé + mã QR, in vé, **nhận vé qua email** ngay sau khi đặt.
 - **Đánh giá phim** (1–5 sao + bình luận) sau khi đã xem.
 - Lịch sử đặt vé (sắp chiếu / đã chiếu), **tự hủy vé** trước giờ chiếu 60 phút.
