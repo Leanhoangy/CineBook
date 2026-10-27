@@ -24,7 +24,12 @@
                         <x-poster :movie="$movie" />
                     </a>
                     <div class="flex-grow-1 min-w-0">
-                        <h2 class="h5 fw-bold mb-1"><a href="{{ route('movies.show', $movie) }}" class="text-body text-decoration-none">{{ $movie->title }}</a></h2>
+                        <h2 class="h5 fw-bold mb-1">
+                            <a href="{{ route('movies.show', $movie) }}" class="text-body text-decoration-none">{{ $movie->title }}</a>
+                            @if ($movie->status === 'coming_soon')
+                                <span class="badge rounded-pill text-bg-warning align-middle ms-1" style="font-size: .7rem">Đặt vé trước</span>
+                            @endif
+                        </h2>
                         <div class="text-muted small mb-3">
                             <span class="cb-age position-static {{ $movie->age_rating }} me-1">{{ $movie->age_rating }}</span>
                             {{ $movie->duration }} phút · {{ $movie->genres->pluck('name')->join(', ') }}

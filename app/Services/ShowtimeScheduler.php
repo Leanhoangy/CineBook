@@ -20,12 +20,22 @@ class ShowtimeScheduler
     /** Suất cuối cùng trong ngày phải bắt đầu trước giờ này */
     private const LAST_START_HOUR = 23;
 
-    /** Chuyển phim "Sắp chiếu" sang "Đang chiếu" khi đến ngày khởi chiếu */
-    public function updateStatuses(): int
+    /**
+     * Cập nhật trạng thái phim theo ngày: đến ngày khởi chiếu thì "Đang chiếu", qua ngày kết thúc thì "Ngừng chiếu".
+     *
+     * @return array{released: int, ended: int}
+     */
+    public function updateStatuses(): array
     {
-        return Movie::where('status', 'coming_soon')
+        $ended = Movie::where('status', '!=', 'ended')
+            ->whereDate('end_date', '<', today())
+            ->update(['status' => 'ended']);
+
+        $released = Movie::where('status', 'coming_soon')
             ->whereDate('release_date', '<=', today())
             ->update(['status' => 'now_showing']);
+
+        return ['released' => $released, 'ended' => $ended];
     }
 
     /**
@@ -37,12 +47,11 @@ class ShowtimeScheduler
     public function fill(Carbon $from, Carbon $to): int
     {
         $rooms = Room::active()->get();
-        $nowShowing = Movie::where('status', 'now_showing')->get();
-        $ended = Movie::where('status', 'ended')->get();
+        $allMovies = Movie::all();
         $created = 0;
 
         for ($date = $from->copy()->startOfDay(); $date->lte($to); $date->addDay()) {
-            $movies = $this->moviesFor($date, $nowShowing, $ended);
+            $movies = $this->moviesFor($date, $allMovies);
             if ($movies->isEmpty()) {
                 continue;
             }
@@ -126,17 +135,19 @@ class ShowtimeScheduler
     }
 
     /**
-     * Phim được xếp suất trong ngày: phim đang chiếu đã khởi chiếu (phim chiếu sớm được xếp từ hôm nay),
-     * và với ngày trong quá khứ thì có thêm các phim nay đã ngừng chiếu.
+     * Phim được xếp suất trong ngày $date: phim đã khởi chiếu và chưa qua ngày kết thúc chiếu.
+     * - Ngày tới: phim đang chiếu (kể cả suất chiếu sớm) + phim sắp chiếu từ ngày khởi chiếu (mở bán vé trước).
+     * - Ngày đã qua (tạo dữ liệu mẫu): thêm cả các phim nay đã ngừng chiếu.
      */
-    private function moviesFor(Carbon $date, Collection $nowShowing, Collection $ended): Collection
+    private function moviesFor(Carbon $date, Collection $movies): Collection
     {
-        if ($date->gte(today())) {
-            return $nowShowing->values();
-        }
-
-        return $nowShowing->merge($ended)
-            ->filter(fn (Movie $m) => $m->release_date->lte($date))
+        return $movies
+            ->filter(fn (Movie $m) => match ($m->status) {
+                'now_showing' => $date->gte(today()) || $m->release_date->lte($date),
+                'coming_soon' => $m->release_date->lte($date),
+                'ended' => $date->lt(today()) && $m->release_date->lte($date),
+            })
+            ->filter(fn (Movie $m) => ! $m->end_date || $m->end_date->gte($date))
             ->values();
     }
 

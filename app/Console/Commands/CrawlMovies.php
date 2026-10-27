@@ -7,6 +7,7 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use App\Services\MovieImporter;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
@@ -20,7 +21,8 @@ use Illuminate\Support\Facades\Http;
     {--upcoming=20 : Số phim sắp chiếu tối đa}
     {--ended=15 : Số phim đã ngừng chiếu (lấy từ sitemap, ưu tiên thể loại còn thiếu)}
     {--scan=150 : Số trang phim tối đa được quét để tìm phim đã ngừng chiếu}
-    {--delay=2000 : Thời gian nghỉ giữa 2 request (ms), không nên giảm để tránh bị Moveek chặn}')]
+    {--delay=2000 : Thời gian nghỉ giữa 2 request (ms), không nên giảm để tránh bị Moveek chặn}
+    {--import : Nạp luôn phim mới vào database (không xóa dữ liệu cũ)}')]
 #[Description('Cào dữ liệu phim thật từ Moveek.com vào database/seeders/data')]
 class CrawlMovies extends Command
 {
@@ -52,7 +54,7 @@ class CrawlMovies extends Command
     /** Moveek trả về 403/429 khi bị gửi quá nhiều request: dừng ngay, không gửi tiếp */
     private bool $blocked = false;
 
-    public function handle(): int
+    public function handle(MovieImporter $importer): int
     {
         $dataDir = database_path('seeders/data');
         $posterDir = $dataDir.'/posters';
@@ -104,6 +106,11 @@ class CrawlMovies extends Command
             unset($movies[$i]['poster_url']);
         }
 
+        // Lần này không quét phim ngừng chiếu (--ended=0): giữ lại phim cũ từ lần cào trước dưới dạng "Ngừng chiếu"
+        if ((int) $this->option('ended') === 0) {
+            $movies = array_merge($movies, $this->previousMovies($dataDir, array_column($movies, 'title')));
+        }
+
         // Xóa poster của những phim không còn trong danh sách
         $keep = array_column($movies, 'poster');
         foreach (File::files($posterDir) as $file) {
@@ -119,9 +126,33 @@ class CrawlMovies extends Command
         ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         $this->info('Đã lưu '.count($movies).' phim vào database/seeders/data/movies.json');
-        $this->line('Chạy <comment>php artisan migrate:fresh --seed</comment> để nạp dữ liệu mới vào database.');
+
+        if ($this->option('import')) {
+            ['created' => $created, 'updated' => $updated] = $importer->import();
+            $this->info("Đã nạp vào database: {$created} phim mới, cập nhật {$updated} phim.");
+        } else {
+            $this->line('Chạy <comment>php artisan migrate:fresh --seed</comment> để nạp dữ liệu mới vào database.');
+        }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Phim của lần cào trước không còn trên Moveek: phim đang chiếu / đã ngừng chiếu được giữ lại với trạng thái "Ngừng chiếu"
+     * (phim sắp chiếu bị rút khỏi lịch thì bỏ).
+     */
+    private function previousMovies(string $dataDir, array $currentTitles): array
+    {
+        $file = $dataDir.'/movies.json';
+        if (! is_file($file)) {
+            return [];
+        }
+
+        return collect(json_decode(File::get($file), true)['movies'] ?? [])
+            ->reject(fn (array $m) => $m['status'] === 'coming_soon' || in_array($m['title'], $currentTitles, true))
+            ->map(fn (array $m) => ['status' => 'ended'] + $m)
+            ->values()
+            ->all();
     }
 
     /** @return list<string> */

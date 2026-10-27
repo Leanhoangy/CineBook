@@ -22,6 +22,9 @@
                     <div class="d-flex flex-wrap gap-3 text-muted mb-3">
                         <span><i class="bi bi-clock me-1"></i>{{ $movie->duration_label }}</span>
                         <span><i class="bi bi-calendar-event me-1"></i>{{ $movie->release_date->format('d/m/Y') }}</span>
+                        @if ($movie->end_date && $movie->status !== 'ended')
+                            <span><i class="bi bi-calendar-x me-1"></i>Chiếu đến {{ $movie->end_date->format('d/m/Y') }}</span>
+                        @endif
                         <span><span class="cb-age position-static {{ $movie->age_rating }}">{{ $movie->age_rating }}</span> {{ \App\Models\Movie::AGE_RATINGS[$movie->age_rating] }}</span>
                     </div>
                     <div class="d-flex flex-wrap gap-2 mb-4">
@@ -40,7 +43,7 @@
                     </dl>
                     <div class="d-flex flex-wrap gap-2">
                         @if ($showtimesByDate->isNotEmpty())
-                            <a href="#lich-chieu" class="btn btn-primary btn-lg rounded-pill px-4"><i class="bi bi-ticket-perforated me-2"></i>Chọn suất chiếu</a>
+                            <a href="#lich-chieu" class="btn btn-primary btn-lg rounded-pill px-4"><i class="bi bi-ticket-perforated me-2"></i>{{ $movie->status === 'coming_soon' ? 'Đặt vé trước' : 'Chọn suất chiếu' }}</a>
                         @endif
                         @if ($movie->trailer_embed_url)
                             <button type="button" class="btn btn-outline-light btn-lg rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#trailerModal"><i class="bi bi-play-circle me-2"></i>Xem trailer</button>

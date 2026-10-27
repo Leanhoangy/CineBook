@@ -51,19 +51,27 @@ Danh sách phim (tên, mô tả, đạo diễn, diễn viên, thời lượng, n
 php artisan movies:crawl                 # mặc định: phim đang chiếu + 20 phim sắp chiếu + 15 phim đã ngừng chiếu
 php artisan movies:crawl --upcoming=40   # lấy nhiều phim sắp chiếu hơn
 php artisan migrate:fresh --seed         # nạp lại database (xóa dữ liệu cũ)
+php artisan movies:crawl --ended=0 --import   # chỉ lấy phim đang/sắp chiếu và thêm phim mới vào database, KHÔNG xóa dữ liệu cũ
 ```
+
+Trên server thật (`APP_ENV=production`), lệnh `movies:crawl --ended=0 --import` được lên lịch chạy **3h sáng thứ Hai hằng tuần** để danh sách phim sắp chiếu không bị cạn. Phim chưa có thì thêm mới, phim đã có thì giữ nguyên (chỉ gia hạn ngày kết thúc chiếu nếu Moveek vẫn còn chiếu).
 
 > Lệnh cào nghỉ 2 giây giữa các request. Nếu Moveek tạm chặn (lỗi 403), lệnh sẽ dừng và **giữ nguyên dữ liệu cũ** – hãy thử lại sau vài giờ.
 
-Phòng chiếu, suất chiếu, người dùng và đơn đặt vé vẫn được sinh tự động bởi seeder. Phim sắp chiếu chưa công bố thời lượng được tạm tính 120 phút; phim chưa có phân loại tuổi được để mặc định `P`. Trang khách chỉ hiện những thể loại còn phim đang/sắp chiếu.
+Phòng chiếu, suất chiếu, người dùng và đơn đặt vé vẫn được sinh tự động bởi seeder. Moveek không công bố ngày kết thúc chiếu nên được ước tính 8 tuần sau khởi chiếu (phim chiếu lại có ngày khởi chiếu cũ thì chiếu thêm 2–4 tuần); admin sửa được trong form phim. Phim sắp chiếu chưa công bố thời lượng được tạm tính 120 phút; phim chưa có phân loại tuổi được để mặc định `P`. Trang khách chỉ hiện những thể loại còn phim đang/sắp chiếu.
 
 ### Lịch chiếu luôn cập nhật
 
 Seeder chỉ tạo suất chiếu đến 7 ngày sau ngày seed. Để web luôn có suất chiếu (nhất là **trước buổi demo**), chạy:
 
 ```bash
-php artisan showtimes:refresh   # chuyển phim đến ngày khởi chiếu sang "Đang chiếu" + xếp suất chiếu 7 ngày tới
+php artisan showtimes:refresh   # cập nhật trạng thái phim + xếp suất chiếu 7 ngày tới
 ```
+
+Lệnh này làm 3 việc, giống cách rạp thật vận hành:
+- Phim **đến ngày khởi chiếu** → "Đang chiếu"; phim **qua ngày kết thúc chiếu** → "Ngừng chiếu" (phim để trống ngày kết thúc thì admin tự đổi trạng thái).
+- Phim **sắp chiếu** khởi chiếu trong 7 ngày tới được xếp suất từ ngày khởi chiếu → khách **đặt vé trước**.
+- Không xếp suất cho phim sau ngày kết thúc chiếu.
 
 Cách xếp lịch (`app/Services/ShowtimeScheduler.php`): 10 phòng chiếu từ 9h đến 23h, phim nào cũng có suất mỗi ngày; phim khởi chiếu trong 2 tuần được nhiều suất hơn (~3 suất/ngày rải sáng – chiều – tối), phim cũ 1–2 suất/ngày; các suất trong cùng phòng không bao giờ trùng giờ.
 
@@ -86,7 +94,7 @@ Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày
 php artisan test
 ```
 
-50 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+53 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -96,7 +104,7 @@ php artisan test
 - Xem phim đang chiếu / sắp chiếu, chi tiết phim, trailer YouTube.
 - **Tìm kiếm** phim theo tên, đạo diễn, diễn viên + lọc theo thể loại, trạng thái, **phân trang giữ từ khóa**.
 - **Gợi ý tìm kiếm trực tiếp bằng AJAX** trên thanh menu.
-- Xem lịch chiếu theo ngày, xem **đánh giá của khán giả** (điểm trung bình, phân bố số sao).
+- Xem lịch chiếu theo ngày (phim sắp chiếu được **mở bán vé trước**), xem **đánh giá của khán giả** (điểm trung bình, phân bố số sao).
 - Đăng ký, đăng nhập, **quên mật khẩu** (gửi link đặt lại qua email).
 
 ### Khách hàng (role `user`)
@@ -111,7 +119,7 @@ php artisan test
 
 ### Quản trị viên (role `admin`, khu vực `/admin`)
 - **Tổng quan**: doanh thu tháng, vé bán hôm nay, biểu đồ doanh thu 14 ngày (Chart.js), top phim.
-- **CRUD Phim**: upload poster, gán nhiều thể loại, **xóa mềm (Soft Delete)** → thùng rác → khôi phục / xóa vĩnh viễn.
+- **CRUD Phim**: upload poster, gán nhiều thể loại, ngày kết thúc chiếu (tự chuyển "Ngừng chiếu"), **xóa mềm (Soft Delete)** → thùng rác → khôi phục / xóa vĩnh viễn.
 - **CRUD Thể loại**, **CRUD Phòng chiếu** (xem trước sơ đồ ghế khi nhập số hàng/ghế).
 - **CRUD Suất chiếu**: tự tính giờ kết thúc, **chặn trùng giờ trong cùng phòng**, khóa sửa/xóa khi đã có vé.
 - **Đơn đặt vé**: tìm kiếm theo mã vé/khách/phim, lọc trạng thái & khoảng ngày, xác nhận/hủy, xóa đơn đã hủy, **xuất Excel** (chi tiết đơn + doanh thu theo phim).
@@ -149,7 +157,7 @@ php artisan test
 
 ```
 app/
-├── Console/Commands/          # movies:crawl – cào phim thật từ Moveek
+├── Console/Commands/          # movies:crawl (cào phim từ Moveek), showtimes:refresh (lịch chiếu hằng ngày)
 ├── Http/Controllers/          # Controller phía khách
 │   └── Admin/                 # Controller khu vực quản trị
 ├── Http/Middleware/EnsureUserHasRole.php

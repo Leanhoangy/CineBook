@@ -22,6 +22,7 @@ class MovieRequest extends FormRequest
             'cast' => ['nullable', 'string', 'max:255'],
             'duration' => ['required', 'integer', 'min:30', 'max:300'],
             'release_date' => ['required', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:release_date'],
             'age_rating' => ['required', Rule::in(array_keys(Movie::AGE_RATINGS))],
             'status' => ['required', Rule::in(array_keys(Movie::STATUSES))],
             'trailer_url' => ['nullable', 'url', 'max:255'],

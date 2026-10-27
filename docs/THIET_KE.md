@@ -57,6 +57,7 @@ erDiagram
         varchar cast
         smallint duration "phút"
         date release_date
+        date end_date "ngày kết thúc chiếu (null = admin tự quản lý)"
         enum age_rating "P|T13|T16|T18"
         varchar poster
         varchar trailer_url
@@ -200,7 +201,7 @@ flowchart LR
 | Ràng buộc | Giờ bắt đầu phải ở tương lai; không trùng khoảng thời gian với suất khác trong cùng phòng; suất đã có vé hoặc đã chiếu thì không cho sửa/xóa. |
 
 ### 4.3. Quản lý phim (UC11)
-Thêm/sửa phim kèm upload poster (jpg/png/webp ≤ 3MB) và chọn nhiều thể loại. Xóa phim là **xóa mềm** (vào Thùng rác), có thể khôi phục; chỉ được xóa vĩnh viễn khi phim chưa từng có suất chiếu. Không cho xóa phim còn suất chiếu sắp tới.
+Thêm/sửa phim kèm upload poster (jpg/png/webp ≤ 3MB) và chọn nhiều thể loại. Ngày kết thúc chiếu (không bắt buộc, phải sau ngày khởi chiếu): qua ngày này phim tự chuyển sang "Ngừng chiếu" và không được xếp suất nữa; phim sắp chiếu tự chuyển "Đang chiếu" vào ngày khởi chiếu và được mở bán vé trước khi có suất trong 7 ngày tới. Xóa phim là **xóa mềm** (vào Thùng rác), có thể khôi phục; chỉ được xóa vĩnh viễn khi phim chưa từng có suất chiếu. Không cho xóa phim còn suất chiếu sắp tới.
 
 ### 4.4. Tìm kiếm + phân trang
 Trang `/phim` tìm theo tên/đạo diễn/diễn viên, lọc thể loại, trạng thái; 8 phim/trang; dùng `paginate()->withQueryString()` để giữ từ khóa khi chuyển trang. Thanh menu có gợi ý tìm kiếm AJAX (debounce 250ms, điều hướng bằng phím mũi tên).
@@ -218,7 +219,7 @@ Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao
 
 | Yêu cầu (file đề) | Đáp ứng trong CineBook |
 |---|---|
-| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 7 migration nghiệp vụ, 8 seeder, 7 factory; phim thật cào từ Moveek (`movies:crawl`) |
+| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 8 migration nghiệp vụ, 8 seeder, 7 factory; phim thật cào từ Moveek (`movies:crawl`) |
 | Blade + Bootstrap, tách giao diện user/admin | `layouts/app` (tối, rạp phim) và `layouts/admin` (sidebar) |
 | ≥ 2 role, admin vào `/admin`, bảo vệ route bằng Middleware | Role `admin`/`user`, middleware `role:` tự viết + `auth` + `guest` |
 | CRUD ≥ 2 bảng có quan hệ | CRUD đủ trên Phim, Thể loại, Phòng, Suất chiếu, Người dùng, Mã giảm giá (+ Đơn đặt vé, Đánh giá) |
@@ -228,7 +229,7 @@ Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao
 | *Mở rộng:* Upload file | Poster phim, avatar người dùng |
 | *Mở rộng:* Gửi email | Quên mật khẩu (Password Broker), email vé điện tử sau khi đặt |
 | *Mở rộng:* Xuất file | Xuất đơn đặt vé + doanh thu theo phim ra Excel (.xlsx) |
-| *Mở rộng:* Tác vụ định kỳ | `showtimes:refresh` chạy hằng ngày qua Laravel Scheduler |
+| *Mở rộng:* Tác vụ định kỳ | Laravel Scheduler: `showtimes:refresh` hằng ngày (khởi chiếu / ngừng chiếu tự động, xếp lịch 7 ngày tới, mở bán vé trước); `movies:crawl --import` hằng tuần lấy phim mới |
 | *Mở rộng:* AJAX | Gợi ý tìm kiếm, cập nhật sơ đồ ghế realtime, kiểm tra mã giảm giá |
 | *Mở rộng:* API ngoài | YouTube embed (trailer), QR code API |
 | *Mở rộng:* Responsive | Bootstrap grid, menu thu gọn, sidebar offcanvas |

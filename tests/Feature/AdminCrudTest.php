@@ -72,6 +72,12 @@ class AdminCrudTest extends TestCase
             'description' => 'ngắn',
             'duration' => 5,
         ])->assertSessionHasErrors(['description', 'duration', 'release_date', 'genres', 'age_rating', 'status']);
+
+        // Ngày kết thúc chiếu không được trước ngày khởi chiếu
+        $this->actingAs($this->admin)->post(route('admin.movies.store'), [
+            'release_date' => '2026-11-10',
+            'end_date' => '2026-11-01',
+        ])->assertSessionHasErrors('end_date');
     }
 
     public function test_movie_soft_delete_and_restore(): void

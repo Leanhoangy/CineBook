@@ -26,7 +26,7 @@ class ScheduleController extends Controller
 
         $showtimes = Showtime::with(['movie.genres', 'room'])
             ->whereBetween('start_time', [$date->isToday() ? now() : $date, $date->copy()->endOfDay()])
-            ->whereHas('movie', fn ($q) => $q->where('status', 'now_showing'))
+            ->whereHas('movie', fn ($q) => $q->where('status', '!=', 'ended'))
             ->whereHas('room', fn ($q) => $q->active())
             ->orderBy('start_time')
             ->get()

@@ -26,17 +26,23 @@
                     <input type="text" id="cast" name="cast" value="{{ old('cast', $movie->cast) }}" class="form-control @error('cast') is-invalid @enderror" placeholder="Cách nhau bởi dấu phẩy">
                     @error('cast') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-                <div class="col-md-4">
-                    <label for="duration" class="form-label">Thời lượng (phút) <span class="text-danger">*</span></label>
-                    <input type="number" id="duration" name="duration" min="30" max="300" value="{{ old('duration', $movie->duration) }}" class="form-control @error('duration') is-invalid @enderror">
-                    @error('duration') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label for="release_date" class="form-label">Ngày khởi chiếu <span class="text-danger">*</span></label>
                     <input type="date" id="release_date" name="release_date" value="{{ old('release_date', $movie->release_date?->toDateString()) }}" class="form-control @error('release_date') is-invalid @enderror">
                     @error('release_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
+                    <label for="end_date" class="form-label">Ngày kết thúc chiếu</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ old('end_date', $movie->end_date?->toDateString()) }}" class="form-control @error('end_date') is-invalid @enderror">
+                    @error('end_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <div class="form-text">Qua ngày này phim tự chuyển sang "Ngừng chiếu". Để trống nếu muốn tự đổi trạng thái.</div>
+                </div>
+                <div class="col-md-6">
+                    <label for="duration" class="form-label">Thời lượng (phút) <span class="text-danger">*</span></label>
+                    <input type="number" id="duration" name="duration" min="30" max="300" value="{{ old('duration', $movie->duration) }}" class="form-control @error('duration') is-invalid @enderror">
+                    @error('duration') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-6">
                     <label for="age_rating" class="form-label">Phân loại <span class="text-danger">*</span></label>
                     <select id="age_rating" name="age_rating" class="form-select @error('age_rating') is-invalid @enderror">
                         @foreach (\App\Models\Movie::AGE_RATINGS as $value => $label)

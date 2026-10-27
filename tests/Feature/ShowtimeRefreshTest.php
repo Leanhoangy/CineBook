@@ -6,7 +6,10 @@ use App\Models\Genre;
 use App\Models\Movie;
 use App\Models\Room;
 use App\Models\Showtime;
+use App\Models\User;
+use App\Services\MovieImporter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ShowtimeRefreshTest extends TestCase
@@ -63,6 +66,58 @@ class ShowtimeRefreshTest extends TestCase
         Showtime::orderBy('start_time')->get()->groupBy('room_id')->each(function ($showtimes) {
             $showtimes->sliding(2)->each(fn ($pair) => $this->assertTrue($pair->first()->end_time->lte($pair->last()->start_time)));
         });
+    }
+
+    public function test_movies_end_automatically_and_are_not_scheduled_after_end_date(): void
+    {
+        Room::factory()->create();
+        $finished = Movie::factory()->create(['release_date' => today()->subWeeks(9), 'end_date' => today()->subDay()]);
+        $lastDays = Movie::factory()->create(['release_date' => today()->subWeeks(7), 'end_date' => today()->addDay()]);
+        $managedByAdmin = Movie::factory()->create(['release_date' => today()->subYear(), 'end_date' => null]);
+
+        $this->artisan('showtimes:refresh', ['--days' => 3])->assertSuccessful();
+
+        $this->assertSame('ended', $finished->fresh()->status);
+        $this->assertSame('now_showing', $lastDays->fresh()->status);
+        $this->assertSame('now_showing', $managedByAdmin->fresh()->status);
+        $this->assertFalse(Showtime::where('movie_id', $finished->id)->exists());
+        $this->assertFalse(Showtime::where('movie_id', $lastDays->id)->whereDate('start_time', '>', today()->addDay())->exists());
+        $this->assertTrue(Showtime::where('movie_id', $managedByAdmin->id)->whereDate('start_time', today()->addDays(3))->exists());
+    }
+
+    public function test_coming_soon_movie_opens_pre_sale_from_its_release_date(): void
+    {
+        Room::factory()->create();
+        Movie::factory()->create();
+        $upcoming = Movie::factory()->comingSoon()->create(['release_date' => today()->addDays(2)]);
+
+        $this->artisan('showtimes:refresh', ['--days' => 3])->assertSuccessful();
+
+        $first = Showtime::where('movie_id', $upcoming->id)->orderBy('start_time')->first();
+        $this->assertTrue($first->start_time->isSameDay(today()->addDays(2)));
+        $this->assertSame('coming_soon', $upcoming->fresh()->status);
+
+        $this->get(route('movies.show', $upcoming))->assertSee('Đặt vé trước');
+        $this->actingAs(User::factory()->create())
+            ->post(route('bookings.store', $first), ['seats' => ['A1']])
+            ->assertSessionHasNoErrors();
+        $this->assertSame(1, $first->bookings()->count());
+    }
+
+    public function test_importing_movies_twice_does_not_duplicate_and_estimates_end_dates(): void
+    {
+        Storage::fake('public');
+        $importer = app(MovieImporter::class);
+
+        $first = $importer->import();
+        $second = $importer->import();
+
+        $this->assertGreaterThan(0, $first['created']);
+        $this->assertSame(0, $second['created']);
+        $this->assertSame($first['created'], Movie::count());
+        $this->assertFalse(Movie::where('status', 'ended')->whereDate('end_date', '>=', today())->exists());
+        $this->assertFalse(Movie::where('status', 'now_showing')->whereDate('end_date', '<', today()->addWeeks(2))->exists());
+        $this->assertFalse(Movie::whereColumn('end_date', '<', 'release_date')->where('status', '!=', 'ended')->exists());
     }
 
     public function test_genres_without_showing_movies_are_hidden_from_customers(): void

@@ -73,7 +73,7 @@ class Showtime extends Model
         return $this->start_time->isFuture()
             && $this->room?->is_active
             && $this->movie && ! $this->movie->trashed()
-            && $this->movie->status === 'now_showing';
+            && $this->movie->status !== 'ended'; // phim sắp chiếu: cho đặt vé trước
     }
 
     /** Tính giờ kết thúc = giờ bắt đầu + thời lượng phim + thời gian dọn phòng */

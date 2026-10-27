@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 #[Fillable([
-    'title', 'description', 'director', 'cast', 'duration', 'release_date',
+    'title', 'description', 'director', 'cast', 'duration', 'release_date', 'end_date',
     'age_rating', 'poster', 'trailer_url', 'status',
 ])]
 class Movie extends Model
@@ -37,6 +37,7 @@ class Movie extends Model
     {
         return [
             'release_date' => 'date',
+            'end_date' => 'date',
             'duration' => 'integer',
         ];
     }

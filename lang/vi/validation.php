@@ -105,6 +105,7 @@ return [
         'cast' => 'diễn viên',
         'duration' => 'thời lượng',
         'release_date' => 'ngày khởi chiếu',
+        'end_date' => 'ngày kết thúc chiếu',
         'age_rating' => 'phân loại độ tuổi',
         'poster' => 'poster',
         'trailer_url' => 'link trailer',
