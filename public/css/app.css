@@ -310,6 +310,10 @@ main { flex: 1; }
 /* ----- Đánh giá phim ----- */
 .cb-stars, .cb-star, .cb-rating-inline { color: var(--cb-gold); }
 .cb-stars .bi { margin-right: 1px; }
+.cb-badge-new {
+    display: inline-block; padding: 0 .45rem; border-radius: 999px; font-size: .72rem; font-weight: 700;
+    line-height: 1.5; color: var(--cb-accent); border: 1px solid var(--cb-accent); vertical-align: 1px;
+}
 .cb-rating-big { font-size: 3rem; font-weight: 800; line-height: 1; }
 .cb-rating-big small { font-size: 1.1rem; color: var(--cb-muted); font-weight: 500; }
 .cb-review { padding: 1rem 0; border-bottom: 1px solid var(--cb-border); }

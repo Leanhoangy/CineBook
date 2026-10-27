@@ -13,6 +13,8 @@
         <i class="bi bi-clock"></i> {{ $movie->duration }} phút
         @if ($movie->reviews_avg_rating)
             · <span class="cb-rating-inline"><i class="bi bi-star-fill"></i> {{ number_format($movie->reviews_avg_rating, 1, ',') }}</span>
+        @elseif ($movie->status === 'now_showing')
+            · <span class="cb-badge-new" title="Phim mới, chưa có đánh giá">Mới</span>
         @endif
         @if ($movie->status === 'coming_soon')
             · <i class="bi bi-calendar-event"></i> {{ $movie->release_date->format('d/m/Y') }}

@@ -91,4 +91,17 @@ class ReviewTest extends TestCase
         $this->assertFalse($review->fresh()->is_hidden);
         $this->get(route('movies.show', $this->movie))->assertSee('Quảng cáo spam');
     }
+
+    public function test_movie_card_shows_rating_or_new_badge(): void
+    {
+        $reviewed = Movie::factory()->create(['title' => 'Phim Có Sao']);
+        Review::factory()->for($reviewed)->create(['rating' => 4]);
+        Movie::factory()->create(['title' => 'Phim Chưa Ai Xem']);
+
+        $html = $this->get(route('movies.index'))->assertOk()->getContent();
+
+        // Phim có đánh giá hiện số sao, phim chưa có đánh giá hiện nhãn "Mới"
+        $this->assertMatchesRegularExpression('/Phim Có Sao<\/h3>(?:(?!<\/div>).)*bi-star-fill"><\/i> 4,0/s', $html);
+        $this->assertMatchesRegularExpression('/Phim Chưa Ai Xem<\/h3>(?:(?!<\/div>).)*cb-badge-new/s', $html);
+    }
 }

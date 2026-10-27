@@ -44,6 +44,7 @@ class MovieController extends Controller
             ->groupBy(fn ($s) => $s->start_time->toDateString());
 
         $related = Movie::with('genres')
+            ->withAvg(['reviews' => fn ($q) => $q->visible()], 'rating')
             ->whereKeyNot($movie->id)
             ->where('status', '!=', 'ended')
             ->whereHas('genres', fn ($q) => $q->whereIn('genres.id', $movie->genres->pluck('id')))
