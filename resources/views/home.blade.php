@@ -74,6 +74,32 @@
             </section>
         @endif
 
+        {{-- Ưu đãi --}}
+        <section class="mt-5">
+            <div class="d-flex justify-content-between align-items-end mb-3">
+                <h2 class="cb-section-title mb-0">Ưu đãi</h2>
+                <a href="{{ route('promotions') }}" class="small">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+            </div>
+            <div class="row g-3">
+                @foreach ($programs as $program)
+                    <div class="col-md-6 col-lg-3"><x-promo-card :program="$program" /></div>
+                @endforeach
+                @if ($voucher)
+                    <div class="col-md-6 col-lg-3">
+                        <a href="{{ route('promotions') }}#ma-giam-gia" class="cb-card cb-promo cb-promo-code h-100">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="icon"><i class="bi bi-ticket-perforated"></i></div>
+                                <span class="badge rounded-pill text-bg-dark border">Mã giảm giá</span>
+                            </div>
+                            <h3 class="h5 fw-bold">{{ $voucher->label }}</h3>
+                            <p class="text-muted small mb-2">{{ $voucher->description }}</p>
+                            <code class="cb-voucher-code">{{ $voucher->code }}</code>
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </section>
+
         {{-- Lợi ích --}}
         <section class="mt-5">
             <div class="row g-3">

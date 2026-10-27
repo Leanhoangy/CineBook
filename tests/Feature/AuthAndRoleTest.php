@@ -15,6 +15,8 @@ class AuthAndRoleTest extends TestCase
         $this->get('/')->assertOk();
         $this->get(route('movies.index'))->assertOk();
         $this->get(route('schedule.index'))->assertOk();
+        $this->get(route('promotions'))->assertOk();
+        $this->get(route('support'))->assertOk()->assertSee('Câu hỏi thường gặp', false);
         $this->get(route('login'))->assertOk();
     }
 

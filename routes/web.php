@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MovieController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
@@ -21,6 +22,8 @@ Route::get('/phim', [MovieController::class, 'index'])->name('movies.index');
 Route::get('/phim/goi-y', [MovieController::class, 'suggest'])->name('movies.suggest'); // AJAX
 Route::get('/phim/{movie}', [MovieController::class, 'show'])->name('movies.show');
 Route::get('/lich-chieu', [ScheduleController::class, 'index'])->name('schedule.index');
+Route::get('/uu-dai', [PageController::class, 'promotions'])->name('promotions');
+Route::get('/ho-tro', [PageController::class, 'support'])->name('support');
 Route::get('/suat-chieu/{showtime}/ghe-da-dat', [BookingController::class, 'seatStatus'])->name('showtimes.seats'); // AJAX
 
 /*

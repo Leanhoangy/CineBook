@@ -298,6 +298,59 @@ main { flex: 1; }
 .cb-footer { border-top: 1px solid var(--cb-border); background: #0a0c10; color: var(--cb-muted); }
 .cb-footer a { color: var(--cb-muted); text-decoration: none; }
 .cb-footer a:hover { color: var(--cb-text); }
+.cb-footer-title { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--cb-text); margin-bottom: 1rem; }
+.cb-footer-links li { margin-bottom: .55rem; font-size: .9rem; }
+.cb-footer-promo {
+    display: inline-flex; align-items: center; gap: .6rem; padding: .55rem .9rem; border-radius: 999px; font-size: .85rem;
+    border: 1px solid rgba(255, 77, 90, .35); background: rgba(255, 77, 90, .08);
+}
+.cb-footer-promo .bi { color: var(--cb-accent); font-size: 1.1rem; }
+.cb-footer-bottom { border-top: 1px solid var(--cb-border); }
+.cb-contact li { display: flex; gap: .75rem; margin-bottom: .7rem; line-height: 1.5; }
+.cb-contact .bi { color: var(--cb-accent); flex-shrink: 0; margin-top: .1rem; }
+
+/* ----- Ưu đãi ----- */
+.cb-promo { display: block; padding: 1.4rem; color: inherit; text-decoration: none; transition: border-color .2s ease, transform .2s ease; }
+.cb-promo:hover { border-color: var(--cb-accent); transform: translateY(-3px); color: inherit; }
+.cb-promo .icon {
+    width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255, 77, 90, .12); color: var(--cb-accent); font-size: 1.4rem;
+}
+.cb-promo-code .icon { background: rgba(245, 185, 66, .14); color: var(--cb-gold); }
+.cb-voucher-code {
+    display: inline-block; padding: .25rem .65rem; border-radius: 6px; border: 1px dashed var(--cb-gold);
+    color: var(--cb-gold); background: rgba(245, 185, 66, .08); font-size: .9rem; font-weight: 700; letter-spacing: .05em;
+}
+.cb-voucher { display: flex; height: 100%; border-radius: var(--cb-radius); background: var(--cb-surface); border: 1px solid var(--cb-border); overflow: hidden; }
+.cb-voucher-value {
+    position: relative; flex: 0 0 110px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, var(--cb-accent), #c81d3a); color: #fff; border-right: 2px dashed var(--cb-bg);
+}
+.cb-voucher-value strong { font-size: 1.9rem; font-weight: 800; line-height: 1; }
+.cb-voucher-value small { font-size: .7rem; letter-spacing: .15em; opacity: .85; margin-top: .3rem; }
+/* Hai vết khuyết hình bán nguyệt giống cuống vé */
+.cb-voucher-value::before, .cb-voucher-value::after {
+    content: ''; position: absolute; right: -10px; width: 18px; height: 18px; border-radius: 50%; background: var(--cb-bg);
+}
+.cb-voucher-value::before { top: -9px; }
+.cb-voucher-value::after { bottom: -9px; }
+.cb-voucher-body { padding: 1rem 1.2rem; flex: 1; min-width: 0; }
+.cb-voucher-terms { list-style: none; padding: 0; margin: 0; color: var(--cb-muted); font-size: .82rem; }
+.cb-voucher-terms li::before { content: '•'; color: var(--cb-accent); margin-right: .4rem; }
+.cb-voucher.is-upcoming .cb-voucher-value { background: linear-gradient(160deg, #4a5262, #2c323d); }
+[data-copy] { white-space: nowrap; }
+@media (max-width: 576px) {
+    .cb-voucher-value { flex-basis: 78px; }
+    .cb-voucher-value strong { font-size: 1.45rem; }
+    .cb-voucher-body { padding: .85rem 1rem; }
+}
+.cb-price-table { --bs-table-bg: transparent; text-align: center; }
+.cb-price-table th:first-child { text-align: left; }
+.cb-price-table thead th { font-size: .8rem; color: var(--cb-muted); font-weight: 600; white-space: nowrap; }
+.cb-price-table td, .cb-price-table th { padding: .9rem 1rem; border-color: var(--cb-border); }
+.cb-seat-icon { cursor: default; flex-shrink: 0; }
+.cb-faq { --bs-accordion-bg: var(--cb-surface); --bs-accordion-border-color: var(--cb-border); --bs-accordion-active-bg: var(--cb-surface-2); --bs-accordion-active-color: var(--cb-text); --bs-accordion-btn-focus-box-shadow: none; }
+.cb-faq .accordion-button { font-weight: 600; }
 
 .pagination { --bs-pagination-bg: var(--cb-surface); --bs-pagination-border-color: var(--cb-border); --bs-pagination-active-bg: var(--cb-accent); --bs-pagination-active-border-color: var(--cb-accent); --bs-pagination-color: var(--cb-text); --bs-pagination-hover-bg: var(--cb-surface-2); --bs-pagination-hover-color: var(--cb-text); }
 .nav-pills { --bs-nav-pills-link-active-bg: var(--cb-accent); }

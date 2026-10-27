@@ -86,7 +86,7 @@ class ShowtimeScheduler
                     'room_id' => $roomId,
                     'start_time' => $cursors[$roomId],
                     'end_time' => Showtime::calculateEndTime($cursors[$roomId], $movie),
-                    'price' => $this->priceFor($cursors[$roomId]),
+                    'price' => Showtime::standardPriceFor($cursors[$roomId]),
                 ]);
                 $created++;
 
@@ -149,13 +149,6 @@ class ShowtimeScheduler
             })
             ->filter(fn (Movie $m) => ! $m->end_date || $m->end_date->gte($date))
             ->values();
-    }
-
-    private function priceFor(Carbon $start): int
-    {
-        $price = $start->hour >= 17 ? 85000 : 70000;
-
-        return $start->isWeekend() ? $price + 10000 : $price;
     }
 
     private function roundUp(Carbon $time): Carbon

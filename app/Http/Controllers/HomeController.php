@@ -27,6 +27,11 @@ class HomeController extends Controller
         $featured = $nowShowing->first();
         $genres = Genre::withShowingMovies()->orderBy('name')->get();
 
-        return view('home', compact('nowShowing', 'comingSoon', 'featured', 'genres'));
+        // Mục ưu đãi: các chương trình giá vé + mã giảm giá đang áp dụng không có điều kiện đơn tối thiểu
+        $programs = PageController::programs();
+        $voucher = PageController::publicVouchers()
+            ->first(fn ($v) => ! $v->starts_at?->isFuture() && ! $v->min_order);
+
+        return view('home', compact('nowShowing', 'comingSoon', 'featured', 'genres', 'programs', 'voucher'));
     }
 }

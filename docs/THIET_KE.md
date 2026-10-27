@@ -212,7 +212,10 @@ Trang `/phim` tìm theo tên/đạo diễn/diễn viên, lọc thể loại, tr�
 | Luồng chính | Khách nhập mã ở trang chọn ghế → AJAX kiểm tra mã và trả về điều kiện → trình duyệt tự tính lại tiền giảm khi đổi ghế → khi xác nhận, server kiểm tra lại trong transaction (khóa dòng mã) rồi lưu `voucher_id`, `discount`. |
 | Ràng buộc | Mã đang bật, trong thời gian hiệu lực, còn lượt (chỉ tính vé chưa hủy), mỗi khách dùng 1 lần, đơn đạt giá trị tối thiểu; mã giảm % có mức giảm tối đa. Admin không xóa được mã đã có người dùng (chỉ tạm khóa). |
 
-### 4.6. Đánh giá phim (UC18, UC21)
+### 4.6. Bảng giá vé & ưu đãi
+Giá ghế thường của mỗi suất được tính tự động theo bảng giá trong `config/cinema.php` (`Showtime::standardPriceFor`): trước 12h / 12h–17h / từ 17h, phụ thu cuối tuần, "Thứ Ba vui vẻ" đồng giá cả ngày; ghế VIP phụ thu thêm. Trang `/uu-dai` đọc cùng bảng giá này và các mã giảm giá còn dùng được (đang bật, chưa hết hạn, còn lượt) nên nội dung luôn khớp với giá thực tế khi đặt vé.
+
+### 4.7. Đánh giá phim (UC18, UC21)
 Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao kèm bình luận; mỗi phim 1 đánh giá, sửa/xóa được. Trang phim hiển thị điểm trung bình, phân bố số sao. Admin lọc, ẩn/hiện bình luận vi phạm hoặc xóa.
 
 ## 5. Đối chiếu yêu cầu đồ án

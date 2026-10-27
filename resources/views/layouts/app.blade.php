@@ -20,6 +20,7 @@
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Trang chủ</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('movies.*') ? 'active' : '' }}" href="{{ route('movies.index') }}">Phim</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('schedule.*') ? 'active' : '' }}" href="{{ route('schedule.index') }}">Lịch chiếu</a></li>
+                    <li class="nav-item"><a class="nav-link {{ request()->routeIs('promotions') ? 'active' : '' }}" href="{{ route('promotions') }}">Ưu đãi</a></li>
                     @auth
                         @unless (auth()->user()->isAdmin())
                             <li class="nav-item"><a class="nav-link {{ request()->routeIs('bookings.index', 'bookings.show') ? 'active' : '' }}" href="{{ route('bookings.index') }}">Vé của tôi</a></li>
@@ -75,18 +76,55 @@
         @yield('content')
     </main>
 
-    <footer class="cb-footer mt-5 py-4">
-        <div class="container">
-            <div class="row gy-3 align-items-center">
-                <div class="col-md-6">
-                    <div class="cb-brand mb-1"><i class="bi bi-film text-danger me-1"></i>Cine<span>Book</span></div>
-                    <small>Đồ án môn Lập trình mã nguồn mở – Website đặt vé xem phim xây dựng bằng Laravel.</small>
+    @php $contact = config('cinema.contact'); @endphp
+    <footer class="cb-footer mt-5">
+        <div class="container py-5">
+            <div class="row gy-4">
+                <div class="col-lg-4">
+                    <div class="cb-brand mb-2"><i class="bi bi-film text-danger me-1"></i>Cine<span>Book</span></div>
+                    <p class="small mb-3">Đặt vé xem phim trực tuyến: chọn suất chiếu, chọn ghế trên sơ đồ phòng chiếu và nhận vé điện tử chỉ trong vài phút.</p>
+                    <a href="{{ route('promotions') }}" class="cb-footer-promo">
+                        <i class="bi bi-emoji-laughing"></i>
+                        <span><strong>Thứ Ba vui vẻ</strong> – đồng giá @money(config('cinema.pricing.tuesday')) mọi suất</span>
+                    </a>
                 </div>
-                <div class="col-md-6 text-md-end small">
-                    <a href="{{ route('movies.index') }}" class="me-3">Phim</a>
-                    <a href="{{ route('schedule.index') }}" class="me-3">Lịch chiếu</a>
-                    <span>&copy; {{ date('Y') }} CineBook</span>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <h2 class="cb-footer-title">Khám phá</h2>
+                    <ul class="list-unstyled cb-footer-links">
+                        <li><a href="{{ route('movies.index', ['trang-thai' => 'now_showing']) }}">Phim đang chiếu</a></li>
+                        <li><a href="{{ route('movies.index', ['trang-thai' => 'coming_soon']) }}">Phim sắp chiếu</a></li>
+                        <li><a href="{{ route('schedule.index') }}">Lịch chiếu</a></li>
+                        <li><a href="{{ route('promotions') }}">Ưu đãi & giá vé</a></li>
+                    </ul>
                 </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <h2 class="cb-footer-title">Hỗ trợ</h2>
+                    <ul class="list-unstyled cb-footer-links">
+                        <li><a href="{{ route('support') }}">Câu hỏi thường gặp</a></li>
+                        <li><a href="{{ route('promotions') }}#bang-gia">Bảng giá vé</a></li>
+                        @auth
+                            <li><a href="{{ route('profile.edit') }}">Tài khoản</a></li>
+                        @else
+                            <li><a href="{{ route('login') }}">Đăng nhập / Đăng ký</a></li>
+                            <li><a href="{{ route('password.request') }}">Quên mật khẩu</a></li>
+                        @endauth
+                    </ul>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <h2 class="cb-footer-title">Liên hệ</h2>
+                    <ul class="list-unstyled cb-contact small mb-0">
+                        <li><i class="bi bi-geo-alt"></i><span>{{ $contact['address'] }}</span></li>
+                        <li><i class="bi bi-telephone"></i><span>Hotline {{ $contact['hotline'] }}</span></li>
+                        <li><i class="bi bi-envelope"></i><span>{{ $contact['email'] }}</span></li>
+                        <li><i class="bi bi-clock"></i><span>{{ $contact['hours'] }}</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="cb-footer-bottom">
+            <div class="container d-flex flex-wrap justify-content-between gap-2 py-3 small">
+                <span>&copy; {{ date('Y') }} CineBook. Đồ án môn Lập trình mã nguồn mở, xây dựng bằng Laravel.</span>
+                <span>Thanh toán tại quầy khi nhận vé</span>
             </div>
         </div>
     </footer>

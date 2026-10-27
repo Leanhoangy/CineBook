@@ -12,6 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
         bar.scrollLeft += activeRect.left - barRect.left - (barRect.width - activeRect.width) / 2;
     });
 
+    // Nút sao chép mã giảm giá: <button data-copy="MA">
+    document.querySelectorAll('[data-copy]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const label = btn.querySelector('span');
+            try {
+                await navigator.clipboard.writeText(btn.dataset.copy);
+                label.textContent = 'Đã sao chép';
+            } catch {
+                label.textContent = btn.dataset.copy; // trình duyệt chặn clipboard: hiện mã để khách tự chép
+            }
+            setTimeout(() => (label.textContent = 'Sao chép'), 2000);
+        });
+    });
+
     // Hộp xác nhận trước khi xóa/hủy: <form data-confirm="Nội dung câu hỏi">
     document.querySelectorAll('form[data-confirm]').forEach((form) => {
         form.addEventListener('submit', (e) => {

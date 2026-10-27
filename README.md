@@ -94,7 +94,7 @@ Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày
 php artisan test
 ```
 
-54 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+57 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -106,6 +106,8 @@ php artisan test
 - **Gợi ý tìm kiếm trực tiếp bằng AJAX** trên thanh menu.
 - Xem lịch chiếu theo ngày (phim sắp chiếu được **mở bán vé trước**), xem **đánh giá của khán giả** (điểm trung bình, phân bố số sao).
 - Đăng ký, đăng nhập, **quên mật khẩu** (gửi link đặt lại qua email).
+- Trang **Ưu đãi**: chương trình giá vé (Thứ Ba vui vẻ đồng giá, suất sáng giá rẻ, đặt vé trước), mã giảm giá đang áp dụng (sao chép mã 1 chạm), **bảng giá vé** theo khung giờ / ngày trong tuần, loại ghế và phòng chiếu.
+- Trang **Hỗ trợ**: câu hỏi thường gặp (đặt vé, hủy vé, mã giảm giá, phân loại độ tuổi) và thông tin liên hệ.
 
 ### Khách hàng (role `user`)
 - **Chọn ghế trên sơ đồ phòng chiếu**: ghế thường / ghế VIP (phụ thu), tính tiền tức thì.

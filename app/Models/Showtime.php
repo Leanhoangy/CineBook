@@ -77,6 +77,24 @@ class Showtime extends Model
     }
 
     /** Tính giờ kết thúc = giờ bắt đầu + thời lượng phim + thời gian dọn phòng */
+    /** Giá vé ghế thường theo bảng giá (config/cinema.php): khung giờ, cuối tuần, "Thứ Ba vui vẻ" */
+    public static function standardPriceFor(Carbon $start): int
+    {
+        $pricing = config('cinema.pricing');
+
+        if ($start->isTuesday()) {
+            return $pricing['tuesday'];
+        }
+
+        $price = match (true) {
+            $start->hour < 12 => $pricing['morning'],
+            $start->hour < 17 => $pricing['afternoon'],
+            default => $pricing['evening'],
+        };
+
+        return $start->isWeekend() ? $price + $pricing['weekend_surcharge'] : $price;
+    }
+
     public static function calculateEndTime($startTime, Movie $movie): Carbon
     {
         return Carbon::parse($startTime)
