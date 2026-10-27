@@ -133,5 +133,5 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/seat-picker.js') }}"></script>
+    <script src="{{ asset('js/seat-picker.js') }}?v={{ filemtime(public_path('js/seat-picker.js')) }}"></script>
 @endpush
