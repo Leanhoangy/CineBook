@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MovieController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,11 @@ Route::middleware('guest')->group(function () {
     Route::post('/dang-nhap', [AuthController::class, 'login'])->middleware('throttle:10,1');
     Route::get('/dang-ky', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/dang-ky', [AuthController::class, 'register']);
+
+    Route::get('/quen-mat-khau', [PasswordResetController::class, 'showForgot'])->name('password.request');
+    Route::post('/quen-mat-khau', [PasswordResetController::class, 'sendLink'])->name('password.email')->middleware('throttle:5,1');
+    Route::get('/dat-lai-mat-khau/{token}', [PasswordResetController::class, 'showReset'])->name('password.reset');
+    Route::post('/dat-lai-mat-khau', [PasswordResetController::class, 'reset'])->name('password.update');
 });
 
 /*

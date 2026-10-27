@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBookingRequest;
+use App\Mail\BookingConfirmed;
 use App\Models\Booking;
 use App\Models\Showtime;
 use Illuminate\Http\JsonResponse;
@@ -10,6 +11,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -92,6 +94,13 @@ class BookingController extends Controller
 
             return $booking;
         });
+
+        // Lỗi gửi email (VD: chưa cấu hình SMTP) không được làm hỏng việc đặt vé đã thành công
+        try {
+            Mail::to($request->user())->send(new BookingConfirmed($booking));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return redirect()->route('bookings.show', $booking)
             ->with('success', 'Đặt vé thành công! Mã vé của bạn là '.$booking->code.'.');

@@ -22,9 +22,12 @@
                     <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="••••••••">
                     @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-                <div class="form-check mb-4">
-                    <input class="form-check-input" type="checkbox" name="remember" id="remember" @checked(old('remember'))>
-                    <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" name="remember" id="remember" @checked(old('remember'))>
+                        <label class="form-check-label" for="remember">Ghi nhớ đăng nhập</label>
+                    </div>
+                    <a href="{{ route('password.request') }}" class="small">Quên mật khẩu?</a>
                 </div>
                 <button class="btn btn-primary w-100 py-2">Đăng nhập</button>
             </form>
