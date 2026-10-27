@@ -127,7 +127,8 @@ class BookingSeeder extends Seeder
 
     /**
      * Chọn mã giảm giá hợp lệ tại thời điểm đặt (đúng thời hạn, đủ đơn tối thiểu, còn lượt, khách chưa dùng).
-     * Bỏ qua tài khoản demo để khi trình bày vẫn thử được mọi mã.
+     * Mã giới hạn lượt dùng hết như thật (VD: THANHVIENMOI cho 20 khách đầu tiên).
+     * Bỏ qua tài khoản demo để khi trình bày vẫn thử được các mã còn lượt.
      */
     private function pickVoucher(User $customer, int $total, Carbon $createdAt, bool $cancelled): ?Voucher
     {
@@ -139,7 +140,7 @@ class BookingSeeder extends Seeder
             && (! $v->starts_at || $v->starts_at->lte($createdAt))
             && (! $v->expires_at || $v->expires_at->gt($createdAt))
             && $total >= $v->min_order
-            && ($v->usage_limit === null || ($this->used[$v->id] ?? 0) < $v->usage_limit - 2) // chừa 2 lượt để demo
+            && ($v->usage_limit === null || ($this->used[$v->id] ?? 0) < $v->usage_limit)
             && ! isset($this->usedBy[$customer->id][$v->id]));
 
         // Vé đã hủy không tính lượt dùng (giống quy tắc trên web)

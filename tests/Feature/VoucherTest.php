@@ -148,11 +148,15 @@ class VoucherTest extends TestCase
         Voucher::factory()->create(['code' => 'SAPTOI', 'starts_at' => now()->addWeek(), 'expires_at' => now()->addMonth()]);
         Voucher::factory()->create(['code' => 'DADUNG']);
         $this->book(['A1'], 'DADUNG');
+        Voucher::factory()->create(['code' => 'HETLUOT', 'usage_limit' => 1]); // khách khác đã dùng hết lượt
+        $this->book(['A2'], 'HETLUOT', User::factory()->create());
+        Voucher::factory()->create(['code' => 'SAPHET', 'usage_limit' => 3]);
+        $this->book(['A3'], 'SAPHET', User::factory()->create());
 
         $this->actingAs($this->user)->get(route('bookings.create', $this->showtime))
             ->assertOk()
-            ->assertSee(['Mã dành cho bạn (2)', 'CONDUNG', 'Mã còn dùng được', 'DONLON'])
-            ->assertDontSee(['HETHAN', 'SAPTOI', 'DADUNG']);
+            ->assertSee(['Mã dành cho bạn (3)', 'CONDUNG', 'Mã còn dùng được', 'DONLON', 'SAPHET', 'còn 2 lượt'])
+            ->assertDontSee(['HETHAN', 'SAPTOI', 'DADUNG', 'HETLUOT']);
     }
 }
 

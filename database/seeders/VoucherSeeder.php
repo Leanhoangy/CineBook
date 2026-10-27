@@ -12,7 +12,7 @@ class VoucherSeeder extends Seeder
         $vouchers = [
             ['code' => 'CINEBOOK10', 'description' => 'Giảm 10% cho mọi đơn đặt vé', 'type' => 'percent', 'value' => 10, 'max_discount' => 30000,
                 'starts_at' => now()->subMonths(2), 'expires_at' => now()->addMonths(3)],
-            ['code' => 'GIAM20K', 'description' => 'Giảm 20.000 ₫ cho đơn từ 150.000 ₫', 'type' => 'fixed', 'value' => 20000, 'min_order' => 150000, 'usage_limit' => 500,
+            ['code' => 'GIAM20K', 'description' => 'Giảm 20.000 ₫ cho đơn từ 150.000 ₫', 'type' => 'fixed', 'value' => 20000, 'min_order' => 150000, 'usage_limit' => 1000,
                 'starts_at' => now()->subMonth(), 'expires_at' => now()->addMonths(2)],
             ['code' => 'SINHVIEN', 'description' => 'Ưu đãi học sinh – sinh viên', 'type' => 'percent', 'value' => 15, 'max_discount' => 25000,
                 'starts_at' => now()->subWeeks(3), 'expires_at' => now()->addMonths(6)],

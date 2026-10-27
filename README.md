@@ -84,7 +84,7 @@ Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày
 | Quản trị viên | `admin@cinebook.test` | `/admin` |
 | Khách hàng | `user@cinebook.test` | Trang chủ |
 
-**Mã giảm giá mẫu** (tài khoản demo chưa dùng mã nào): `CINEBOOK10` (giảm 10%, tối đa 30.000 ₫), `GIAM20K` (đơn từ 150.000 ₫), `SINHVIEN`, `NHOMBAN4` (đơn từ 300.000 ₫), `THANHVIENMOI`; `HE2026` đã hết hạn và `GIANGSINH` chưa tới ngày để demo thông báo lỗi.
+**Mã giảm giá mẫu** (tài khoản demo chưa dùng mã nào): `CINEBOOK10` (giảm 10%, tối đa 30.000 ₫), `GIAM20K` (đơn từ 150.000 ₫), `SINHVIEN`, `NHOMBAN4` (đơn từ 300.000 ₫); `THANHVIENMOI` (20 khách đầu tiên) đã hết lượt, `HE2026` đã hết hạn và `GIANGSINH` chưa tới ngày để demo thông báo lỗi.
 
 **Email** (quên mật khẩu, vé điện tử): mặc định `MAIL_MAILER=log` nên email được ghi vào `storage/logs/laravel.log`. Muốn gửi thật, điền cấu hình SMTP (VD: [Mailtrap](https://mailtrap.io) hoặc Gmail + App Password) vào các biến `MAIL_*` trong `.env`.
 

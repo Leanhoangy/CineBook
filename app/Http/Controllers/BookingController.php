@@ -61,6 +61,7 @@ class BookingController extends Controller
             'min_order' => $v->min_order,
             'label' => $v->label,
             'description' => $v->description,
+            'remaining' => $v->usage_limit !== null ? $v->usage_limit - $v->used_count : null,
         ]);
 
         return view('bookings.create', compact('showtime', 'bookedSeats', 'otherShowtimes', 'vouchers'));

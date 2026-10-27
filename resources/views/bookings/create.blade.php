@@ -119,7 +119,12 @@
                                                 <code class="cb-voucher-code">{{ $v['code'] }}</code>
                                                 <span class="cb-voucher-hint"></span>
                                             </span>
-                                            <span class="d-block text-muted mt-1">{{ $v['description'] ?: $v['label'] }}</span>
+                                            <span class="d-block text-muted mt-1">
+                                                {{ $v['description'] ?: $v['label'] }}
+                                                @if ($v['remaining'] !== null && $v['remaining'] <= 10)
+                                                    · <span class="text-warning">còn {{ $v['remaining'] }} lượt</span>
+                                                @endif
+                                            </span>
                                         </button>
                                     @endforeach
                                 </div>
