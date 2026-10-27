@@ -25,7 +25,8 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            // Faker tiếng Việt đôi khi thêm danh xưng ("Cụ. ", "Bà. "...) trước tên: bỏ đi cho tự nhiên
+            'name' => preg_replace('/^\p{L}+\.\s+/u', '', fake()->name()),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),

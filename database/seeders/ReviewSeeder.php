@@ -3,49 +3,27 @@
 namespace Database\Seeders;
 
 use App\Models\Booking;
+use App\Models\Movie;
 use App\Models\Review;
 use Illuminate\Database\Seeder;
 
 /**
  * Tạo đánh giá mẫu: chỉ khách đã xem phim (có vé của suất chiếu đã diễn ra) mới đánh giá,
- * giống đúng quy tắc của trang web.
+ * giống đúng quy tắc của trang web. Nội dung lấy từ data/review_comments.php theo thể loại phim.
  */
 class ReviewSeeder extends Seeder
 {
-    private const COMMENTS = [
-        5 => [
-            'Phim quá hay, xem xong vẫn còn nổi da gà. Nhất định sẽ xem lại lần nữa!',
-            'Kịch bản chặt chẽ, diễn viên diễn quá đạt. 10 điểm không có nhưng.',
-            'Hình ảnh và âm thanh đỉnh cao, rất đáng tiền vé.',
-            'Cả rạp vỗ tay khi hết phim, cảm xúc thật sự.',
-            'Đi xem với gia đình, ai cũng khen. Rất đáng xem!',
-        ],
-        4 => [
-            'Phim hay, nhịp phim ổn, chỉ có đoạn giữa hơi chậm một chút.',
-            'Diễn xuất tốt, kỹ xảo đẹp. Đáng để ra rạp.',
-            'Nội dung cuốn hút, cái kết khá bất ngờ.',
-            'Xem giải trí rất ổn, nhạc phim hay.',
-            'Không xuất sắc nhưng rất đáng xem cuối tuần.',
-        ],
-        3 => [
-            'Phim tạm ổn, xem một lần cho biết.',
-            'Mở đầu hấp dẫn nhưng về cuối hơi đuối.',
-            'Kỹ xảo được nhưng kịch bản còn nhiều chỗ chưa hợp lý.',
-            'Không như kỳ vọng lắm nhưng cũng không tệ.',
-        ],
-        2 => [
-            'Hơi thất vọng, phim kéo dài không cần thiết.',
-            'Nội dung khá dễ đoán, xem nửa đầu là biết kết.',
-            'Trailer hay hơn phim.',
-        ],
-        1 => [
-            'Không hợp gu mình, ngủ gật giữa phim.',
-            'Kịch bản rời rạc, khó hiểu.',
-        ],
-    ];
+    /** @var array{groups: array<string, list<string>>, comments: array, general: array} */
+    private array $pool;
+
+    /** @var array<int, list<string>> Câu đã dùng cho từng phim, để một phim không có 2 bình luận giống hệt nhau */
+    private array $used = [];
 
     public function run(): void
     {
+        $this->pool = require __DIR__.'/data/review_comments.php';
+        $genres = Movie::with('genres')->get()->mapWithKeys(fn (Movie $m) => [$m->id => $m->genres->pluck('name')->all()]);
+
         // Mỗi cặp (khách, phim) đã xem lấy suất chiếu gần nhất để làm mốc thời gian đánh giá
         $watched = Booking::query()
             ->join('showtimes', 'showtimes.id', '=', 'bookings.showtime_id')
@@ -67,7 +45,7 @@ class ReviewSeeder extends Seeder
                 'user_id' => $row->user_id,
                 'movie_id' => $row->movie_id,
                 'rating' => $rating,
-                'content' => fake()->boolean(80) ? fake()->randomElement(self::COMMENTS[$rating]) : null,
+                'content' => fake()->boolean(80) ? $this->comment($row->movie_id, $genres[$row->movie_id] ?? [], $rating) : null,
             ]);
             $review->forceFill(['created_at' => $reviewedAt, 'updated_at' => $reviewedAt])->save();
         }
@@ -77,5 +55,23 @@ class ReviewSeeder extends Seeder
             'content' => 'Bán vé xem phim giá rẻ, inbox zalo 0909xxxxxx!!!',
             'is_hidden' => true,
         ]);
+    }
+
+    /** Chọn bình luận hợp với thể loại phim và số sao, không trùng với bình luận khác của cùng phim */
+    private function comment(int $movieId, array $genres, int $rating): ?string
+    {
+        $tier = min(max($rating, 2), 5);
+        $group = collect($this->pool['groups'])->search(fn (array $names) => array_intersect($names, $genres));
+
+        $candidates = array_diff(
+            array_merge($this->pool['comments'][$group][$tier] ?? [], $this->pool['general'][$tier]),
+            $this->used[$movieId] ?? [],
+        );
+
+        if (! $candidates) {
+            return null;
+        }
+
+        return $this->used[$movieId][] = fake()->randomElement($candidates);
     }
 }

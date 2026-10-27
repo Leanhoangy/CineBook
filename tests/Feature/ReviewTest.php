@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
+use App\Models\Genre;
 use App\Models\Movie;
 use App\Models\Review;
 use App\Models\Room;
 use App\Models\Showtime;
 use App\Models\User;
+use Database\Seeders\ReviewSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -104,4 +106,23 @@ class ReviewTest extends TestCase
         $this->assertMatchesRegularExpression('/Phim Có Sao<\/h3>(?:(?!<\/div>).)*bi-star-fill"><\/i> 4,0/s', $html);
         $this->assertMatchesRegularExpression('/Phim Chưa Ai Xem<\/h3>(?:(?!<\/div>).)*cb-badge-new/s', $html);
     }
+
+    public function test_seeded_comments_match_the_movie_genre(): void
+    {
+        $animation = Movie::factory()->create();
+        $animation->genres()->attach(Genre::factory()->create(['name' => 'Hoạt hình']));
+        $showtime = Showtime::factory()->create(['movie_id' => $animation->id, 'room_id' => Room::factory(), 'start_time' => now()->subDay()]);
+        Booking::factory()->count(40)->for($showtime)->create();
+
+        $this->seed(ReviewSeeder::class);
+
+        $pool = require database_path('seeders/data/review_comments.php');
+        $allowed = array_merge(...array_values($pool['comments']['animation']), ...array_values($pool['general']));
+        $contents = Review::whereNotNull('content')->where('is_hidden', false)->pluck('content');
+
+        $this->assertNotEmpty($contents);
+        $this->assertEmpty($contents->diff($allowed), 'Phim hoạt hình chỉ được có bình luận hợp với phim hoạt hình');
+        $this->assertSame($contents->count(), $contents->unique()->count(), 'Không có 2 bình luận giống hệt nhau trong một phim');
+    }
 }
+
