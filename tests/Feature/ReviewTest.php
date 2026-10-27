@@ -112,7 +112,7 @@ class ReviewTest extends TestCase
         $animation = Movie::factory()->create();
         $animation->genres()->attach(Genre::factory()->create(['name' => 'Hoạt hình']));
         $showtime = Showtime::factory()->create(['movie_id' => $animation->id, 'room_id' => Room::factory(), 'start_time' => now()->subDay()]);
-        Booking::factory()->count(40)->for($showtime)->create();
+        Booking::factory()->count(150)->for($showtime)->create();
 
         $this->seed(ReviewSeeder::class);
 

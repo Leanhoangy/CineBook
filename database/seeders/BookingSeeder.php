@@ -3,15 +3,21 @@
 namespace Database\Seeders;
 
 use App\Models\Booking;
+use App\Models\BookingSeat;
+use App\Models\Room;
 use App\Models\Showtime;
 use App\Models\User;
 use App\Models\Voucher;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
 /**
- * Tạo lịch sử đặt vé ngẫu nhiên để trang thống kê có dữ liệu.
+ * Tạo lịch sử đặt vé giống rạp thật để trang thống kê và sơ đồ ghế có dữ liệu:
+ * - Độ kín ghế tùy độ hot của phim, khung giờ và cuối tuần (phim mới suất tối cuối tuần gần kín, suất sáng phim cũ thưa).
+ * - Suất chưa chiếu vẫn đang mở bán nên càng xa càng ít vé.
+ * - Khách đi theo nhóm 1–4 người ngồi liền nhau, thích giữa/cuối rạp và giữa hàng; 2 hàng sát màn hình chỉ có người ngồi khi gần hết chỗ.
  */
 class BookingSeeder extends Seeder
 {
@@ -26,57 +32,97 @@ class BookingSeeder extends Seeder
     public function run(): void
     {
         $customers = User::where('role', User::ROLE_USER)->get();
-        $showtimes = Showtime::with('room')->where('start_time', '<', now()->addDays(4))->get();
+        $showtimes = Showtime::with(['room', 'movie'])->where('start_time', '<', now()->addDays(4))->get();
         $this->vouchers = Voucher::where('is_active', true)->get();
 
-        foreach ($showtimes as $showtime) {
-            $taken = [];
-            $bookingCount = fake()->numberBetween(0, $showtime->start_time->isPast() ? 7 : 4);
+        // Ghi hàng chục nghìn vé trong một transaction cho nhanh
+        DB::transaction(fn () => $showtimes->each(fn (Showtime $showtime) => $this->fillShowtime($showtime, $customers)));
+    }
 
-            for ($i = 0; $i < $bookingCount; $i++) {
-                $seats = $this->pickSeats($showtime, $taken, fake()->numberBetween(1, 4));
-                if (! $seats) {
-                    break;
-                }
+    private function fillShowtime(Showtime $showtime, Collection $customers): void
+    {
+        $taken = [];
+        $target = (int) round($showtime->room->capacity * $this->occupancy($showtime));
 
-                $cancelled = fake()->boolean(10);
-                if (! $cancelled) {
-                    $taken = array_merge($taken, $seats);
-                }
-
-                // Vé được đặt trước giờ chiếu từ 2 đến 72 giờ, và không thể nằm ở tương lai
-                $createdAt = $showtime->start_time->isPast()
-                    ? $showtime->start_time->copy()->subHours(fake()->numberBetween(2, 72))
-                    : now()->subMinutes(fake()->numberBetween(5, 3 * 24 * 60));
-
-                $customer = $customers->random();
-                $booking = Booking::create([
-                    'user_id' => $customer->id,
-                    'showtime_id' => $showtime->id,
-                    'total_price' => 0,
-                    'status' => $cancelled ? Booking::STATUS_CANCELLED : Booking::STATUS_CONFIRMED,
-                ]);
-
-                $total = 0;
-                foreach ($seats as $code) {
-                    $type = $showtime->room->seatType($code);
-                    $price = $showtime->seatPrice($type);
-                    $total += $price;
-                    $booking->seats()->create(['seat_code' => $code, 'seat_type' => $type, 'price' => $price]);
-                }
-
-                $voucher = fake()->boolean(15) ? $this->pickVoucher($customer, $total, $createdAt, $cancelled) : null;
-                $discount = $voucher?->discountFor($total) ?? 0;
-
-                $booking->forceFill([
-                    'voucher_id' => $voucher?->id,
-                    'discount' => $discount,
-                    'total_price' => $total - $discount,
-                    'created_at' => $createdAt,
-                    'updated_at' => $createdAt,
-                ])->save();
+        while (count($taken) < $target) {
+            $size = fake()->randomElement([1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4]);
+            $seats = $this->pickSeats($showtime->room, $taken, min($size, $target - count($taken)));
+            if (! $seats) {
+                break;
             }
+
+            $cancelled = fake()->boolean(8);
+            if (! $cancelled) {
+                $taken += array_fill_keys($seats, true);
+            }
+
+            $this->createBooking($showtime, $customers->random(), $seats, $cancelled);
         }
+    }
+
+    /** Tỷ lệ ghế đã bán mong muốn của một suất chiếu (0 – 0,85) */
+    private function occupancy(Showtime $showtime): float
+    {
+        $start = $showtime->start_time;
+        $daysSinceRelease = $showtime->movie->release_date->diffInDays($start, false);
+
+        $popularity = match (true) {
+            $daysSinceRelease < 0 => 0.3,   // suất chiếu sớm
+            $daysSinceRelease <= 14 => 0.5, // phim mới ra
+            $daysSinceRelease <= 42 => 0.28,
+            default => 0.12,
+        };
+        // Mỗi phim một sức hút riêng (cố định theo tên phim): có phim "cháy vé", có phim ế
+        $appeal = 0.6 + (crc32($showtime->movie->title) % 80) / 100;
+
+        $timeOfDay = match (true) {
+            $start->hour < 12 => 0.45,
+            $start->hour < 17 => 0.7,
+            $start->hour < 21 => 1.2,
+            default => 0.85,
+        };
+
+        $rate = $popularity * $appeal * $timeOfDay * ($start->isWeekend() ? 1.25 : 1) * fake()->randomFloat(2, 0.75, 1.25);
+
+        // Suất chưa chiếu vẫn đang bán vé: càng xa ngày chiếu càng ít người đặt
+        if ($start->isFuture()) {
+            $rate *= max(0.15, 1 - now()->diffInHours($start) / 24 * 0.3);
+        }
+
+        return min($rate, 0.85);
+    }
+
+    private function createBooking(Showtime $showtime, User $customer, array $seats, bool $cancelled): void
+    {
+        // Vé được đặt trước giờ chiếu từ 2 đến 72 giờ, và không thể nằm ở tương lai
+        $createdAt = $showtime->start_time->isPast()
+            ? $showtime->start_time->copy()->subHours(fake()->numberBetween(2, 72))
+            : now()->subMinutes(fake()->numberBetween(5, 3 * 24 * 60));
+
+        $rows = [];
+        $total = 0;
+        foreach ($seats as $code) {
+            $type = $showtime->room->seatType($code);
+            $price = $showtime->seatPrice($type);
+            $total += $price;
+            $rows[] = ['seat_code' => $code, 'seat_type' => $type, 'price' => $price];
+        }
+
+        $voucher = fake()->boolean(15) ? $this->pickVoucher($customer, $total, $createdAt, $cancelled) : null;
+        $discount = $voucher?->discountFor($total) ?? 0;
+
+        $booking = new Booking([
+            'user_id' => $customer->id,
+            'showtime_id' => $showtime->id,
+            'voucher_id' => $voucher?->id,
+            'discount' => $discount,
+            'total_price' => $total - $discount,
+            'status' => $cancelled ? Booking::STATUS_CANCELLED : Booking::STATUS_CONFIRMED,
+        ]);
+        $booking->created_at = $booking->updated_at = $createdAt;
+        $booking->save();
+
+        BookingSeat::insert(array_map(fn (array $row) => $row + ['booking_id' => $booking->id], $rows));
     }
 
     /**
@@ -105,21 +151,56 @@ class BookingSeeder extends Seeder
         return $voucher;
     }
 
-    /** Chọn một dãy ghế liền nhau còn trống trong cùng một hàng */
-    private function pickSeats(Showtime $showtime, array $taken, int $count): array
+    /**
+     * Chọn $count ghế liền nhau còn trống trong cùng một hàng, ngẫu nhiên có trọng số:
+     * hàng giữa/cuối và ghế giữa hàng được chọn nhiều nhất.
+     * 2 hàng sát màn hình không ai chọn, trừ khi các hàng phía sau đã hết chỗ cho cả nhóm.
+     *
+     * @param  array<string, true>  $taken
+     */
+    private function pickSeats(Room $room, array $taken, int $count): array
     {
-        $map = $showtime->room->seatMap();
+        $rows = $room->rowLetters();
 
-        for ($attempt = 0; $attempt < 10; $attempt++) {
-            $row = fake()->randomElement(array_keys($map));
-            $start = fake()->numberBetween(0, max(0, count($map[$row]) - $count));
-            $seats = array_slice($map[$row], $start, $count);
+        return $this->weightedPick($room, array_slice($rows, 2, preserve_keys: true), $taken, $count)
+            ?: $this->weightedPick($room, array_slice($rows, 0, 2, true), $taken, $count);
+    }
 
-            if (! array_intersect($seats, $taken)) {
+    /** @param  array<int, string>  $rows  [chỉ số hàng => ký hiệu hàng] */
+    private function weightedPick(Room $room, array $rows, array $taken, int $count): array
+    {
+        $lastRow = max($room->total_rows - 1, 1);
+        $perRow = $room->seats_per_row;
+        $options = [];
+
+        foreach ($rows as $i => $row) {
+            $rowWeight = 1.2 - abs($i / $lastRow - 0.7); // đẹp nhất khoảng 70% chiều sâu rạp
+
+            for ($start = 1; $start + $count - 1 <= $perRow; $start++) {
+                $seats = array_map(fn (int $k) => $row.($start + $k), range(0, $count - 1));
+                foreach ($seats as $seat) {
+                    if (isset($taken[$seat])) {
+                        continue 2;
+                    }
+                }
+
+                // Lệch khỏi giữa hàng (0 = chính giữa, 0,5 = sát lối đi)
+                $offCenter = abs(($start + ($count - 1) / 2 - ($perRow + 1) / 2) / $perRow);
+                $options[] = [$seats, $rowWeight * (1 - $offCenter * 1.4)];
+            }
+        }
+
+        if (! $options) {
+            return [];
+        }
+
+        $pick = fake()->randomFloat(4, 0, array_sum(array_column($options, 1)));
+        foreach ($options as [$seats, $weight]) {
+            if (($pick -= $weight) <= 0) {
                 return $seats;
             }
         }
 
-        return [];
+        return end($options)[0];
     }
 }

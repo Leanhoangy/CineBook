@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'user@cinebook.test',
         ]);
 
-        User::factory(20)->create();
+        User::factory(1500)->create();
 
         $this->call([
             GenreSeeder::class,

@@ -41,7 +41,7 @@ php artisan serve
 
 Mở trình duyệt: **http://localhost:8000**
 
-**Cách khác:** import trực tiếp file [`database/cinebook.sql`](database/cinebook.sql) vào database `cinebook` bằng phpMyAdmin thay cho bước 4. Khi đó cần tự chép poster: copy các file trong `database/seeders/data/posters/` vào `storage/app/public/posters/` (nếu chạy `migrate --seed` thì seeder tự chép).
+**Cách khác:** import trực tiếp file [`database/cinebook.sql`](database/cinebook.sql) (~3,5 MB, khoảng 16.000 đơn đặt vé mẫu) vào database `cinebook` bằng phpMyAdmin thay cho bước 4; nếu phpMyAdmin báo file quá lớn thì dùng `migrate --seed` (mất khoảng 30 giây). Khi đó cần tự chép poster: copy các file trong `database/seeders/data/posters/` vào `storage/app/public/posters/` (nếu chạy `migrate --seed` thì seeder tự chép).
 
 ### Dữ liệu phim thật
 
@@ -58,7 +58,7 @@ Trên server thật (`APP_ENV=production`), lệnh `movies:crawl --ended=0 --imp
 
 > Lệnh cào nghỉ 2 giây giữa các request. Nếu Moveek tạm chặn (lỗi 403), lệnh sẽ dừng và **giữ nguyên dữ liệu cũ** – hãy thử lại sau vài giờ.
 
-Phòng chiếu, suất chiếu, người dùng và đơn đặt vé vẫn được sinh tự động bởi seeder. Moveek không công bố ngày kết thúc chiếu nên được ước tính 8 tuần sau khởi chiếu (phim chiếu lại có ngày khởi chiếu cũ thì chiếu thêm 2–4 tuần); admin sửa được trong form phim. Phim sắp chiếu chưa công bố thời lượng được tạm tính 120 phút; phim chưa có phân loại tuổi được để mặc định `P`. Trang khách chỉ hiện những thể loại còn phim đang/sắp chiếu.
+Phòng chiếu, suất chiếu, người dùng và đơn đặt vé vẫn được sinh tự động bởi seeder, mô phỏng rạp thật: phim mới suất tối / cuối tuần gần kín, suất sáng phim cũ vắng; khách đi theo nhóm ngồi liền nhau, thích giữa và cuối rạp, 2 hàng sát màn hình chỉ có người khi suất gần kín. Moveek không công bố ngày kết thúc chiếu nên được ước tính 8 tuần sau khởi chiếu (phim chiếu lại có ngày khởi chiếu cũ thì chiếu thêm 2–4 tuần); admin sửa được trong form phim. Phim sắp chiếu chưa công bố thời lượng được tạm tính 120 phút; phim chưa có phân loại tuổi được để mặc định `P`. Trang khách chỉ hiện những thể loại còn phim đang/sắp chiếu.
 
 ### Lịch chiếu luôn cập nhật
 

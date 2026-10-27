@@ -6,6 +6,8 @@ use App\Models\Booking;
 use App\Models\Movie;
 use App\Models\Review;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Tạo đánh giá mẫu: chỉ khách đã xem phim (có vé của suất chiếu đã diễn ra) mới đánh giá,
@@ -33,28 +35,32 @@ class ReviewSeeder extends Seeder
             ->selectRaw('bookings.user_id, showtimes.movie_id, MAX(showtimes.start_time) as watched_at')
             ->get();
 
-        foreach ($watched as $row) {
-            if (! fake()->boolean(55)) {
-                continue;
-            }
-
-            $rating = fake()->randomElement([5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 1]);
-            $reviewedAt = fake()->dateTimeBetween($row->watched_at.' +3 hours', 'now');
-
-            $review = Review::create([
-                'user_id' => $row->user_id,
-                'movie_id' => $row->movie_id,
-                'rating' => $rating,
-                'content' => fake()->boolean(80) ? $this->comment($row->movie_id, $genres[$row->movie_id] ?? [], $rating) : null,
-            ]);
-            $review->forceFill(['created_at' => $reviewedAt, 'updated_at' => $reviewedAt])->save();
-        }
+        DB::transaction(fn () => $watched->each(fn ($row) => $this->review($row, $genres)));
 
         // Vài bình luận quảng cáo bị admin ẩn để minh họa chức năng kiểm duyệt
         Review::inRandomOrder()->take(3)->get()->each->update([
             'content' => 'Bán vé xem phim giá rẻ, inbox zalo 0909xxxxxx!!!',
             'is_hidden' => true,
         ]);
+    }
+
+    /** Khoảng 1/8 khách xem xong để lại đánh giá, phần lớn có kèm bình luận */
+    private function review(object $row, Collection $genres): void
+    {
+        if (! fake()->boolean(12)) {
+            return;
+        }
+
+        $rating = fake()->randomElement([5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 1]);
+        $reviewedAt = fake()->dateTimeBetween($row->watched_at.' +3 hours', 'now');
+
+        $review = Review::create([
+            'user_id' => $row->user_id,
+            'movie_id' => $row->movie_id,
+            'rating' => $rating,
+            'content' => fake()->boolean(75) ? $this->comment($row->movie_id, $genres[$row->movie_id] ?? [], $rating) : null,
+        ]);
+        $review->forceFill(['created_at' => $reviewedAt, 'updated_at' => $reviewedAt])->save();
     }
 
     /** Chọn bình luận hợp với thể loại phim và số sao, không trùng với bình luận khác của cùng phim */
