@@ -30,6 +30,9 @@ return [
         'tuesday' => 55000,          // "Thứ Ba vui vẻ": đồng giá cả ngày
     ],
 
+    // Dữ liệu mẫu: seeder tạo suất chiếu + đơn đặt vé cho bao nhiêu ngày trước ngày seed (35 ngày: đủ xem thống kê trọn 1 tháng)
+    'seed_history_days' => (int) env('SEED_HISTORY_DAYS', 35),
+
     // Thông tin liên hệ hiển thị ở chân trang và trang Hỗ trợ (rạp giả lập cho đồ án)
     'contact' => [
         'address' => 'Tầng 5, TTTM CineBook Plaza, 123 Nguyễn Văn Phim, Quận 1, TP. Hồ Chí Minh',

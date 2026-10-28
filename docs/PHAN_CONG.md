@@ -48,7 +48,7 @@
 - **Lịch chiếu tự động thế nào?** → `ShowtimeScheduler::fill()`: mỗi ngày, 10 phòng mở từ 9h đến 23h, xếp lần lượt từng phim vào phòng rảnh sớm nhất. Phim mới ra (≤ 14 ngày) được nhiều suất hơn. Giờ kết thúc = giờ bắt đầu + thời lượng + 15 phút dọn phòng, nên các suất không bao giờ trùng nhau.
 - **Tác vụ định kỳ?** → `routes/console.php`: `showtimes:refresh` chạy lúc 00:05 hằng ngày, `bookings:release-unpaid` chạy mỗi phút, `movies:crawl` chạy thứ Hai hằng tuần. Trên máy cá nhân thì chạy `php artisan schedule:work`.
 - **Doanh thu tính sao?** → Chỉ tính đơn có `status = confirmed`, cộng `total_price` (đã trừ giảm giá, đã gồm bắp nước).
-- **Xuất Excel 17.000 đơn có bị tràn bộ nhớ không?** → Không. Code đọc theo lô 500 đơn (`lazyByIdDesc`) và ghi từng dòng bằng thư viện OpenSpout.
+- **Xuất Excel 40.000 đơn có bị tràn bộ nhớ không?** → Không. Code đọc theo lô 500 đơn (`lazyByIdDesc`) và ghi từng dòng bằng thư viện OpenSpout.
 
 ---
 

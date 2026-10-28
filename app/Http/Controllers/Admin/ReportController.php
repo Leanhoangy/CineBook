@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Showtime;
 use App\Services\SalesReport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -33,7 +34,12 @@ class ReportController extends Controller
             'Tháng trước' => [today()->subMonthNoOverflow()->startOfMonth(), today()->subMonthNoOverflow()->endOfMonth()],
         ];
 
+        // Khoảng ngày chọn bắt đầu trước suất chiếu đầu tiên trong hệ thống: báo để không tưởng là mất doanh thu
+        $firstShowtime = Showtime::min('start_time');
+        $dataStartsAt = $firstShowtime && $from->lt(Carbon::parse($firstShowtime)->startOfDay()) ? Carbon::parse($firstShowtime) : null;
+
         return view('admin.reports.index', [
+            'dataStartsAt' => $dataStartsAt,
             'from' => $from,
             'to' => $to,
             'presets' => $presets,

@@ -41,10 +41,11 @@ class ShowtimeScheduler
     /**
      * Xếp suất chiếu cho các ngày từ $from đến $to.
      * Phòng nào trong ngày đã có suất (ví dụ admin tự tạo) thì bỏ qua để không ghi đè.
+     * Hôm nay chỉ xếp suất từ 30 phút tới trở đi, trừ khi $wholeDayToday (seeder tạo dữ liệu mẫu: hôm nay cũng là lịch sử).
      *
      * @return int Số suất chiếu đã tạo
      */
-    public function fill(Carbon $from, Carbon $to): int
+    public function fill(Carbon $from, Carbon $to, bool $wholeDayToday = false): int
     {
         $rooms = Room::active()->get();
         $allMovies = Movie::all();
@@ -64,7 +65,7 @@ class ShowtimeScheduler
                 }
 
                 $cursor = $date->copy()->setTime(self::OPEN_HOUR, 0)->addMinutes($roomIndex * 10);
-                $cursors[$room->id] = $date->isToday() && $cursor->lt(now()) ? $this->roundUp(now()->addMinutes(30)) : $cursor;
+                $cursors[$room->id] = $date->isToday() && ! $wholeDayToday && $cursor->lt(now()) ? $this->roundUp(now()->addMinutes(30)) : $cursor;
             }
             if (! $cursors) {
                 continue;

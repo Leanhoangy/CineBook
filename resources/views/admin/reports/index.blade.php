@@ -32,6 +32,11 @@
             </div>
         </div>
         @error('to') <div class="px-3 pb-2 small text-danger">{{ $message }}</div> @enderror
+        @if ($dataStartsAt)
+            <div class="alert alert-info small mx-3 mb-2 py-2">
+                <i class="bi bi-database me-1"></i>Hệ thống có dữ liệu suất chiếu từ ngày <strong>{{ $dataStartsAt->format('d/m/Y') }}</strong>, các ngày trước đó không có doanh thu.
+            </div>
+        @endif
         <div class="px-3 pb-3 small text-muted">
             <i class="bi bi-info-circle me-1"></i>Tính theo <strong>ngày chiếu</strong>, chỉ các suất đã bắt đầu và vé đã xác nhận (không tính vé đã hủy / đã hoàn tiền).
             Tỉ lệ lấp đầy = ghế đã bán / tổng ghế của các suất.

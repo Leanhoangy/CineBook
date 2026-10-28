@@ -87,6 +87,12 @@ class ReportTest extends TestCase
             ->assertOk()
             ->assertSee(['Thống kê', '350.000 ₫', '1,5%', 'Tối (17h – 21h)', 'Phim Suất Tối', 'Combo Couple']);
 
+        // Chọn khoảng trước suất chiếu đầu tiên → báo dữ liệu bắt đầu từ ngày nào
+        $this->actingAs($admin)->get(route('admin.reports.index', ['from' => today()->subMonths(2)->toDateString(), 'to' => today()->toDateString()]))
+            ->assertSee('Hệ thống có dữ liệu suất chiếu từ ngày');
+        $this->actingAs($admin)->get(route('admin.reports.index', ['from' => today()->subDay()->toDateString(), 'to' => today()->toDateString()]))
+            ->assertDontSee('Hệ thống có dữ liệu suất chiếu từ ngày');
+
         $this->actingAs($admin)->get(route('admin.reports.index', ['from' => today()->toDateString(), 'to' => today()->subDay()->toDateString()]))
             ->assertSessionHasErrors('to');
 
