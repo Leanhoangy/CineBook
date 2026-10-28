@@ -36,11 +36,14 @@
         </div>
         <div class="table-responsive">
             <table class="table ad-table table-hover">
-                <thead><tr><th>Mã vé</th><th>Khách hàng</th><th>Phim / Suất chiếu</th><th>Ghế</th><th class="text-end">Tổng tiền</th><th>Trạng thái</th><th>Ngày đặt</th><th></th></tr></thead>
+                <thead><tr><th>Mã vé</th><th>Khách hàng</th><th>Phim / Suất chiếu</th><th>Ghế</th><th class="text-end">Tổng tiền</th><th>Trạng thái</th><th></th></tr></thead>
                 <tbody>
                     @forelse ($bookings as $booking)
-                        <tr>
-                            <td class="fw-semibold font-monospace">{{ $booking->code }}</td>
+                        <tr data-href="{{ route('admin.bookings.show', $booking) }}">
+                            <td class="text-nowrap">
+                                <a href="{{ route('admin.bookings.show', $booking) }}" class="fw-semibold font-monospace text-reset">{{ $booking->code }}</a>
+                                <small class="d-block text-muted" title="Ngày đặt">{{ $booking->created_at->format('H:i d/m/Y') }}</small>
+                            </td>
                             <td>
                                 <div>{{ $booking->user->name }}</div>
                                 <small class="text-muted">{{ $booking->user->email }}</small>
@@ -53,13 +56,12 @@
                             <td class="text-end fw-semibold text-nowrap">@money($booking->total_price)</td>
                             <td>
                                 <x-status-badge :status="$booking->status" />
-                                <x-payment-badge :booking="$booking" class="d-table mt-1" />
+                                <div class="mt-1"><x-payment-badge :booking="$booking" /></div>
                             </td>
-                            <td class="small text-nowrap">{{ $booking->created_at->format('H:i d/m/Y') }}</td>
                             <td class="text-end"><a href="{{ route('admin.bookings.show', $booking) }}" class="btn btn-sm btn-light btn-icon" title="Chi tiết"><i class="bi bi-eye"></i></a></td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="ad-empty"><i class="bi bi-receipt"></i>Không tìm thấy đơn đặt vé.</td></tr>
+                        <tr><td colspan="7" class="ad-empty"><i class="bi bi-receipt"></i>Không tìm thấy đơn đặt vé.</td></tr>
                     @endforelse
                 </tbody>
             </table>

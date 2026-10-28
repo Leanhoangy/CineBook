@@ -37,7 +37,7 @@
             </div>
             <div class="text-end">
                 <x-status-badge :status="$booking->status" />
-                <x-payment-badge :booking="$booking" class="d-table ms-auto mt-1" />
+                <div class="mt-1"><x-payment-badge :booking="$booking" /></div>
             </div>
         </div>
         <div class="fw-bold fs-5 mb-1">{{ $st->movie->title }} <span class="badge text-bg-dark align-middle">{{ $st->movie->age_rating }}</span></div>

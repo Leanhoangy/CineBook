@@ -37,6 +37,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Bấm vào cả dòng trong bảng để mở chi tiết: <tr data-href="...">
+    document.querySelectorAll('tr[data-href]').forEach((row) => {
+        row.addEventListener('click', (e) => {
+            if (e.target.closest('a, button, input, select, label, form') || getSelection().toString()) return;
+            if (e.ctrlKey || e.metaKey) window.open(row.dataset.href, '_blank');
+            else location.href = row.dataset.href;
+        });
+    });
+
     // Xem trước ảnh trước khi upload: <input type="file" data-preview="#idAnh">
     document.querySelectorAll('input[type=file][data-preview]').forEach((input) => {
         input.addEventListener('change', () => {
