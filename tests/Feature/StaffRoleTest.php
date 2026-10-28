@@ -64,6 +64,21 @@ class StaffRoleTest extends TestCase
         $this->actingAs(User::factory()->create())->get(route('admin.check-in.index'))->assertForbidden();
     }
 
+    public function test_staff_sees_showtimes_without_booking_links(): void
+    {
+        $showtime = Showtime::factory()->create(['start_time' => now()->addDay()]);
+        $link = route('bookings.create', $showtime);
+
+        $this->actingAs($this->staff)->get(route('schedule.index', ['ngay' => $showtime->start_time->toDateString()]))
+            ->assertOk()
+            ->assertDontSee($link)
+            ->assertSee(['Chỉ tài khoản khách hàng mới đặt vé được', 'nên chỉ xem được lịch chiếu']);
+        $this->actingAs($this->staff)->get(route('movies.show', $showtime->movie))->assertDontSee($link);
+
+        $this->actingAs(User::factory()->create())->get(route('movies.show', $showtime->movie))->assertSee($link);
+        $this->get(route('movies.show', $showtime->movie))->assertSee($link); // khách chưa đăng nhập: bấm sẽ được đưa tới đăng nhập
+    }
+
     public function test_admin_can_create_staff_account(): void
     {
         $admin = User::factory()->admin()->create();

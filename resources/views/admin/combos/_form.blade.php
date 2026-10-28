@@ -28,7 +28,7 @@
         <div class="col-md-4">
             <label for="image" class="form-label d-block">Ảnh</label>
             <div class="mb-2">
-                <img id="comboPreview" src="{{ $combo->image_url }}" alt="" class="ad-combo-preview {{ $combo->image_url ? '' : 'd-none' }}">
+                <img id="comboPreview" @if ($combo->image_url) src="{{ $combo->image_url }}" @endif alt="" class="ad-combo-preview {{ $combo->image_url ? '' : 'd-none' }}">
                 @unless ($combo->image_url)
                     <div id="comboEmpty" class="ad-combo-preview d-flex align-items-center justify-content-center fs-1">🍿</div>
                 @endunless

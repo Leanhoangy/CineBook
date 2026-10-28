@@ -18,12 +18,15 @@ CineBook cho phép khách hàng xem phim đang chiếu, tra lịch chiếu, **ch
 
 ## 2. Cài đặt và chạy dự án
 
+> Chạy **từng lệnh một**. Các dòng bắt đầu bằng `#` là chú thích, không cần gõ.
+
 ```bash
 # 1. Cài thư viện PHP
 composer install
 
 # 2. Tạo file cấu hình
-cp .env.example .env          # Windows: copy .env.example .env
+# (Windows: copy .env.example .env)
+cp .env.example .env
 php artisan key:generate
 
 # 3. Tạo database tên "cinebook" (utf8mb4_unicode_ci) trong MySQL/phpMyAdmin
@@ -48,10 +51,14 @@ Mở trình duyệt: **http://localhost:8000**
 Danh sách phim (tên, mô tả, đạo diễn, diễn viên, thời lượng, ngày khởi chiếu, phân loại tuổi, thể loại, trailer, poster) được cào từ [Moveek.com](https://moveek.com) – phim **đang chiếu**, **sắp chiếu** và một số phim **đã ngừng chiếu** gần đây tại Việt Nam – và lưu sẵn trong `database/seeders/data/` (`movies.json` + thư mục `posters/`), nên `migrate --seed` không cần Internet. Để cập nhật phim mới nhất:
 
 ```bash
-php artisan movies:crawl                 # mặc định: phim đang chiếu + 20 phim sắp chiếu + 15 phim đã ngừng chiếu
-php artisan movies:crawl --upcoming=40   # lấy nhiều phim sắp chiếu hơn
-php artisan migrate:fresh --seed         # nạp lại database (xóa dữ liệu cũ)
-php artisan movies:crawl --ended=0 --import   # chỉ lấy phim đang/sắp chiếu và thêm phim mới vào database, KHÔNG xóa dữ liệu cũ
+# Mặc định: phim đang chiếu + 20 phim sắp chiếu + 15 phim đã ngừng chiếu
+php artisan movies:crawl
+# Lấy nhiều phim sắp chiếu hơn
+php artisan movies:crawl --upcoming=40
+# Nạp lại database (xóa dữ liệu cũ)
+php artisan migrate:fresh --seed
+# Chỉ lấy phim đang/sắp chiếu và thêm phim mới vào database, KHÔNG xóa dữ liệu cũ
+php artisan movies:crawl --ended=0 --import
 ```
 
 Trên server thật (`APP_ENV=production`), lệnh `movies:crawl --ended=0 --import` được lên lịch chạy **3h sáng thứ Hai hằng tuần** để danh sách phim sắp chiếu không bị cạn. Phim chưa có thì thêm mới, phim đã có thì giữ nguyên (chỉ gia hạn ngày kết thúc chiếu nếu Moveek vẫn còn chiếu).
@@ -65,7 +72,8 @@ Phòng chiếu, suất chiếu (35 ngày trước đến 7 ngày sau ngày seed,
 Seeder chỉ tạo suất chiếu đến 7 ngày sau ngày seed. Để web luôn có suất chiếu (nhất là **trước buổi demo**), chạy:
 
 ```bash
-php artisan showtimes:refresh   # cập nhật trạng thái phim + xếp suất chiếu 7 ngày tới
+# Cập nhật trạng thái phim + xếp suất chiếu 7 ngày tới
+php artisan showtimes:refresh
 ```
 
 Lệnh này làm 3 việc, giống cách rạp thật vận hành:

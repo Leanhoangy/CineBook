@@ -84,7 +84,7 @@
         <div class="ad-card p-4 mb-4">
             <label for="poster" class="form-label d-block">Poster</label>
             <div class="mb-3">
-                <img id="posterPreview" src="{{ $movie->poster_url }}" alt="" class="ad-poster-preview {{ $movie->poster_url ? '' : 'd-none' }}">
+                <img id="posterPreview" @if ($movie->poster_url) src="{{ $movie->poster_url }}" @endif alt="" class="ad-poster-preview {{ $movie->poster_url ? '' : 'd-none' }}">
                 @unless ($movie->poster_url)
                     <div id="posterEmpty" class="ad-poster-preview d-flex align-items-center justify-content-center text-muted"><i class="bi bi-image fs-2"></i></div>
                 @endunless

@@ -89,10 +89,10 @@
                             <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="day-{{ $date }}" role="tabpanel">
                                 <div class="d-flex flex-wrap gap-2">
                                     @foreach ($items as $showtime)
-                                        <a href="{{ route('bookings.create', $showtime) }}" class="cb-time-btn">
+                                        <x-time-button :showtime="$showtime">
                                             <strong>{{ $showtime->start_time->format('H:i') }}</strong>
                                             <small>{{ $showtime->room->name }} · @money($showtime->price)</small>
-                                        </a>
+                                        </x-time-button>
                                     @endforeach
                                 </div>
                             </div>

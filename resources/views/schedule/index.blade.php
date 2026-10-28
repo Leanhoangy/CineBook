@@ -6,6 +6,11 @@
     <div class="container py-4 py-lg-5">
         <h1 class="cb-section-title mb-1">Lịch chiếu</h1>
         <p class="text-muted mb-4">Chọn ngày để xem các suất chiếu còn nhận đặt vé.</p>
+        @auth
+            @unless (auth()->user()->isCustomer())
+                <p class="small text-warning mt-n2 mb-4"><i class="bi bi-info-circle me-1"></i>Bạn đang đăng nhập bằng tài khoản {{ mb_strtolower(auth()->user()->role_label) }} nên chỉ xem được lịch chiếu. Hãy dùng tài khoản khách hàng để đặt vé.</p>
+            @endunless
+        @endauth
 
         <div class="cb-date-tabs mb-4">
             @foreach ($days as $day)
@@ -36,10 +41,10 @@
                         </div>
                         <div class="d-flex flex-wrap gap-2">
                             @foreach ($items as $showtime)
-                                <a href="{{ route('bookings.create', $showtime) }}" class="cb-time-btn">
+                                <x-time-button :showtime="$showtime">
                                     <strong>{{ $showtime->start_time->format('H:i') }}</strong>
                                     <small>{{ $showtime->room->name }}</small>
-                                </a>
+                                </x-time-button>
                             @endforeach
                         </div>
                     </div>

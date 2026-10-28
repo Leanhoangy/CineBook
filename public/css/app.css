@@ -220,6 +220,7 @@ main { flex: 1; }
 }
 .cb-time-btn strong { font-size: 1.05rem; }
 .cb-time-btn small { color: var(--cb-muted); font-size: .72rem; }
+.cb-time-btn.is-disabled, .cb-time-btn.is-disabled:hover { opacity: .55; cursor: not-allowed; border-color: var(--cb-border); background: var(--cb-surface-2); transform: none; box-shadow: none; }
 .cb-time-btn:hover { border-color: var(--cb-accent); background: rgba(255, 77, 90, .1); color: var(--cb-text); }
 .cb-time-btn.current { border-color: var(--cb-accent); background: var(--cb-accent); color: #fff; }
 .cb-time-btn.current small { color: rgba(255, 255, 255, .85); }
