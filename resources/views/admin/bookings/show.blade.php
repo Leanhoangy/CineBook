@@ -44,6 +44,10 @@
                         </div>
                     </div>
                     <div class="col-sm-6">
+                        <div class="text-muted small">Soát vé</div>
+                        <div>{!! $booking->isCheckedIn() ? 'Đã vào rạp lúc '.$booking->checked_in_at->format('H:i d/m/Y') : '<span class="text-muted">Chưa soát</span>' !!}</div>
+                    </div>
+                    <div class="col-sm-6">
                         <div class="text-muted small">Ghi chú</div>
                         <div>{{ $booking->note ?: '—' }}</div>
                     </div>

@@ -101,7 +101,7 @@ Chạy trên máy cá nhân thì kết quả được ghi nhận khi VNPay đưa
 php artisan test
 ```
 
-66 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+71 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, soát vé, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -132,6 +132,7 @@ php artisan test
 - **CRUD Phim**: upload poster, gán nhiều thể loại, ngày kết thúc chiếu (tự chuyển "Ngừng chiếu"), **xóa mềm (Soft Delete)** → thùng rác → khôi phục / xóa vĩnh viễn.
 - **CRUD Thể loại**, **CRUD Phòng chiếu** (xem trước sơ đồ ghế khi nhập số hàng/ghế).
 - **CRUD Suất chiếu**: tự tính giờ kết thúc, **chặn trùng giờ trong cùng phòng**, khóa sửa/xóa khi đã có vé.
+- **Soát vé** (`/admin/soat-ve`): quét mã QR trên vé bằng camera laptop/điện thoại (hoặc máy quét mã vạch, gõ mã vé) → hiện ngay phim, suất, phòng, ghế, trạng thái thanh toán → bấm **"Cho vào"** (vé chưa trả tiền thì thu tiền rồi cho vào). Chặn vé đã hủy, vé quét lần 2, vé chưa tới giờ (mở soát trước giờ chiếu 60 phút) hoặc suất đã kết thúc; có tiếng bíp báo kết quả và danh sách vé đã soát trong ngày.
 - **Đơn đặt vé**: tìm kiếm theo mã vé/khách/phim, lọc trạng thái, thanh toán & khoảng ngày, xác nhận/hủy, **xác nhận đã thu tiền tại quầy**, xóa đơn đã hủy, **xuất Excel** (chi tiết đơn + doanh thu theo phim).
 - **Mã giảm giá**: CRUD mã, thống kê lượt dùng và tổng tiền đã giảm.
 - **Đánh giá**: tìm kiếm, lọc theo số sao, ẩn/hiện bình luận vi phạm, xóa.
@@ -197,6 +198,7 @@ docs/
 | `cleaning_minutes` | 15 phút | Thời gian dọn phòng giữa 2 suất |
 | `max_seats_per_booking` | 8 | Số ghế tối đa mỗi lần đặt |
 | `cancel_before_minutes` | 60 phút | Khách được tự hủy vé trước giờ chiếu |
+| `checkin_before_minutes` | 60 phút | Mở soát vé cho vào rạp trước giờ chiếu |
 
 ## 7. Thư viện & dịch vụ bên ngoài
 
@@ -205,6 +207,7 @@ docs/
 - [Chart.js 4](https://www.chartjs.org) – biểu đồ doanh thu (MIT)
 - Font [Be Vietnam Pro](https://fonts.google.com/specimen/Be+Vietnam+Pro) – Google Fonts (OFL)
 - [chillerlan/php-qrcode](https://github.com/chillerlan/php-qrcode) – tạo mã QR trên vé và trong email ngay trên server (MIT)
+- [html5-qrcode](https://github.com/mebjas/html5-qrcode) – quét mã QR bằng camera ở trang Soát vé (Apache-2.0)
 - [VNPay sandbox](https://sandbox.vnpayment.vn/apis/) – cổng thanh toán online (môi trường thử nghiệm)
 - YouTube embed – phát trailer phim
 
@@ -217,3 +220,4 @@ docs/
 | Poster/avatar upload không hiển thị | Chạy `php artisan storage:link`, kiểm tra `APP_URL` đúng cổng đang chạy |
 | `No application encryption key` | Chạy `php artisan key:generate` |
 | Lỗi 419 Page Expired | Tải lại trang (phiên đăng nhập hết hạn) |
+| Trang Soát vé không mở được camera | Trình duyệt chỉ cho dùng camera trên `localhost` hoặc HTTPS: mở bằng `http://localhost:8000` và bấm "Cho phép" khi được hỏi. Mở từ điện thoại qua IP mạng LAN (`http://192.168...`) sẽ bị chặn, khi đó nhập mã vé bằng tay |

@@ -13,6 +13,9 @@ return [
     // Khách được tự hủy vé trước giờ chiếu tối thiểu bao nhiêu phút
     'cancel_before_minutes' => 60,
 
+    // Mở soát vé cho vào rạp trước giờ chiếu bao nhiêu phút (đến hết suất chiếu)
+    'checkin_before_minutes' => 60,
+
     // Bảng giá vé ghế thường theo khung giờ (VNĐ) – dùng khi tự xếp lịch chiếu và hiển thị ở trang Ưu đãi
     'pricing' => [
         'morning' => 60000,          // suất bắt đầu trước 12h

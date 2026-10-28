@@ -17,6 +17,7 @@
             ['admin.showtimes.index', 'admin.showtimes.*', 'bi-calendar3', 'Suất chiếu'],
             ['admin.reviews.index', 'admin.reviews.*', 'bi-chat-square-text', 'Đánh giá'],
             'Kinh doanh',
+            ['admin.check-in.index', 'admin.check-in.*', 'bi-qr-code-scan', 'Soát vé'],
             ['admin.bookings.index', 'admin.bookings.*', 'bi-receipt', 'Đơn đặt vé'],
             ['admin.vouchers.index', 'admin.vouchers.*', 'bi-ticket-detailed', 'Mã giảm giá'],
             ['admin.users.index', 'admin.users.*', 'bi-people', 'Người dùng'],

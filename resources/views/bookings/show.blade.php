@@ -48,8 +48,15 @@
                     <div class="small text-muted mt-1">Đặt lúc {{ $booking->created_at->format('H:i d/m/Y') }}</div>
                 </div>
                 @if ($booking->isConfirmed())
-                    <img class="cb-qr" alt="Mã QR vé {{ $booking->code }}"
-                         src="{{ \App\Services\TicketQr::svg($booking->code) }}">
+                    <div class="text-center">
+                        <img class="cb-qr {{ $booking->isCheckedIn() ? 'is-used' : '' }}" alt="Mã QR vé {{ $booking->code }}"
+                             src="{{ \App\Services\TicketQr::svg($booking->code) }}">
+                        @if ($booking->isCheckedIn())
+                            <div class="small text-success mt-2"><i class="bi bi-check2-circle me-1"></i>Đã vào rạp lúc {{ $booking->checked_in_at->format('H:i d/m') }}</div>
+                        @else
+                            <div class="small text-muted mt-2">Đưa mã này cho nhân viên soát vé</div>
+                        @endif
+                    </div>
                 @endif
             </div>
 

@@ -122,6 +122,7 @@ class BookingSeeder extends Seeder
             'paid_at' => $paidAt,
             'payment_method' => $method,
             'payment_ref' => $method === Booking::PAYMENT_VNPAY ? fake()->numerify('14######') : null,
+            'checked_in_at' => $paidAt ? $this->checkInTime($showtime, $paidAt, $method) : null,
         ]);
         $booking->created_at = $booking->updated_at = $createdAt;
         $booking->save();
@@ -144,6 +145,22 @@ class BookingSeeder extends Seeder
         return $showtime->start_time->isPast()
             ? [$showtime->start_time->copy()->subMinutes(fake()->numberBetween(10, 45)), Booking::PAYMENT_COUNTER]
             : [null, null];
+    }
+
+    /**
+     * Suất đã bắt đầu: khách vào rạp trước giờ chiếu vài phút. Khách trả tại quầy vào ngay sau khi trả tiền;
+     * khoảng 5% khách đã trả online nhưng không đến xem.
+     */
+    private function checkInTime(Showtime $showtime, Carbon $paidAt, string $method): ?Carbon
+    {
+        if ($showtime->start_time->isFuture()) {
+            return null;
+        }
+        if ($method === Booking::PAYMENT_COUNTER) {
+            return $paidAt->copy()->addMinutes(fake()->numberBetween(0, 5));
+        }
+
+        return fake()->boolean(95) ? $showtime->start_time->copy()->subMinutes(fake()->numberBetween(2, 40)) : null;
     }
 
     /**

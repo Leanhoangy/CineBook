@@ -80,3 +80,20 @@ body {
 .cb-toast-wrap { position: fixed; top: 76px; right: 16px; z-index: 1090; }
 .ad-empty { text-align: center; padding: 2.5rem 1rem; color: #8a93a3; }
 .ad-empty .bi { font-size: 2.5rem; display: block; margin-bottom: .5rem; opacity: .5; }
+
+/* Soát vé */
+.ad-qr-reader { border-radius: 12px; overflow: hidden; background: #000; }
+.ad-qr-reader video { display: block; }
+.ad-qr-placeholder { border: 2px dashed #d5dae3; border-radius: 12px; padding: 2.5rem 1rem; text-align: center; }
+.ad-qr-placeholder .bi { font-size: 3rem; color: #9aa3b2; display: block; margin-bottom: .5rem; }
+.ad-checkin-empty { padding: 3rem 1rem; text-align: center; color: #8a93a3; }
+.ad-checkin-empty .bi { font-size: 2.5rem; display: block; margin-bottom: .5rem; }
+.ad-checkin-result { background: #fff; border: 2px solid; border-radius: 14px; overflow: hidden; }
+.ad-checkin-state { display: flex; gap: .9rem; align-items: center; padding: 1rem 1.25rem; color: #fff; }
+.ad-checkin-state > .bi { font-size: 2.2rem; }
+.ad-checkin-result.is-success { border-color: #198754; }
+.ad-checkin-result.is-success .ad-checkin-state { background: #198754; }
+.ad-checkin-result.is-warning { border-color: #f0ad1b; }
+.ad-checkin-result.is-warning .ad-checkin-state { background: #f5b942; color: #3a2a00; }
+.ad-checkin-result.is-danger { border-color: #dc3545; }
+.ad-checkin-result.is-danger .ad-checkin-state { background: #dc3545; }

@@ -92,6 +92,7 @@ erDiagram
         timestamp paid_at "null = chưa thanh toán"
         enum payment_method "vnpay|counter, nullable"
         varchar payment_ref "mã giao dịch VNPay"
+        timestamp checked_in_at "lúc soát vé vào rạp"
         varchar note
     }
     booking_seats {
@@ -176,11 +177,12 @@ flowchart LR
         UC21(Kiểm duyệt đánh giá)
         UC22(Xuất báo cáo Excel)
         UC23(Thanh toán online VNPay)
+        UC24(Soát vé bằng mã QR)
     end
 
     Guest --- UC1 & UC2 & UC3 & UC4 & UC5 & UC17
     User --- UC1 & UC2 & UC3 & UC5 & UC6 & UC7 & UC8 & UC9 & UC18 & UC23
-    Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16 & UC20 & UC21 & UC22
+    Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16 & UC20 & UC21 & UC22 & UC24
     UC6 -. include .-> UC5
     UC19 -. extend .-> UC6
     UC8 -. extend .-> UC7
@@ -230,14 +232,21 @@ Giá ghế thường của mỗi suất được tính tự động theo bảng 
 | Luồng phụ | 3a. Khách hủy giao dịch / thẻ lỗi → vé vẫn giữ, chưa thanh toán, có thể thử lại hoặc trả tại quầy. 5a. Sai chữ ký hoặc sai số tiền → từ chối (IPN trả mã 97 / 04). 5b. Kết quả đến 2 lần (trình duyệt + IPN) → chỉ ghi nhận 1 lần (IPN trả mã 02). |
 | Thanh toán tại quầy | Nhân viên mở đơn trong trang quản trị, bấm "Đã thu ... ₫" để ghi nhận `payment_method = counter`. |
 
-### 4.8. Đánh giá phim (UC18, UC21)
+### 4.8. Soát vé bằng mã QR (UC24)
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Quản trị viên / nhân viên soát vé |
+| Luồng chính | 1. Nhân viên mở `/admin/soat-ve`, bật camera. 2. Khách đưa mã QR trên vé (điện thoại hoặc vé in); QR chỉ chứa mã vé. 3. Trình duyệt đọc mã, gọi AJAX tra cứu → hiện phim, suất, phòng, ghế, khách, trạng thái thanh toán kèm tiếng bíp. 4. Nhân viên bấm "Cho vào" → hệ thống khóa dòng vé, kiểm tra lại rồi ghi `checked_in_at`. 5. Vé được thêm vào danh sách "Đã soát hôm nay"; trên trang vé của khách hiện "Đã vào rạp lúc …". |
+| Luồng phụ | 3a. Vé chưa thanh toán → nút đổi thành "Đã thu … ₫ & cho vào" (ghi nhận thanh toán tại quầy). 3b. Vé đã hủy / đã soát rồi / chưa tới giờ (mở trước giờ chiếu 60 phút) / suất đã kết thúc / mã không tồn tại → báo đỏ, không cho vào. 2a. Không có camera → gõ mã vé hoặc dùng máy quét mã vạch (hoạt động như bàn phím). |
+
+### 4.9. Đánh giá phim (UC18, UC21)
 Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao kèm bình luận; mỗi phim 1 đánh giá, sửa/xóa được. Trang phim hiển thị điểm trung bình, phân bố số sao. Admin lọc, ẩn/hiện bình luận vi phạm hoặc xóa.
 
 ## 5. Đối chiếu yêu cầu đồ án
 
 | Yêu cầu (file đề) | Đáp ứng trong CineBook |
 |---|---|
-| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 9 migration nghiệp vụ, 8 seeder, 7 factory; phim thật cào từ Moveek (`movies:crawl`) |
+| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 10 migration nghiệp vụ, 8 seeder, 7 factory; phim thật cào từ Moveek (`movies:crawl`) |
 | Blade + Bootstrap, tách giao diện user/admin | `layouts/app` (tối, rạp phim) và `layouts/admin` (sidebar) |
 | ≥ 2 role, admin vào `/admin`, bảo vệ route bằng Middleware | Role `admin`/`user`, middleware `role:` tự viết + `auth` + `guest` |
 | CRUD ≥ 2 bảng có quan hệ | CRUD đủ trên Phim, Thể loại, Phòng, Suất chiếu, Người dùng, Mã giảm giá (+ Đơn đặt vé, Đánh giá) |
@@ -248,7 +257,7 @@ Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao
 | *Mở rộng:* Gửi email | Quên mật khẩu (Password Broker), email vé điện tử sau khi đặt |
 | *Mở rộng:* Xuất file | Xuất đơn đặt vé + doanh thu theo phim ra Excel (.xlsx) |
 | *Mở rộng:* Tác vụ định kỳ | Laravel Scheduler: `showtimes:refresh` hằng ngày (khởi chiếu / ngừng chiếu tự động, xếp lịch 7 ngày tới, mở bán vé trước); `movies:crawl --import` hằng tuần lấy phim mới |
-| *Mở rộng:* AJAX | Gợi ý tìm kiếm, cập nhật sơ đồ ghế realtime, kiểm tra mã giảm giá |
+| *Mở rộng:* AJAX | Gợi ý tìm kiếm, cập nhật sơ đồ ghế realtime, kiểm tra mã giảm giá, tra cứu & soát vé bằng QR |
 | *Mở rộng:* API ngoài | Cổng thanh toán VNPay (sandbox, chữ ký HMAC-SHA512, IPN), YouTube embed (trailer); mã QR vé tạo bằng thư viện PHP ngay trên server |
 | *Mở rộng:* Responsive | Bootstrap grid, menu thu gọn, sidebar offcanvas |
 | *Mở rộng:* Soft Delete, Middleware tùy chỉnh | Phim xóa mềm + thùng rác; `EnsureUserHasRole` |

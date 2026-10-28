@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-#[Fillable(['code', 'user_id', 'showtime_id', 'voucher_id', 'total_price', 'discount', 'status', 'note', 'paid_at', 'payment_method', 'payment_ref'])]
+#[Fillable(['code', 'user_id', 'showtime_id', 'voucher_id', 'total_price', 'discount', 'status', 'note', 'paid_at', 'payment_method', 'payment_ref', 'checked_in_at'])]
 class Booking extends Model
 {
     use HasFactory;
@@ -39,6 +39,7 @@ class Booking extends Model
             'total_price' => 'integer',
             'discount' => 'integer',
             'paid_at' => 'datetime',
+            'checked_in_at' => 'datetime',
         ];
     }
 
@@ -131,6 +132,30 @@ class Booking extends Model
     public function markPaid(string $method, ?string $ref = null): void
     {
         $this->update(['paid_at' => now(), 'payment_method' => $method, 'payment_ref' => $ref]);
+    }
+
+    public function isCheckedIn(): bool
+    {
+        return $this->checked_in_at !== null;
+    }
+
+    /**
+     * Lý do không cho vé vào rạp lúc này (null = soát được).
+     * Vé chưa thanh toán vẫn soát được nhưng nhân viên phải thu tiền trước.
+     */
+    public function checkInProblem(): ?string
+    {
+        $start = $this->showtime->start_time;
+        $opensAt = $start->copy()->subMinutes((int) config('cinema.checkin_before_minutes'));
+
+        return match (true) {
+            ! $this->isConfirmed() => 'Vé đã bị hủy.',
+            $this->isCheckedIn() => 'Vé đã được soát lúc '.$this->checked_in_at->format('H:i d/m/Y').'. Không cho vào lần thứ hai.',
+            $this->showtime->end_time->isPast() => 'Suất chiếu đã kết thúc lúc '.$this->showtime->end_time->format('H:i d/m/Y').'.',
+            $opensAt->isFuture() => 'Chưa tới giờ soát vé. Suất chiếu lúc '.$start->format('H:i').' ngày '.$start->format('d/m/Y')
+                .', mở soát vé từ '.$opensAt->format('H:i').'.',
+            default => null,
+        };
     }
 
     /**
