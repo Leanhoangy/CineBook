@@ -69,6 +69,8 @@
                 @endif
             </button>
         @endif
-        <a href="{{ route('admin.bookings.show', $booking) }}" class="btn btn-link btn-sm w-100 mt-1" target="_blank">Xem chi tiết đơn</a>
+        @if (auth()->user()->isAdmin())
+            <a href="{{ route('admin.bookings.show', $booking) }}" class="btn btn-link btn-sm w-100 mt-1" target="_blank">Xem chi tiết đơn</a>
+        @endif
     </div>
 </div>

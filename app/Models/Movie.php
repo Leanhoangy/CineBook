@@ -88,7 +88,7 @@ class Movie extends Model
     /** Khách đã xem phim (có vé hợp lệ của suất đã bắt đầu) mới được đánh giá */
     public function canBeReviewedBy(?User $user): bool
     {
-        return $user !== null && ! $user->isAdmin() && $user->bookings()
+        return $user !== null && $user->isCustomer() && $user->bookings()
             ->where('status', Booking::STATUS_CONFIRMED)
             ->whereHas('showtime', fn (Builder $q) => $q
                 ->where('movie_id', $this->id)

@@ -17,6 +17,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@cinebook.test',
         ]);
 
+        User::factory()->staff()->create([
+            'name' => 'Trần Thị Soát Vé',
+            'email' => 'soatve@cinebook.test',
+        ]);
+
         User::factory()->create([
             'name' => 'Nguyễn Văn Khách',
             'email' => 'user@cinebook.test',

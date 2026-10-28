@@ -46,6 +46,14 @@ class UserFactory extends Factory
         ]);
     }
 
+    /** Nhân viên soát vé */
+    public function staff(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => User::ROLE_STAFF,
+        ]);
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */

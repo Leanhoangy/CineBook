@@ -76,7 +76,19 @@ Route::middleware('auth')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Khu vực quản trị /admin (chỉ Admin)
+| Soát vé: Admin và Nhân viên soát vé
+|--------------------------------------------------------------------------
+*/
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,staff'])->group(function () {
+    Route::get('soat-ve', [Admin\CheckInController::class, 'index'])->name('check-in.index');
+    Route::get('soat-ve/suat-chieu', [Admin\CheckInController::class, 'showtimes'])->name('check-in.showtimes'); // AJAX
+    Route::get('soat-ve/tra-cuu', [Admin\CheckInController::class, 'lookup'])->name('check-in.lookup'); // AJAX
+    Route::post('soat-ve/{booking}', [Admin\CheckInController::class, 'store'])->name('check-in.store'); // AJAX
+});
+
+/*
+|--------------------------------------------------------------------------
+| Khu vực quản trị /admin còn lại (chỉ Admin)
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
@@ -92,11 +104,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('rooms', Admin\RoomController::class)->except('show');
     Route::post('showtimes/{showtime}/huy', [Admin\ShowtimeController::class, 'cancel'])->name('showtimes.cancel');
     Route::resource('showtimes', Admin\ShowtimeController::class)->except('show');
-
-    Route::get('soat-ve', [Admin\CheckInController::class, 'index'])->name('check-in.index');
-    Route::get('soat-ve/suat-chieu', [Admin\CheckInController::class, 'showtimes'])->name('check-in.showtimes'); // AJAX
-    Route::get('soat-ve/tra-cuu', [Admin\CheckInController::class, 'lookup'])->name('check-in.lookup'); // AJAX
-    Route::post('soat-ve/{booking}', [Admin\CheckInController::class, 'store'])->name('check-in.store'); // AJAX
 
     Route::get('bookings/xuat-excel', [Admin\BookingController::class, 'export'])->name('bookings.export');
     Route::patch('bookings/{booking}/thu-tien', [Admin\BookingController::class, 'markPaid'])->name('bookings.mark-paid');

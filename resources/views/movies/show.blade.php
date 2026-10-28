@@ -100,9 +100,9 @@
                     </div>
 
                     @auth
-                        @if (auth()->user()->isAdmin())
-                            <p class="small text-warning mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>Bạn đang đăng nhập bằng tài khoản quản trị. Hãy dùng tài khoản khách hàng để đặt vé.</p>
-                        @endif
+                        @unless (auth()->user()->isCustomer())
+                            <p class="small text-warning mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>Bạn đang đăng nhập bằng tài khoản {{ mb_strtolower(auth()->user()->role_label) }}. Hãy dùng tài khoản khách hàng để đặt vé.</p>
+                        @endunless
                     @else
                         <p class="small text-muted mt-3 mb-0"><i class="bi bi-info-circle me-1"></i>Bạn cần <a href="{{ route('login') }}">đăng nhập</a> để đặt vé.</p>
                     @endauth

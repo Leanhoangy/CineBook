@@ -8,6 +8,7 @@
         'confirmed' => ['success', 'Đã xác nhận'],
         'cancelled' => ['secondary', 'Đã hủy'],
         'admin' => ['danger', 'Quản trị viên'],
+        'staff' => ['primary', 'Nhân viên soát vé'],
         'user' => ['info', 'Khách hàng'],
     ];
     [$color, $label] = $map[$status] ?? ['secondary', $status];

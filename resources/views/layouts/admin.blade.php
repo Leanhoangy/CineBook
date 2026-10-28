@@ -23,11 +23,15 @@
             ['admin.combos.index', 'admin.combos.*', 'bi-cup-straw', 'Bắp nước'],
             ['admin.users.index', 'admin.users.*', 'bi-people', 'Người dùng'],
         ];
+        // Nhân viên soát vé chỉ thấy mục Soát vé
+        if (auth()->user()->isStaff()) {
+            $menu = array_values(array_filter($menu, fn ($item) => is_array($item) && $item[0] === 'admin.check-in.index'));
+        }
     @endphp
 
     <aside class="ad-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="adminSidebar">
         <div class="p-3 d-flex align-items-center justify-content-between">
-            <a href="{{ route('admin.dashboard') }}" class="ad-brand"><i class="bi bi-film me-1" style="color: var(--ad-accent)"></i>Cine<span>Book</span><small>Khu vực quản trị</small></a>
+            <a href="{{ auth()->user()->homeUrl() }}" class="ad-brand"><i class="bi bi-film me-1" style="color: var(--ad-accent)"></i>Cine<span>Book</span><small>{{ auth()->user()->isStaff() ? 'Nhân viên soát vé' : 'Khu vực quản trị' }}</small></a>
             <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#adminSidebar" aria-label="Đóng"></button>
         </div>
         <nav class="ad-nav nav flex-column px-3 pb-4">

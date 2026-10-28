@@ -17,13 +17,13 @@
                     <h2 class="h5 fw-bold mb-1">{{ $user->name }}</h2>
                     <p class="text-muted small mb-3">{{ $user->email }}</p>
                     <x-status-badge :status="$user->role" />
-                    @unless ($user->isAdmin())
+                    @if ($user->isCustomer())
                         <hr>
                         <div class="row text-center">
                             <div class="col"><div class="fs-4 fw-bold">{{ $user->confirmed_count }}</div><small class="text-muted">Lượt đặt vé</small></div>
                             <div class="col"><div class="fs-6 fw-bold mt-2">@money($totalSpent)</div><small class="text-muted">Đã chi tiêu</small></div>
                         </div>
-                    @endunless
+                    @endif
                 </div>
             </div>
 

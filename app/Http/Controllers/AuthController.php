@@ -29,9 +29,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
         $user = $request->user();
 
-        $default = $user->isAdmin() ? route('admin.dashboard') : route('home');
-
-        return redirect()->intended($default)
+        return redirect()->intended($user->homeUrl())
             ->with('success', "Xin chào {$user->name}, chúc bạn một ngày tốt lành!");
     }
 

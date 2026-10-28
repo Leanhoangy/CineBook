@@ -24,10 +24,13 @@ class User extends Authenticatable
 
     public const ROLE_ADMIN = 'admin';
 
+    public const ROLE_STAFF = 'staff';
+
     public const ROLE_USER = 'user';
 
     public const ROLES = [
         self::ROLE_ADMIN => 'Quản trị viên',
+        self::ROLE_STAFF => 'Nhân viên soát vé',
         self::ROLE_USER => 'Khách hàng',
     ];
 
@@ -77,6 +80,26 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === self::ROLE_ADMIN;
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->role === self::ROLE_STAFF;
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->role === self::ROLE_USER;
+    }
+
+    /** Trang mở đầu sau khi đăng nhập: admin → Tổng quan, nhân viên → Soát vé, khách → Trang chủ */
+    public function homeUrl(): string
+    {
+        return match ($this->role) {
+            self::ROLE_ADMIN => route('admin.dashboard'),
+            self::ROLE_STAFF => route('admin.check-in.index'),
+            default => route('home'),
+        };
     }
 
     public function hasRole(string ...$roles): bool

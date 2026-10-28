@@ -37,7 +37,7 @@ class HomeController extends Controller
 
         // Khách có vé xem trong hôm nay: nhắc ở đầu trang để đến rạp mở mã QR nhanh
         $user = $request->user();
-        $todayTickets = $user && ! $user->isAdmin() ? $user->todayTickets() : collect();
+        $todayTickets = $user?->isCustomer() ? $user->todayTickets() : collect();
 
         return view('home', compact('nowShowing', 'comingSoon', 'featured', 'genres', 'programs', 'voucher', 'todayTickets'));
     }

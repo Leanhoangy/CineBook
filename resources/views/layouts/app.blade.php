@@ -22,9 +22,9 @@
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('schedule.*') ? 'active' : '' }}" href="{{ route('schedule.index') }}">Lịch chiếu</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->routeIs('promotions') ? 'active' : '' }}" href="{{ route('promotions') }}">Ưu đãi</a></li>
                     @auth
-                        @unless (auth()->user()->isAdmin())
+                        @if (auth()->user()->isCustomer())
                             <li class="nav-item"><a class="nav-link {{ request()->routeIs('bookings.index', 'bookings.show') ? 'active' : '' }}" href="{{ route('bookings.index') }}">Vé của tôi</a></li>
-                        @endunless
+                        @endif
                     @endauth
                 </ul>
 
@@ -47,6 +47,8 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow">
                             @if (auth()->user()->isAdmin())
                                 <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Trang quản trị</a></li>
+                            @elseif (auth()->user()->isStaff())
+                                <li><a class="dropdown-item" href="{{ route('admin.check-in.index') }}"><i class="bi bi-qr-code-scan me-2"></i>Soát vé</a></li>
                             @else
                                 <li><a class="dropdown-item" href="{{ route('bookings.index') }}"><i class="bi bi-ticket-perforated me-2"></i>Vé của tôi</a></li>
                             @endif
