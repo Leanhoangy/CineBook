@@ -47,7 +47,7 @@
         @foreach ([
             ['Doanh thu', $short($totals['revenue']), $full($totals['revenue']), 'bi-cash-stack', '#e8f7ef', '#1a9a5b'],
             ['Vé bán ra', number_format($totals['seats'], 0, ',', '.'), number_format($totals['orders'], 0, ',', '.').' đơn', 'bi-ticket-perforated', '#fff0f1', '#ff4d5a'],
-            ['Tỉ lệ lấp đầy', number_format($totals['occupancy'], 1, ',', '.').'%', number_format($totals['showtimes'], 0, ',', '.').' suất · '.number_format($totals['capacity'], 0, ',', '.').' ghế', 'bi-grid-3x3-gap', '#eef4ff', '#3a6ff7'],
+            ['Tỉ lệ lấp đầy', number_format($totals['occupancy'], 1, ',', '.').'%', 'trên '.number_format($totals['showtimes'], 0, ',', '.').' suất chiếu', 'bi-grid-3x3-gap', '#eef4ff', '#3a6ff7'],
             ['Bắp nước', $short($totals['combo_revenue']), $totals['combo_rate'].'% đơn mua kèm', 'bi-cup-straw', '#fff6e5', '#e39b0b'],
         ] as [$label, $value, $hint, $icon, $bg, $color])
             <div class="col-12 col-sm-6 col-xl-3">
