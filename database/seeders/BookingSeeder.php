@@ -3,11 +3,14 @@
 namespace Database\Seeders;
 
 use App\Models\Booking;
+use App\Models\BookingCombo;
 use App\Models\BookingSeat;
+use App\Models\Combo;
 use App\Models\Room;
 use App\Models\Showtime;
 use App\Models\User;
 use App\Models\Voucher;
+use App\Services\UnpaidBookingReleaser;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -23,20 +26,27 @@ class BookingSeeder extends Seeder
 {
     private Collection $vouchers;
 
+    /** @var Collection<string, Combo> Combo đang bán, theo tên */
+    private Collection $combos;
+
     /** @var array<int, int> Số lượt đã dùng của từng mã */
     private array $used = [];
 
     /** @var array<int, array<int, bool>> Mã khách đã dùng */
     private array $usedBy = [];
 
-    public function run(): void
+    public function run(UnpaidBookingReleaser $releaser): void
     {
         $customers = User::where('role', User::ROLE_USER)->get();
         $showtimes = Showtime::with(['room', 'movie'])->where('start_time', '<', now()->addDays(4))->get();
         $this->vouchers = Voucher::where('is_active', true)->get();
+        $this->combos = Combo::active()->get()->keyBy('name');
 
         // Ghi hàng chục nghìn vé trong một transaction cho nhanh
         DB::transaction(fn () => $showtimes->each(fn (Showtime $showtime) => $this->fillShowtime($showtime, $customers)));
+
+        // Vé chưa thanh toán của các suất sắp chiếu trong 30 phút tới đã quá hạn: tự hủy như hệ thống thật (không gửi email)
+        $releaser->release(notify: false);
     }
 
     private function fillShowtime(Showtime $showtime, Collection $customers): void
@@ -111,14 +121,16 @@ class BookingSeeder extends Seeder
         $voucher = fake()->boolean(15) ? $this->pickVoucher($customer, $total, $createdAt, $cancelled) : null;
         $discount = $voucher?->discountFor($total) ?? 0;
         [$paidAt, $method] = $cancelled ? [null, null] : $this->payment($showtime, $createdAt);
+        $combos = $this->pickCombos(count($seats));
 
         $booking = new Booking([
             'user_id' => $customer->id,
             'showtime_id' => $showtime->id,
             'voucher_id' => $voucher?->id,
             'discount' => $discount,
-            'total_price' => $total - $discount,
+            'total_price' => $total - $discount + array_sum(array_map(fn (array $c) => $c['price'] * $c['quantity'], $combos)),
             'status' => $cancelled ? Booking::STATUS_CANCELLED : Booking::STATUS_CONFIRMED,
+            'cancel_reason' => $cancelled ? Booking::CANCEL_BY_CUSTOMER : null,
             'paid_at' => $paidAt,
             'payment_method' => $method,
             'payment_ref' => $method === Booking::PAYMENT_VNPAY ? fake()->numerify('14######') : null,
@@ -128,6 +140,27 @@ class BookingSeeder extends Seeder
         $booking->save();
 
         BookingSeat::insert(array_map(fn (array $row) => $row + ['booking_id' => $booking->id], $rows));
+        if ($combos) {
+            BookingCombo::insert(array_map(fn (array $row) => $row + ['booking_id' => $booking->id], $combos));
+        }
+    }
+
+    /** Khoảng 35% đơn mua kèm bắp nước, chọn combo hợp với số người đi cùng */
+    private function pickCombos(int $people): array
+    {
+        if ($this->combos->isEmpty() || ! fake()->boolean(35)) {
+            return [];
+        }
+
+        $name = match (true) {
+            $people === 1 => fake()->randomElement(['Combo Solo', 'Combo Solo', 'Bắp rang bơ (L)', 'Nước ngọt (L)']),
+            $people === 2 => fake()->randomElement(['Combo Couple', 'Combo Couple', 'Combo Couple', 'Bắp rang bơ (L)']),
+            $people === 3 => fake()->randomElement(['Combo Couple', 'Combo Gia đình']),
+            default => 'Combo Gia đình',
+        };
+        $combo = $this->combos->get($name) ?? $this->combos->random();
+
+        return [['combo_id' => $combo->id, 'name' => $combo->name, 'price' => $combo->price, 'quantity' => 1]];
     }
 
     /**

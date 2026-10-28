@@ -16,6 +16,11 @@ return [
     // Mở soát vé cho vào rạp trước giờ chiếu bao nhiêu phút (đến hết suất chiếu)
     'checkin_before_minutes' => 60,
 
+    // Vé chưa thanh toán phải trả tiền (online hoặc tại quầy) trước giờ chiếu bao nhiêu phút, quá hạn sẽ tự hủy để mở bán lại ghế.
+    // Khách đặt sát giờ vẫn có tối thiểu payment_grace_minutes phút để thanh toán.
+    'unpaid_release_minutes' => 30,
+    'payment_grace_minutes' => 15,
+
     // Bảng giá vé ghế thường theo khung giờ (VNĐ) – dùng khi tự xếp lịch chiếu và hiển thị ở trang Ưu đãi
     'pricing' => [
         'morning' => 60000,          // suất bắt đầu trước 12h

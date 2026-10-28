@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreBookingRequest;
 use App\Mail\BookingConfirmed;
 use App\Models\Booking;
+use App\Models\Combo;
 use App\Models\Showtime;
 use App\Models\Voucher;
 use Illuminate\Http\JsonResponse;
@@ -64,7 +65,9 @@ class BookingController extends Controller
             'remaining' => $v->usage_limit !== null ? $v->usage_limit - $v->used_count : null,
         ]);
 
-        return view('bookings.create', compact('showtime', 'bookedSeats', 'otherShowtimes', 'vouchers'));
+        $combos = Combo::active()->orderBy('id')->get();
+
+        return view('bookings.create', compact('showtime', 'bookedSeats', 'otherShowtimes', 'vouchers', 'combos'));
     }
 
     /** Lưu đặt vé, dùng transaction + khóa dòng để tránh 2 người đặt trùng ghế */
@@ -107,15 +110,27 @@ class BookingController extends Controller
                 $discount = $voucher->discountFor($subtotal);
             }
 
+            // Bắp nước: lấy giá hiện tại từ CSDL (không tin giá gửi từ trình duyệt); mã giảm giá chỉ trừ vào tiền vé
+            $quantities = array_filter((array) $request->validated('combos', []));
+            $combos = Combo::active()->whereIn('id', array_keys($quantities))->get()
+                ->map(fn (Combo $combo) => [
+                    'combo_id' => $combo->id,
+                    'name' => $combo->name,
+                    'price' => $combo->price,
+                    'quantity' => (int) $quantities[$combo->id],
+                ]);
+            $comboTotal = $combos->sum(fn (array $c) => $c['price'] * $c['quantity']);
+
             $booking = Booking::create([
                 'user_id' => $request->user()->id,
                 'showtime_id' => $showtime->id,
                 'voucher_id' => $voucher?->id,
                 'discount' => $discount,
-                'total_price' => $subtotal - $discount,
+                'total_price' => $subtotal - $discount + $comboTotal,
                 'note' => $request->validated('note'),
             ]);
             $booking->seats()->createMany($seats);
+            $booking->combos()->createMany($combos->all());
 
             return $booking;
         });
@@ -135,7 +150,7 @@ class BookingController extends Controller
     {
         Gate::authorize('view', $booking);
 
-        $booking->load(['showtime.movie', 'showtime.room', 'seats', 'user', 'voucher']);
+        $booking->load(['showtime.movie', 'showtime.room', 'seats', 'combos', 'user', 'voucher']);
 
         return view('bookings.show', compact('booking'));
     }
@@ -148,7 +163,7 @@ class BookingController extends Controller
                 : 'Vé chỉ được hủy trước giờ chiếu ít nhất '.config('cinema.cancel_before_minutes').' phút.');
         }
 
-        $booking->update(['status' => Booking::STATUS_CANCELLED]);
+        $booking->cancel(Booking::CANCEL_BY_CUSTOMER);
 
         return redirect()->route('bookings.show', $booking)->with('success', 'Đã hủy vé '.$booking->code.'. Ghế đã được mở lại cho khách khác.');
     }

@@ -41,7 +41,7 @@ php artisan serve
 
 Mở trình duyệt: **http://localhost:8000**
 
-**Cách khác:** import trực tiếp file [`database/cinebook.sql`](database/cinebook.sql) (~4 MB, khoảng 16.000 đơn đặt vé mẫu) vào database `cinebook` bằng phpMyAdmin thay cho bước 4; nếu phpMyAdmin báo file quá lớn thì dùng `migrate --seed` (mất khoảng 30 giây). Khi đó cần tự chép poster: copy các file trong `database/seeders/data/posters/` vào `storage/app/public/posters/` (nếu chạy `migrate --seed` thì seeder tự chép).
+**Cách khác:** import trực tiếp file [`database/cinebook.sql`](database/cinebook.sql) (~5 MB, khoảng 17.000 đơn đặt vé mẫu) vào database `cinebook` bằng phpMyAdmin thay cho bước 4; nếu phpMyAdmin báo file quá lớn thì dùng `migrate --seed` (mất khoảng 30 giây). Khi đó cần tự chép poster: copy các file trong `database/seeders/data/posters/` vào `storage/app/public/posters/` (nếu chạy `migrate --seed` thì seeder tự chép).
 
 ### Dữ liệu phim thật
 
@@ -77,6 +77,10 @@ Cách xếp lịch (`app/Services/ShowtimeScheduler.php`): 10 phòng chiếu t�
 
 Lệnh này đã được lên lịch chạy tự động lúc 00:05 mỗi ngày; khi phát triển trên máy cá nhân, mở thêm một terminal chạy `php artisan schedule:work` để bộ lập lịch hoạt động.
 
+### Tự hủy vé chưa thanh toán
+
+Vé đặt xong giữ ghế ngay nhưng phải thanh toán (VNPay hoặc tại quầy) **trước giờ chiếu 30 phút**; khách đặt sát giờ vẫn có ít nhất 15 phút. Quá hạn, lệnh `php artisan bookings:release-unpaid` (lên lịch **chạy mỗi phút**) tự hủy vé, mở bán lại ghế và gửi email báo khách – tránh việc đặt giữ nhiều ghế đẹp rồi không đến. Hạn thanh toán hiện trên vé điện tử, email và ô nhắc vé ở trang chủ; link VNPay cũng hết hạn đúng lúc này. Cần chạy `php artisan schedule:work` khi demo trên máy cá nhân.
+
 ### Tài khoản demo (mật khẩu đều là `password`)
 
 | Vai trò | Email | Đăng nhập xong sẽ vào |
@@ -101,7 +105,7 @@ Chạy trên máy cá nhân thì kết quả được ghi nhận khi VNPay đưa
 php artisan test
 ```
 
-73 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, soát vé, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+83 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, soát vé, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -120,6 +124,7 @@ php artisan test
 - **Chọn ghế trên sơ đồ phòng chiếu**: ghế thường / ghế VIP (phụ thu), tính tiền tức thì.
 - Sơ đồ ghế **tự động cập nhật bằng AJAX mỗi 10 giây**; nếu ghế đang chọn bị người khác đặt sẽ được thông báo.
 - Đặt vé an toàn: dùng **transaction + khóa dòng (`lockForUpdate`)** để 2 người không thể đặt trùng ghế.
+- **Bắp nước**: chọn combo (bắp, nước, combo đôi, gia đình…) ngay dưới sơ đồ ghế bằng nút +/−, tổng tiền cập nhật tức thì; mã giảm giá chỉ trừ vào tiền vé. Bắp nước hiện trên vé, email và trang soát vé để nhân viên giao khi khách vào rạp.
 - **Mã giảm giá**: danh sách "Mã dành cho bạn" ngay ở bước chọn ghế (hiện số tiền được giảm theo ghế đang chọn, gợi ý mã tiết kiệm nhất, báo còn thiếu bao nhiêu để đủ điều kiện), bấm để áp dụng; kiểm tra bằng AJAX, tự tính lại khi đổi ghế (giảm % có mức tối đa / giảm tiền cố định, đơn tối thiểu, giới hạn lượt, mỗi khách 1 lần).
 - Vé điện tử có mã vé + mã QR (tạo ngay trên server, không cần mạng), **bấm để phóng to QR** nền trắng cho nhân viên quét, in vé, **nhận vé qua email** ngay sau khi đặt.
 - Có vé xem trong hôm nay thì **trang chủ nhắc ngay đầu trang** (phim, giờ, phòng, ghế) kèm nút **"Mở mã QR"**: đến rạp chỉ cần mở web là đưa vé cho nhân viên soát.
@@ -136,6 +141,7 @@ php artisan test
 - **Soát vé** (`/admin/soat-ve`): quét mã QR trên vé bằng camera laptop/điện thoại (hoặc máy quét mã vạch, gõ mã vé) → hiện ngay phim, suất, phòng, ghế, trạng thái thanh toán → bấm **"Cho vào"** (vé chưa trả tiền thì thu tiền rồi cho vào). Chặn vé đã hủy, vé quét lần 2, vé chưa tới giờ (mở soát trước giờ chiếu 60 phút) hoặc suất đã kết thúc; có tiếng bíp báo kết quả và danh sách vé đã soát trong ngày.
 - **Đơn đặt vé**: tìm kiếm theo mã vé/khách/phim, lọc trạng thái, thanh toán & khoảng ngày, xác nhận/hủy, **xác nhận đã thu tiền tại quầy**, xóa đơn đã hủy, **xuất Excel** (chi tiết đơn + doanh thu theo phim).
 - **Mã giảm giá**: CRUD mã, thống kê lượt dùng và tổng tiền đã giảm.
+- **Bắp nước**: CRUD combo (upload ảnh, giá, bật/tắt bán), thống kê số phần đã bán và doanh thu; combo đã bán không xóa được (chỉ ngừng bán), đổi giá không ảnh hưởng đơn cũ.
 - **Đánh giá**: tìm kiếm, lọc theo số sao, ẩn/hiện bình luận vi phạm, xóa.
 - **Người dùng**: tạo/sửa/xóa tài khoản, phân quyền admin/user.
 
@@ -145,7 +151,7 @@ php artisan test
 
 | Kỹ thuật | Vị trí trong mã nguồn |
 |---|---|
-| Migration (9 bảng nghiệp vụ, khóa ngoại, unique, index) | `database/migrations/` |
+| Migration (11 bảng nghiệp vụ, khóa ngoại, unique, index) | `database/migrations/` |
 | Seeder + Factory | `database/seeders/`, `database/factories/` |
 | Eloquent: `hasMany`, `belongsTo`, `belongsToMany`, scope, accessor | `app/Models/` |
 | Soft Delete | `Movie` + `Admin\MovieController@trash/restore/forceDelete` |
@@ -169,7 +175,7 @@ php artisan test
 
 ```
 app/
-├── Console/Commands/          # movies:crawl (cào phim từ Moveek), showtimes:refresh (lịch chiếu hằng ngày)
+├── Console/Commands/          # movies:crawl (cào phim từ Moveek), showtimes:refresh (lịch chiếu hằng ngày), bookings:release-unpaid (tự hủy vé quá hạn thanh toán)
 ├── Http/Controllers/          # Controller phía khách
 │   └── Admin/                 # Controller khu vực quản trị
 ├── Http/Middleware/EnsureUserHasRole.php
@@ -200,6 +206,8 @@ docs/
 | `max_seats_per_booking` | 8 | Số ghế tối đa mỗi lần đặt |
 | `cancel_before_minutes` | 60 phút | Khách được tự hủy vé trước giờ chiếu |
 | `checkin_before_minutes` | 60 phút | Mở soát vé cho vào rạp trước giờ chiếu |
+| `unpaid_release_minutes` | 30 phút | Hạn thanh toán trước giờ chiếu, quá hạn vé tự hủy |
+| `payment_grace_minutes` | 15 phút | Thời gian tối thiểu để thanh toán khi đặt sát giờ |
 
 ## 7. Thư viện & dịch vụ bên ngoài
 

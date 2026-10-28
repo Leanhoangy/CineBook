@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
-#[Fillable(['code', 'user_id', 'showtime_id', 'voucher_id', 'total_price', 'discount', 'status', 'note', 'paid_at', 'payment_method', 'payment_ref', 'checked_in_at'])]
+#[Fillable(['code', 'user_id', 'showtime_id', 'voucher_id', 'total_price', 'discount', 'status', 'cancel_reason', 'note', 'paid_at', 'payment_method', 'payment_ref', 'checked_in_at'])]
 class Booking extends Model
 {
     use HasFactory;
@@ -22,6 +23,18 @@ class Booking extends Model
     public const STATUSES = [
         self::STATUS_CONFIRMED => 'Đã xác nhận',
         self::STATUS_CANCELLED => 'Đã hủy',
+    ];
+
+    public const CANCEL_BY_CUSTOMER = 'customer';
+
+    public const CANCEL_BY_ADMIN = 'admin';
+
+    public const CANCEL_UNPAID = 'unpaid';
+
+    public const CANCEL_REASONS = [
+        self::CANCEL_BY_CUSTOMER => 'Khách tự hủy',
+        self::CANCEL_BY_ADMIN => 'Quản trị viên hủy',
+        self::CANCEL_UNPAID => 'Tự hủy do quá hạn thanh toán',
     ];
 
     public const PAYMENT_VNPAY = 'vnpay';
@@ -74,12 +87,28 @@ class Booking extends Model
         return $this->hasMany(BookingSeat::class);
     }
 
+    public function combos(): HasMany
+    {
+        return $this->hasMany(BookingCombo::class);
+    }
+
+    /** Tiền bắp nước của đơn (mã giảm giá không áp dụng cho bắp nước) */
+    public function getComboTotalAttribute(): int
+    {
+        return $this->combos->sum(fn (BookingCombo $c) => $c->amount);
+    }
+
+    public function getComboListAttribute(): string
+    {
+        return $this->combos->map(fn (BookingCombo $c) => "{$c->quantity}× {$c->name}")->implode(', ');
+    }
+
     public function voucher(): BelongsTo
     {
         return $this->belongsTo(Voucher::class);
     }
 
-    /** Tiền vé trước khi áp mã giảm giá */
+    /** Tổng tiền trước khi áp mã giảm giá (vé + bắp nước) */
     public function getSubtotalAttribute(): int
     {
         return $this->total_price + $this->discount;
@@ -123,10 +152,32 @@ class Booking extends Model
             : 'Chưa thanh toán';
     }
 
-    /** Thanh toán online được khi vé còn hiệu lực, chưa trả tiền và suất chiếu chưa bắt đầu */
+    /**
+     * Hạn thanh toán của vé chưa trả tiền: trước giờ chiếu unpaid_release_minutes phút,
+     * nhưng khách đặt sát giờ vẫn có ít nhất payment_grace_minutes phút kể từ lúc đặt.
+     */
+    public function paymentDeadline(): Carbon
+    {
+        return max(
+            $this->showtime->start_time->copy()->subMinutes((int) config('cinema.unpaid_release_minutes')),
+            $this->created_at->copy()->addMinutes((int) config('cinema.payment_grace_minutes')),
+        );
+    }
+
+    /** Thanh toán online được khi vé còn hiệu lực, chưa trả tiền và chưa quá hạn thanh toán */
     public function canBePaidOnline(): bool
     {
-        return $this->isConfirmed() && ! $this->isPaid() && $this->showtime->start_time->isFuture();
+        return $this->isConfirmed() && ! $this->isPaid() && $this->paymentDeadline()->isFuture();
+    }
+
+    public function cancel(string $reason): void
+    {
+        $this->update(['status' => self::STATUS_CANCELLED, 'cancel_reason' => $reason]);
+    }
+
+    public function getCancelReasonLabelAttribute(): ?string
+    {
+        return self::CANCEL_REASONS[$this->cancel_reason] ?? null;
     }
 
     public function markPaid(string $method, ?string $ref = null): void

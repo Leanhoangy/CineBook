@@ -432,3 +432,22 @@ main { flex: 1; }
 .cb-star-input label:hover,
 .cb-star-input label:hover ~ label { color: var(--cb-gold); }
 .cb-star-input input:focus-visible + label { outline: 2px solid var(--cb-accent); outline-offset: 2px; border-radius: 4px; }
+
+/* ----- Bắp nước ở bước chọn ghế ----- */
+.cb-combo {
+    display: flex; gap: .85rem; padding: .85rem; height: 100%;
+    border: 1px solid var(--cb-border); border-radius: 12px; background: var(--cb-surface-2);
+    transition: border-color .15s ease;
+}
+.cb-combo.active { border-color: var(--cb-gold); box-shadow: 0 0 0 1px var(--cb-gold) inset; }
+.cb-combo-img { width: 64px; height: 64px; flex-shrink: 0; border-radius: 10px; object-fit: cover; }
+.cb-combo-img-fallback { display: grid; place-items: center; font-size: 2rem; background: rgba(245, 185, 66, .12); }
+.cb-qty { display: inline-flex; align-items: center; border: 1px solid var(--cb-border); border-radius: 999px; overflow: hidden; }
+.cb-qty button { width: 32px; height: 30px; border: 0; background: transparent; color: var(--cb-text); }
+.cb-qty button:hover { background: rgba(255, 255, 255, .08); }
+.cb-qty input {
+    width: 32px; border: 0; background: transparent; color: var(--cb-text); text-align: center; font-weight: 700;
+    -moz-appearance: textfield; appearance: textfield;
+}
+.cb-qty input::-webkit-outer-spin-button, .cb-qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.cb-combo-list { font-size: .78rem; }

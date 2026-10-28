@@ -46,13 +46,14 @@ class BookingsExport
         $sheet->setColumnWidth(32, 6);
         $sheet->setColumnWidth(10, 8, 10);
         $sheet->setColumnWidth(18, 9);
-        $sheet->setColumnWidth(14, 11, 12, 13, 14);
-        $sheet->setColumnWidth(13, 15);
-        $sheet->setColumnWidth(26, 16);
+        $sheet->setColumnWidth(24, 11);
+        $sheet->setColumnWidth(14, 12, 13, 14, 15);
+        $sheet->setColumnWidth(13, 16);
+        $sheet->setColumnWidth(26, 17);
 
         $writer->addRow($this->headerRow([
             'Mã vé', 'Ngày đặt', 'Khách hàng', 'Email', 'Số điện thoại', 'Phim', 'Suất chiếu', 'Phòng',
-            'Ghế', 'Số ghế', 'Tạm tính', 'Mã giảm giá', 'Giảm giá', 'Thành tiền', 'Trạng thái', 'Thanh toán',
+            'Ghế', 'Số ghế', 'Bắp nước', 'Tạm tính', 'Mã giảm giá', 'Giảm giá', 'Thành tiền', 'Trạng thái', 'Thanh toán',
         ]));
 
         $money = (new Style)->setFormat(self::MONEY);
@@ -60,17 +61,17 @@ class BookingsExport
 
         // Đọc theo từng lô 500 đơn để không tốn bộ nhớ khi dữ liệu lớn
         (clone $this->query)
-            ->with(['user', 'showtime.movie', 'showtime.room', 'seats', 'voucher'])
+            ->with(['user', 'showtime.movie', 'showtime.room', 'seats', 'combos', 'voucher'])
             ->lazyByIdDesc(500, 'bookings.id', 'id')
             ->each(function (Booking $b) use ($writer, $money, $date) {
                 $writer->addRow(Row::fromValuesWithStyles(
                     cellValues: [
                         $b->code, $b->created_at->toDateTimeImmutable(), $b->user->name, $b->user->email, $b->user->phone,
                         $b->showtime->movie->title, $b->showtime->start_time->toDateTimeImmutable(), $b->showtime->room->name,
-                        $b->seat_list, $b->seats->count(), $b->subtotal, $b->voucher?->code, $b->discount, $b->total_price,
+                        $b->seat_list, $b->seats->count(), $b->combo_list ?: null, $b->subtotal, $b->voucher?->code, $b->discount, $b->total_price,
                         $b->status_label, $b->isConfirmed() || $b->isPaid() ? $b->payment_label : null,
                     ],
-                    columnStyles: [1 => $date, 6 => $date, 10 => $money, 12 => $money, 13 => $money],
+                    columnStyles: [1 => $date, 6 => $date, 11 => $money, 13 => $money, 14 => $money],
                 ));
             });
     }

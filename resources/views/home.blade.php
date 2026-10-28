@@ -22,7 +22,7 @@
                     <div class="small">
                         <strong>{{ $st->start_time->format('H:i') }}</strong> · {{ $st->room->name }} · Ghế {{ $ticket->seat_list }}
                         @unless ($ticket->isPaid())
-                            · <span class="text-warning">chưa thanh toán</span>
+                            · <span class="text-warning">chưa thanh toán, hạn {{ $ticket->paymentDeadline()->format('H:i') }}</span>
                         @endunless
                     </div>
                     @if ($todayTickets->count() > 1)

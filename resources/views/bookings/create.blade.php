@@ -76,6 +76,39 @@
                         </div>
                         <p class="text-center small text-muted mt-3 mb-0"><i class="bi bi-broadcast me-1 text-success"></i><span id="liveStatus">Sơ đồ ghế tự động cập nhật mỗi 10 giây</span></p>
                     </div>
+
+                    @if ($combos->isNotEmpty())
+                        <div class="cb-card p-3 p-md-4 mt-4" id="comboBox">
+                            <h2 class="h5 fw-bold mb-1"><i class="bi bi-cup-straw me-2 text-danger"></i>Bắp nước</h2>
+                            <p class="small text-muted mb-3">Đặt trước, nhận tại quầy khi soát vé – không phải xếp hàng mua.</p>
+                            @error('combos') <div class="alert alert-danger py-2 small">{{ $message }}</div> @enderror
+                            <div class="row g-3">
+                                @foreach ($combos as $combo)
+                                    <div class="col-sm-6">
+                                        <div class="cb-combo" data-combo-id="{{ $combo->id }}" data-name="{{ $combo->name }}" data-price="{{ $combo->price }}">
+                                            @if ($combo->image_url)
+                                                <img src="{{ $combo->image_url }}" alt="{{ $combo->name }}" class="cb-combo-img" loading="lazy">
+                                            @else
+                                                <span class="cb-combo-img cb-combo-img-fallback" aria-hidden="true">🍿</span>
+                                            @endif
+                                            <div class="flex-grow-1 min-w-0">
+                                                <div class="fw-semibold">{{ $combo->name }}</div>
+                                                <div class="small text-muted">{{ $combo->description }}</div>
+                                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                                    <strong class="text-warning">@money($combo->price)</strong>
+                                                    <div class="cb-qty">
+                                                        <button type="button" data-step="-1" aria-label="Bớt {{ $combo->name }}"><i class="bi bi-dash"></i></button>
+                                                        <input type="number" name="combos[{{ $combo->id }}]" value="{{ old("combos.{$combo->id}", 0) }}" min="0" max="{{ \App\Models\Combo::MAX_QUANTITY }}" readonly aria-label="Số lượng {{ $combo->name }}">
+                                                        <button type="button" data-step="1" aria-label="Thêm {{ $combo->name }}"><i class="bi bi-plus"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="col-lg-4">
@@ -133,10 +166,14 @@
                         </div>
 
                         <div class="d-flex justify-content-between small text-muted mb-1 d-none" id="subtotalRow">
-                            <span>Tạm tính</span><span id="subtotalPrice">0 ₫</span>
+                            <span>Tiền vé</span><span id="subtotalPrice">0 ₫</span>
                         </div>
-                        <div class="d-flex justify-content-between small text-success mb-2 d-none" id="discountRow">
+                        <div class="d-flex justify-content-between small text-success mb-1 d-none" id="discountRow">
                             <span>Giảm giá <span id="discountCode" class="fw-semibold"></span></span><span id="discountPrice">-0 ₫</span>
+                        </div>
+                        <div class="small text-muted mb-2 d-none" id="comboRow">
+                            <div class="d-flex justify-content-between"><span>Bắp nước</span><span id="comboPrice">0 ₫</span></div>
+                            <div id="comboList" class="cb-combo-list"></div>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <span class="text-muted">Tổng cộng</span>
@@ -145,7 +182,10 @@
                         <button type="submit" id="submitBooking" class="btn btn-primary w-100 py-2" disabled>
                             <i class="bi bi-check2-circle me-1"></i>Xác nhận đặt vé
                         </button>
-                        <p class="small text-muted mt-3 mb-0">Tối đa {{ config('cinema.max_seats_per_booking') }} ghế/lần. Có thể hủy vé trước giờ chiếu {{ config('cinema.cancel_before_minutes') }} phút.</p>
+                        <p class="small text-muted mt-3 mb-0">
+                            Tối đa {{ config('cinema.max_seats_per_booking') }} ghế/lần. Vé cần thanh toán (online hoặc tại quầy) trước giờ chiếu {{ config('cinema.unpaid_release_minutes') }} phút, quá hạn sẽ tự hủy.
+                            Có thể hủy vé chưa thanh toán trước giờ chiếu {{ config('cinema.cancel_before_minutes') }} phút.
+                        </p>
                     </div>
                 </div>
             </div>

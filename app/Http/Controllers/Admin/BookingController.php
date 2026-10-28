@@ -59,7 +59,7 @@ class BookingController extends Controller
 
     public function show(Booking $booking): View
     {
-        $booking->load(['user', 'showtime.movie', 'showtime.room', 'seats', 'voucher']);
+        $booking->load(['user', 'showtime.movie', 'showtime.room', 'seats', 'combos', 'voucher']);
 
         return view('admin.bookings.show', compact('booking'));
     }
@@ -83,6 +83,9 @@ class BookingController extends Controller
             }
         }
 
+        $validated['cancel_reason'] = $validated['status'] === Booking::STATUS_CANCELLED
+            ? ($booking->isConfirmed() ? Booking::CANCEL_BY_ADMIN : $booking->cancel_reason)
+            : null;
         $booking->update($validated);
 
         return back()->with('success', "Đã cập nhật vé {$booking->code}: {$booking->status_label}.");

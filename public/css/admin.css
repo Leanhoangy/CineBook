@@ -97,3 +97,6 @@ body {
 .ad-checkin-result.is-warning .ad-checkin-state { background: #f5b942; color: #3a2a00; }
 .ad-checkin-result.is-danger { border-color: #dc3545; }
 .ad-checkin-result.is-danger .ad-checkin-state { background: #dc3545; }
+.ad-checkin-combos { padding: .6rem .8rem; border-radius: 10px; background: #fff6e0; border: 1px solid #f5d27a; color: #5c4300; }
+.ad-combo-thumb { width: 48px; height: 48px; flex-shrink: 0; border-radius: 10px; object-fit: cover; display: grid; place-items: center; font-size: 1.5rem; background: #fff6e0; }
+.ad-combo-preview { width: 100%; aspect-ratio: 1; border-radius: 12px; object-fit: cover; background: #fff6e0; border: 1px solid #e6e9ef; }

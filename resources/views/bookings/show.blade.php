@@ -18,6 +18,11 @@
                     <x-status-badge :status="$booking->status" class="mb-2" />
                     <h1 class="h4 fw-bold mb-1">{{ $st->movie->title }}</h1>
                     <div class="text-muted small">{{ $st->movie->duration }} phút · {{ $st->movie->age_rating }}</div>
+                    @if ($booking->cancel_reason === \App\Models\Booking::CANCEL_UNPAID)
+                        <div class="small text-warning mt-2"><i class="bi bi-exclamation-triangle me-1"></i>Vé đã tự hủy vì chưa thanh toán trước {{ $booking->paymentDeadline()->format('H:i d/m') }}. Ghế đã được mở bán lại.</div>
+                    @elseif ($booking->cancel_reason_label)
+                        <div class="small text-muted mt-2">{{ $booking->cancel_reason_label }}</div>
+                    @endif
                 </div>
             </div>
 
@@ -32,6 +37,9 @@
                             <span class="badge rounded-pill {{ $seat->seat_type === 'vip' ? 'text-bg-warning' : 'text-bg-secondary' }} fs-6 me-1 mb-1">{{ $seat->seat_code }}</span>
                         @endforeach
                     </div>
+                    @if ($booking->combos->isNotEmpty())
+                        <div class="col-12"><div class="label">Bắp nước <span class="text-lowercase">(nhận tại quầy khi soát vé)</span></div><div class="value">{{ $booking->combo_list }}</div></div>
+                    @endif
                     @if ($booking->note)
                         <div class="col-12"><div class="label">Ghi chú</div><div>{{ $booking->note }}</div></div>
                     @endif
@@ -79,6 +87,12 @@
                         <span>-@money($booking->discount)</span>
                     </div>
                 @endif
+                @foreach ($booking->combos as $combo)
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">🍿 {{ $combo->name }} × {{ $combo->quantity }}</span>
+                        <span>@money($combo->amount)</span>
+                    </div>
+                @endforeach
                 <div class="d-flex justify-content-between pt-2 mt-1 border-top fw-bold">
                     <span>Tổng cộng</span><span>@money($booking->total_price)</span>
                 </div>
@@ -106,6 +120,10 @@
                                 @else
                                     Vui lòng thanh toán tại quầy khi nhận vé.
                                 @endif
+                            </div>
+                            <div class="mt-1">
+                                Hạn thanh toán: <strong class="text-warning">{{ $booking->paymentDeadline()->format('H:i d/m/Y') }}</strong>.
+                                <span class="text-muted">Quá hạn vé sẽ tự hủy và ghế được mở bán lại.</span>
                             </div>
                             @if ($payOnline)
                                 <form method="POST" action="{{ route('bookings.pay', $booking) }}" class="mt-2">

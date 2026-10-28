@@ -53,6 +53,11 @@
                 <span class="badge rounded-pill {{ $seat->seat_type === 'vip' ? 'text-bg-warning' : 'text-bg-secondary' }} fs-6 me-1 mb-1">{{ $seat->seat_code }}</span>
             @endforeach
         </div>
+        @if ($booking->combos->isNotEmpty())
+            <div class="ad-checkin-combos mb-3">
+                <i class="bi bi-cup-straw me-1"></i><strong>Giao bắp nước:</strong> {{ $booking->combo_list }}
+            </div>
+        @endif
 
         @if (! $justCheckedIn && ! $problem)
             <button type="button" class="btn btn-lg w-100 {{ $booking->isPaid() ? 'btn-success' : 'btn-warning' }}"

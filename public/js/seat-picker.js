@@ -16,6 +16,18 @@
 
     const selected = new Map(); // mã ghế => giá
 
+    // Bắp nước: nút +/- đổi số lượng, cộng vào tổng tiền (mã giảm giá chỉ trừ vào tiền vé)
+    const combos = [...document.querySelectorAll('.cb-combo')].map((el) => ({
+        el, name: el.dataset.name, price: Number(el.dataset.price), input: el.querySelector('input'),
+    }));
+    combos.forEach((c) => c.el.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-step]');
+        if (!btn) return;
+        const qty = Math.min(Number(c.input.max), Math.max(0, Number(c.input.value) + Number(btn.dataset.step)));
+        c.input.value = qty;
+        render();
+    }));
+
     // Mã giảm giá: server trả về điều kiện của mã, trình duyệt tự tính lại mỗi khi đổi ghế
     const voucherBox = document.getElementById('voucherBox');
     const voucherInput = document.getElementById('voucherInput');
@@ -72,7 +84,24 @@
 
         const discount = discountFor(voucher, subtotal);
         renderOptions(subtotal);
-        document.getElementById('subtotalRow').classList.toggle('d-none', !voucher);
+
+        let comboTotal = 0;
+        const comboLines = [];
+        combos.forEach((c) => {
+            const qty = Number(c.input.value);
+            c.el.classList.toggle('active', qty > 0);
+            if (qty > 0) {
+                comboTotal += qty * c.price;
+                comboLines.push(`${qty}× ${c.name}`);
+            }
+        });
+        document.getElementById('comboRow')?.classList.toggle('d-none', !comboTotal);
+        if (comboTotal) {
+            document.getElementById('comboPrice').textContent = money(comboTotal);
+            document.getElementById('comboList').textContent = comboLines.join(', ');
+        }
+
+        document.getElementById('subtotalRow').classList.toggle('d-none', !voucher && !comboTotal);
         document.getElementById('discountRow').classList.toggle('d-none', !voucher);
         document.getElementById('subtotalPrice').textContent = money(subtotal);
         document.getElementById('discountPrice').textContent = '-' + money(discount);
@@ -87,7 +116,7 @@
         }
 
         if (!selected.size) tagBox.innerHTML = '<span class="text-muted small">Chưa chọn ghế nào</span>';
-        totalEl.textContent = money(subtotal - discount);
+        totalEl.textContent = money(subtotal - discount + comboTotal);
         countEl.textContent = selected.size;
         submitBtn.disabled = selected.size === 0;
     };

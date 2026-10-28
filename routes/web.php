@@ -102,6 +102,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     Route::resource('reviews', Admin\ReviewController::class)->only(['index', 'update', 'destroy']);
     Route::resource('vouchers', Admin\VoucherController::class)->except('show');
+    Route::resource('combos', Admin\ComboController::class)->except('show');
 
     Route::resource('users', Admin\UserController::class)->except('show');
 });

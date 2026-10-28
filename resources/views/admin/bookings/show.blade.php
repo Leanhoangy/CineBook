@@ -16,6 +16,9 @@
                     </div>
                     <div class="text-end">
                         <x-status-badge :status="$booking->status" class="fs-6" />
+                        @if ($booking->cancel_reason_label)
+                            <div class="small text-muted mt-1">{{ $booking->cancel_reason_label }}</div>
+                        @endif
                         <x-payment-badge :booking="$booking" class="d-table ms-auto mt-1" />
                     </div>
                 </div>
@@ -64,6 +67,9 @@
                         @endforeach
                     </tbody>
                     <tfoot>
+                        @foreach ($booking->combos as $combo)
+                            <tr><td colspan="2">🍿 {{ $combo->name }} × {{ $combo->quantity }}</td><td class="text-end">@money($combo->amount)</td></tr>
+                        @endforeach
                         @if ($booking->discount)
                             <tr><td colspan="2" class="text-muted">Tạm tính</td><td class="text-end">@money($booking->subtotal)</td></tr>
                             <tr><td colspan="2" class="text-success">Mã giảm giá <span class="font-monospace">{{ $booking->voucher?->code ?? '(đã xóa)' }}</span></td><td class="text-end text-success">-@money($booking->discount)</td></tr>

@@ -52,7 +52,8 @@ class VnpayGateway
             'vnp_ReturnUrl' => route('payments.vnpay.return'),
             'vnp_IpAddr' => $ip,
             'vnp_CreateDate' => now()->format('YmdHis'),
-            'vnp_ExpireDate' => now()->addMinutes(15)->format('YmdHis'),
+            // Link hết hạn sau 15 phút, và không quá hạn thanh toán của vé (lúc đó vé sẽ tự hủy)
+            'vnp_ExpireDate' => min(now()->addMinutes(15), $booking->paymentDeadline())->format('YmdHis'),
         ];
 
         $query = $this->signedQuery($params);

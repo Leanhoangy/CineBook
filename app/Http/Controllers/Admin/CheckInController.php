@@ -15,7 +15,7 @@ use Illuminate\View\View;
  */
 class CheckInController extends Controller
 {
-    private const RELATIONS = ['user', 'showtime.movie', 'showtime.room', 'seats'];
+    private const RELATIONS = ['user', 'showtime.movie', 'showtime.room', 'seats', 'combos'];
 
     public function index(): View
     {

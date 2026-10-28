@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             RoomSeeder::class,
             ShowtimeSeeder::class,
             VoucherSeeder::class,
+            ComboSeeder::class,
             BookingSeeder::class,
             ReviewSeeder::class,
         ]);

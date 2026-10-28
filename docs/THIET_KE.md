@@ -27,6 +27,8 @@ erDiagram
     users ||--o{ reviews : "viết"
     movies ||--o{ reviews : "được đánh giá"
     vouchers |o--o{ bookings : "áp dụng cho"
+    bookings ||--o{ booking_combos : "mua kèm"
+    combos |o--o{ booking_combos : "là"
 
     users {
         bigint id PK
@@ -89,6 +91,7 @@ erDiagram
         int total_price "sau giảm giá"
         int discount
         enum status "confirmed|cancelled"
+        enum cancel_reason "customer|admin|unpaid, nullable"
         timestamp paid_at "null = chưa thanh toán"
         enum payment_method "vnpay|counter, nullable"
         varchar payment_ref "mã giao dịch VNPay"
@@ -101,6 +104,22 @@ erDiagram
         varchar seat_code "A1, C12..."
         enum seat_type "standard|vip"
         int price
+    }
+    combos {
+        bigint id PK
+        varchar name
+        varchar description
+        int price
+        varchar image
+        boolean is_active
+    }
+    booking_combos {
+        bigint id PK
+        bigint booking_id FK
+        bigint combo_id FK "nullable"
+        varchar name "tên lúc mua"
+        int price "giá lúc mua"
+        tinyint quantity
     }
     reviews {
         bigint id PK
@@ -174,6 +193,8 @@ flowchart LR
         UC18(Đánh giá phim)
         UC19(Áp mã giảm giá)
         UC20(Quản lý mã giảm giá)
+        UC25(Mua kèm bắp nước)
+        UC26(Quản lý bắp nước)
         UC21(Kiểm duyệt đánh giá)
         UC22(Xuất báo cáo Excel)
         UC23(Thanh toán online VNPay)
@@ -182,9 +203,10 @@ flowchart LR
 
     Guest --- UC1 & UC2 & UC3 & UC4 & UC5 & UC17
     User --- UC1 & UC2 & UC3 & UC5 & UC6 & UC7 & UC8 & UC9 & UC18 & UC23
-    Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16 & UC20 & UC21 & UC22 & UC24
+    Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16 & UC20 & UC21 & UC22 & UC24 & UC26
     UC6 -. include .-> UC5
     UC19 -. extend .-> UC6
+    UC25 -. extend .-> UC6
     UC8 -. extend .-> UC7
     UC23 -. extend .-> UC7
 ```
@@ -239,24 +261,31 @@ Giá ghế thường của mỗi suất được tính tự động theo bảng 
 | Luồng chính | 1. Nhân viên mở `/admin/soat-ve`, bật camera. 2. Khách đưa mã QR trên vé (điện thoại hoặc vé in); QR chỉ chứa mã vé. 3. Trình duyệt đọc mã, gọi AJAX tra cứu → hiện phim, suất, phòng, ghế, khách, trạng thái thanh toán kèm tiếng bíp. 4. Nhân viên bấm "Cho vào" → hệ thống khóa dòng vé, kiểm tra lại rồi ghi `checked_in_at`. 5. Vé được thêm vào danh sách "Đã soát hôm nay"; trên trang vé của khách hiện "Đã vào rạp lúc …". |
 | Luồng phụ | 3a. Vé chưa thanh toán → nút đổi thành "Đã thu … ₫ & cho vào" (ghi nhận thanh toán tại quầy). 3b. Vé đã hủy / đã soát rồi / chưa tới giờ (mở trước giờ chiếu 60 phút) / suất đã kết thúc / mã không tồn tại → báo đỏ, không cho vào. 2a. Không có camera → gõ mã vé hoặc dùng máy quét mã vạch (hoạt động như bàn phím). |
 
-### 4.9. Đánh giá phim (UC18, UC21)
+### 4.9. Bắp nước và tự hủy vé chưa thanh toán (UC25, UC26)
+| Mục | Nội dung |
+|---|---|
+| Bắp nước | Ở trang chọn ghế khách chọn số lượng từng combo đang bán (tối đa 10 phần/món). Server lấy giá từ CSDL (không tin giá trình duyệt gửi lên), lưu `booking_combos` kèm tên + giá lúc mua; `total_price` = tiền vé − giảm giá + bắp nước (mã giảm giá chỉ trừ vào tiền vé). Bắp nước hiện trên vé, email, chi tiết đơn và trang soát vé ("Giao bắp nước: …"). Admin CRUD combo có ảnh; combo đã bán chỉ được ngừng bán. |
+| Hạn thanh toán | `Booking::paymentDeadline()` = muộn hơn trong 2 mốc: giờ chiếu − 30 phút, hoặc lúc đặt + 15 phút. Thanh toán online chỉ được trước hạn; link VNPay hết hạn không quá mốc này. |
+| Tự hủy | Lệnh `bookings:release-unpaid` chạy mỗi phút: vé "Đã xác nhận", chưa thanh toán, chưa soát và đã quá hạn → khóa dòng, kiểm tra lại rồi chuyển "Đã hủy" với `cancel_reason = unpaid`, ghế mở bán lại, lượt mã giảm giá được hoàn, gửi email báo khách. `cancel_reason` cũng ghi nhận khách tự hủy / admin hủy. |
+
+### 4.10. Đánh giá phim (UC18, UC21)
 Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao kèm bình luận; mỗi phim 1 đánh giá, sửa/xóa được. Trang phim hiển thị điểm trung bình, phân bố số sao. Admin lọc, ẩn/hiện bình luận vi phạm hoặc xóa.
 
 ## 5. Đối chiếu yêu cầu đồ án
 
 | Yêu cầu (file đề) | Đáp ứng trong CineBook |
 |---|---|
-| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 10 migration nghiệp vụ, 8 seeder, 7 factory; phim thật cào từ Moveek (`movies:crawl`) |
+| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 12 migration nghiệp vụ, 9 seeder, 9 factory; phim thật cào từ Moveek (`movies:crawl`) |
 | Blade + Bootstrap, tách giao diện user/admin | `layouts/app` (tối, rạp phim) và `layouts/admin` (sidebar) |
 | ≥ 2 role, admin vào `/admin`, bảo vệ route bằng Middleware | Role `admin`/`user`, middleware `role:` tự viết + `auth` + `guest` |
-| CRUD ≥ 2 bảng có quan hệ | CRUD đủ trên Phim, Thể loại, Phòng, Suất chiếu, Người dùng, Mã giảm giá (+ Đơn đặt vé, Đánh giá) |
+| CRUD ≥ 2 bảng có quan hệ | CRUD đủ trên Phim, Thể loại, Phòng, Suất chiếu, Người dùng, Mã giảm giá, Bắp nước (+ Đơn đặt vé, Đánh giá) |
 | Tìm kiếm + phân trang giữ từ khóa | `/phim` và tất cả trang danh sách admin |
 | Validation + thông báo lỗi rõ ràng | 9 Form Request + `validate()`, thông báo tiếng Việt |
 | Flash message sau thêm/sửa/xóa | Toast Bootstrap ở cả 2 khu vực |
 | *Mở rộng:* Upload file | Poster phim, avatar người dùng |
 | *Mở rộng:* Gửi email | Quên mật khẩu (Password Broker), email vé điện tử sau khi đặt |
 | *Mở rộng:* Xuất file | Xuất đơn đặt vé + doanh thu theo phim ra Excel (.xlsx) |
-| *Mở rộng:* Tác vụ định kỳ | Laravel Scheduler: `showtimes:refresh` hằng ngày (khởi chiếu / ngừng chiếu tự động, xếp lịch 7 ngày tới, mở bán vé trước); `movies:crawl --import` hằng tuần lấy phim mới |
+| *Mở rộng:* Tác vụ định kỳ | Laravel Scheduler: `showtimes:refresh` hằng ngày (khởi chiếu / ngừng chiếu tự động, xếp lịch 7 ngày tới, mở bán vé trước); `movies:crawl --import` hằng tuần lấy phim mới; `bookings:release-unpaid` mỗi phút tự hủy vé quá hạn thanh toán |
 | *Mở rộng:* AJAX | Gợi ý tìm kiếm, cập nhật sơ đồ ghế realtime, kiểm tra mã giảm giá, tra cứu & soát vé bằng QR |
 | *Mở rộng:* API ngoài | Cổng thanh toán VNPay (sandbox, chữ ký HMAC-SHA512, IPN), YouTube embed (trailer); mã QR vé tạo bằng thư viện PHP ngay trên server |
 | *Mở rộng:* Responsive | Bootstrap grid, menu thu gọn, sidebar offcanvas |
