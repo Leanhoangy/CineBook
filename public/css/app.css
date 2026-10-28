@@ -451,3 +451,6 @@ main { flex: 1; }
 }
 .cb-qty input::-webkit-outer-spin-button, .cb-qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .cb-combo-list { font-size: .78rem; }
+
+/* Cho phần tử con trong flex co lại được để .text-truncate cắt chữ (Bootstrap không có sẵn) */
+.min-w-0 { min-width: 0; }

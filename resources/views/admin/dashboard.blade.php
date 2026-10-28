@@ -4,19 +4,28 @@
 @section('subtitle', 'Hôm nay, '.now()->translatedFormat('l d/m/Y'))
 
 @section('content')
+    @php
+        // Thẻ nhỏ nên doanh thu hiện dạng rút gọn (3,79 tỷ ₫), rê chuột để xem số đầy đủ
+        $revenue = $stats['revenue_month'];
+        $revenueShort = match (true) {
+            $revenue >= 1e9 => number_format($revenue / 1e9, 2, ',', '.').' tỷ ₫',
+            $revenue >= 1e6 => number_format($revenue / 1e6, 1, ',', '.').' tr ₫',
+            default => number_format($revenue, 0, ',', '.').' ₫',
+        };
+    @endphp
     <div class="row g-3 mb-4">
         @foreach ([
-            ['Doanh thu tháng này', number_format($stats['revenue_month'], 0, ',', '.').' ₫', 'bi-cash-stack', '#e8f7ef', '#1a9a5b'],
-            ['Vé bán hôm nay', $stats['tickets_today'], 'bi-ticket-perforated', '#fff0f1', '#ff4d5a'],
-            ['Suất chiếu hôm nay', $stats['showtimes_today'], 'bi-calendar3', '#eef4ff', '#3a6ff7'],
-            ['Phim đang chiếu', $stats['movies_showing'], 'bi-camera-reels', '#fff6e5', '#e39b0b'],
-            ['Khách hàng', $stats['customers'], 'bi-people', '#f3eefe', '#7b4ae2'],
-        ] as [$label, $value, $icon, $bg, $color])
-            <div class="col-6 col-md-4 col-xl">
+            ['Doanh thu tháng này', $revenueShort, 'bi-cash-stack', '#e8f7ef', '#1a9a5b', number_format($revenue, 0, ',', '.').' ₫'],
+            ['Vé bán hôm nay', $stats['tickets_today'], 'bi-ticket-perforated', '#fff0f1', '#ff4d5a', null],
+            ['Suất chiếu hôm nay', $stats['showtimes_today'], 'bi-calendar3', '#eef4ff', '#3a6ff7', null],
+            ['Phim đang chiếu', $stats['movies_showing'], 'bi-camera-reels', '#fff6e5', '#e39b0b', null],
+            ['Khách hàng', $stats['customers'], 'bi-people', '#f3eefe', '#7b4ae2', null],
+        ] as [$label, $value, $icon, $bg, $color, $title])
+            <div class="{{ $loop->first ? 'col-12' : 'col-6' }} col-md-4 col-xl">
                 <div class="ad-card ad-stat h-100">
                     <div class="icon" style="background: {{ $bg }}; color: {{ $color }}"><i class="bi {{ $icon }}"></i></div>
                     <div class="min-w-0">
-                        <div class="value text-truncate">{{ $value }}</div>
+                        <div class="value text-truncate" @if ($title) title="{{ $title }}" @endif>{{ $value }}</div>
                         <div class="label">{{ $label }}</div>
                     </div>
                 </div>
