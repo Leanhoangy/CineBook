@@ -410,6 +410,14 @@ main { flex: 1; }
     display: inline-block; padding: 0 .45rem; border-radius: 999px; font-size: .72rem; font-weight: 700;
     line-height: 1.5; color: var(--cb-accent); border: 1px solid var(--cb-accent); vertical-align: 1px;
 }
+.cb-badge-presale {
+    display: inline-block; padding: 0 .45rem; border-radius: 999px; font-size: .72rem; font-weight: 700;
+    line-height: 1.5; color: #1a1300; background: var(--cb-gold); vertical-align: 1px;
+}
+.cb-presale-soon {
+    display: inline-flex; align-items: center; padding: .6rem 1.25rem; border-radius: 999px;
+    border: 1px dashed var(--cb-gold); color: var(--cb-gold); font-weight: 600;
+}
 .cb-rating-big { font-size: 3rem; font-weight: 800; line-height: 1; }
 .cb-rating-big small { font-size: 1.1rem; color: var(--cb-muted); font-weight: 500; }
 .cb-review { padding: 1rem 0; border-bottom: 1px solid var(--cb-border); }

@@ -21,6 +21,7 @@ class HomeController extends Controller
             ->get();
 
         $comingSoon = Movie::with('genres')
+            ->withPresale()
             ->where('status', 'coming_soon')
             ->orderBy('release_date')
             ->take(4)

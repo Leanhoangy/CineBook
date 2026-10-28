@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 #[Fillable([
@@ -98,6 +99,21 @@ class Movie extends Model
     public function upcomingShowtimes(): HasMany
     {
         return $this->showtimes()->where('start_time', '>', now())->orderBy('start_time');
+    }
+
+    /**
+     * Ngày phim sắp chiếu bắt đầu mở bán vé trước. Lịch chiếu được xếp sẵn cho 7 ngày (hôm nay + 6 ngày tới)
+     * nên suất của ngày khởi chiếu xuất hiện từ 6 ngày trước đó.
+     */
+    public function presaleOpensOn(): Carbon
+    {
+        return $this->release_date->copy()->subDays(6);
+    }
+
+    /** Thêm cột on_presale: phim sắp chiếu đã có suất mở bán vé trước */
+    public function scopeWithPresale(Builder $query): Builder
+    {
+        return $query->withExists(['showtimes as on_presale' => fn (Builder $q) => $q->where('start_time', '>', now())]);
     }
 
     public function scopeSearch(Builder $query, ?string $keyword): Builder

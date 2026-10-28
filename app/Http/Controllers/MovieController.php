@@ -17,12 +17,15 @@ class MovieController extends Controller
 
         $movies = Movie::with('genres')
             ->withAvg(['reviews' => fn ($q) => $q->visible()], 'rating')
+            ->withPresale()
             ->search($keyword)
             ->ofGenre($request->query('the-loai'))
             ->ofStatus($request->query('trang-thai'))
             ->where('status', '!=', 'ended')
+            // Đang chiếu: phim mới ra trước; sắp chiếu: phim khởi chiếu sớm nhất (đang mở bán vé trước) lên đầu
             ->orderByRaw("CASE WHEN status = 'now_showing' THEN 0 ELSE 1 END")
-            ->orderByDesc('release_date')
+            ->orderByRaw("CASE WHEN status = 'now_showing' THEN release_date END DESC")
+            ->orderBy('release_date')
             ->paginate(8)
             ->withQueryString();
 
@@ -45,6 +48,7 @@ class MovieController extends Controller
 
         $related = Movie::with('genres')
             ->withAvg(['reviews' => fn ($q) => $q->visible()], 'rating')
+            ->withPresale()
             ->whereKeyNot($movie->id)
             ->where('status', '!=', 'ended')
             ->whereHas('genres', fn ($q) => $q->whereIn('genres.id', $movie->genres->pluck('id')))

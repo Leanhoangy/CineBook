@@ -1,10 +1,12 @@
 @props(['movie'])
 
+@php $presale = $movie->status === 'coming_soon' && $movie->on_presale; @endphp
+
 <a href="{{ route('movies.show', $movie) }}" class="cb-movie-card">
     <x-poster :movie="$movie">
         <div class="overlay">
             <span class="btn btn-primary btn-sm rounded-pill px-3">
-                <i class="bi bi-ticket-perforated me-1"></i>{{ $movie->status === 'now_showing' ? 'Đặt vé' : 'Xem chi tiết' }}
+                <i class="bi bi-ticket-perforated me-1"></i>{{ match (true) { $movie->status === 'now_showing' => 'Đặt vé', $presale => 'Đặt vé trước', default => 'Xem chi tiết' } }}
             </span>
         </div>
     </x-poster>
@@ -18,6 +20,9 @@
         @endif
         @if ($movie->status === 'coming_soon')
             · <i class="bi bi-calendar-event"></i> {{ $movie->release_date->format('d/m/Y') }}
+        @endif
+        @if ($presale)
+            <span class="cb-badge-presale ms-1">Đặt vé trước</span>
         @endif
     </div>
     <div class="cb-movie-meta text-truncate">{{ $movie->genres->pluck('name')->join(', ') }}</div>

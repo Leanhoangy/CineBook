@@ -111,7 +111,7 @@ php artisan test
 - Xem phim đang chiếu / sắp chiếu, chi tiết phim, trailer YouTube.
 - **Tìm kiếm** phim theo tên, đạo diễn, diễn viên + lọc theo thể loại, trạng thái, **phân trang giữ từ khóa**.
 - **Gợi ý tìm kiếm trực tiếp bằng AJAX** trên thanh menu.
-- Xem lịch chiếu theo ngày (phim sắp chiếu được **mở bán vé trước**), xem **đánh giá của khán giả** (điểm trung bình, phân bố số sao).
+- Xem lịch chiếu theo ngày (phim sắp chiếu được **mở bán vé trước** khoảng 1 tuần trước khởi chiếu, có nhãn "Đặt vé trước" trên thẻ phim; phim còn xa ngày chiếu hiện "Mở bán vé từ dd/mm"), xem **đánh giá của khán giả** (điểm trung bình, phân bố số sao).
 - Đăng ký, đăng nhập, **quên mật khẩu** (gửi link đặt lại qua email).
 - Trang **Ưu đãi**: chương trình giá vé (Thứ Ba vui vẻ đồng giá, suất sáng giá rẻ, đặt vé trước), mã giảm giá đang áp dụng (sao chép mã 1 chạm), **bảng giá vé** theo khung giờ / ngày trong tuần, loại ghế và phòng chiếu.
 - Trang **Hỗ trợ**: câu hỏi thường gặp (đặt vé, hủy vé, mã giảm giá, phân loại độ tuổi) và thông tin liên hệ.

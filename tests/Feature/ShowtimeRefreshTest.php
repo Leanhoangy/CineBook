@@ -132,4 +132,20 @@ class ShowtimeRefreshTest extends TestCase
             ->assertSee('Hành động')
             ->assertDontSee('Chiến tranh');
     }
+
+    public function test_coming_soon_movie_shows_when_presale_opens_and_presale_badge(): void
+    {
+        $later = Movie::factory()->create(['status' => 'coming_soon', 'release_date' => today()->addMonth()]);
+        $soon = Movie::factory()->create(['status' => 'coming_soon', 'release_date' => today()->addDays(3)]);
+        Showtime::factory()->create(['movie_id' => $soon->id, 'start_time' => today()->addDays(3)->setTime(19, 0)]);
+
+        $this->get(route('movies.show', $later))
+            ->assertSee('Mở bán vé từ '.today()->addMonth()->subDays(6)->format('d/m/Y'))
+            ->assertDontSee('Đặt vé trước');
+        $this->get(route('movies.show', $soon))->assertSee('Đặt vé trước');
+
+        $this->get(route('movies.index', ['trang-thai' => 'coming_soon']))
+            ->assertSeeInOrder([$soon->title, 'Đặt vé trước'])
+            ->assertSee($later->title);
+    }
 }

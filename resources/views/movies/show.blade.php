@@ -44,6 +44,8 @@
                     <div class="d-flex flex-wrap gap-2">
                         @if ($showtimesByDate->isNotEmpty())
                             <a href="#lich-chieu" class="btn btn-primary btn-lg rounded-pill px-4"><i class="bi bi-ticket-perforated me-2"></i>{{ $movie->status === 'coming_soon' ? 'Đặt vé trước' : 'Chọn suất chiếu' }}</a>
+                        @elseif ($movie->status === 'coming_soon' && $movie->presaleOpensOn()->isFuture())
+                            <span class="cb-presale-soon"><i class="bi bi-hourglass-split me-2"></i>Mở bán vé từ {{ $movie->presaleOpensOn()->format('d/m/Y') }}</span>
                         @endif
                         @if ($movie->trailer_embed_url)
                             <button type="button" class="btn btn-outline-light btn-lg rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#trailerModal"><i class="bi bi-play-circle me-2"></i>Xem trailer</button>
@@ -61,8 +63,11 @@
             @if ($showtimesByDate->isEmpty())
                 <div class="cb-card cb-empty">
                     <i class="bi bi-calendar-x"></i>
-                    @if ($movie->status === 'coming_soon')
-                        Phim sẽ khởi chiếu từ ngày {{ $movie->release_date->format('d/m/Y') }}. Hãy quay lại sau nhé!
+                    @if ($movie->status === 'coming_soon' && $movie->presaleOpensOn()->isFuture())
+                        Phim khởi chiếu ngày {{ $movie->release_date->format('d/m/Y') }}. Vé được <strong>mở bán trước từ ngày {{ $movie->presaleOpensOn()->format('d/m/Y') }}</strong>
+                        (khoảng 1 tuần trước khởi chiếu), hãy quay lại để giữ chỗ đẹp nhé!
+                    @elseif ($movie->status === 'coming_soon')
+                        Phim sẽ khởi chiếu từ ngày {{ $movie->release_date->format('d/m/Y') }}. Lịch chiếu đang được cập nhật, hãy quay lại sau nhé!
                     @else
                         Hiện chưa có suất chiếu nào trong 7 ngày tới.
                     @endif
