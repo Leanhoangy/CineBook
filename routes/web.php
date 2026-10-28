@@ -93,6 +93,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,staff'])
 */
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/', [Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('thong-ke', [Admin\ReportController::class, 'index'])->name('reports.index');
 
     Route::resource('genres', Admin\GenreController::class)->except('show');
 

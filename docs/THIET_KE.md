@@ -10,6 +10,7 @@
 **Đối tượng sử dụng:**
 - *Khách vãng lai*: xem phim, lịch chiếu, tìm kiếm.
 - *Khách hàng (User)*: đặt vé, chọn ghế, quản lý vé đã đặt.
+- *Nhân viên soát vé (Staff)*: chỉ soát vé cho khách vào rạp (và thu tiền vé chưa thanh toán).
 - *Quản trị viên (Admin)*: quản lý toàn bộ dữ liệu nghiệp vụ và theo dõi doanh thu.
 
 **Phạm vi:** một rạp với nhiều phòng chiếu; khách thanh toán online qua cổng VNPay (môi trường sandbox) hoặc trả tại quầy khi nhận vé.
@@ -37,7 +38,7 @@ erDiagram
         varchar password
         varchar phone
         varchar avatar
-        enum role "admin | user"
+        enum role "admin | staff | user"
         timestamps created_at
     }
     genres {
@@ -176,6 +177,7 @@ flowchart LR
     Guest([Khách vãng lai])
     User([Khách hàng])
     Admin([Quản trị viên])
+    Staff([Nhân viên soát vé])
 
     subgraph CineBook
         UC1(Xem danh sách / chi tiết phim)
@@ -205,11 +207,13 @@ flowchart LR
         UC23(Thanh toán online VNPay)
         UC24(Soát vé bằng mã QR)
         UC27(Hoàn tiền / hủy suất chiếu)
+        UC28(Thống kê theo khoảng ngày)
     end
 
     Guest --- UC1 & UC2 & UC3 & UC4 & UC5 & UC17
     User --- UC1 & UC2 & UC3 & UC5 & UC6 & UC7 & UC8 & UC9 & UC18 & UC23
-    Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16 & UC20 & UC21 & UC22 & UC24 & UC26 & UC27
+    Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16 & UC20 & UC21 & UC22 & UC24 & UC26 & UC27 & UC28
+    Staff --- UC5 & UC24
     UC6 -. include .-> UC5
     UC19 -. extend .-> UC6
     UC25 -. extend .-> UC6
@@ -285,16 +289,25 @@ Giá ghế thường của mỗi suất được tính tự động theo bảng 
 | Chờ hoàn tiền | Vé "Đã hủy" có `paid_at` nhưng chưa `refunded_at` (VD: khách trả VNPay đúng lúc vé vừa tự hủy – `process()` vẫn ghi nhận tiền). Dashboard và trang Đơn đặt vé hiện cảnh báo + bộ lọc "Chờ hoàn tiền". |
 | Ghi chú | VNPay khóa API hoàn tiền trên sandbox (mã 99); khi demo dùng hoàn thủ công. |
 
-### 4.11. Đánh giá phim (UC18, UC21)
+### 4.11. Thống kê theo khoảng ngày (UC28)
+| Mục | Nội dung |
+|---|---|
+| Tác nhân | Quản trị viên |
+| Phạm vi số liệu | Suất chiếu có giờ bắt đầu trong khoảng ngày đã chọn và đã bắt đầu (không tính suất bị rạp hủy); chỉ vé "Đã xác nhận". Mặc định từ đầu tháng tới hôm nay, tối đa 1 năm. |
+| Chỉ số | Doanh thu (vé / bắp nước), số vé, số đơn, **tỉ lệ lấp đầy** = ghế đã bán / tổng ghế (`số hàng × số ghế mỗi hàng`) của các suất, tỉ lệ đơn mua kèm bắp nước. |
+| Phân tích | Doanh thu theo ngày chiếu (biểu đồ cột); theo khung giờ sáng (<12h) / chiều (12–17h) / tối (17–21h) / khuya (≥21h) kèm phim bán nhiều vé nhất mỗi khung; top 10 phim theo doanh thu kèm lấp đầy; bắp nước bán chạy. |
+| Cách tính | `SalesReport`: 1 truy vấn lấy từng suất kèm số ghế bán, doanh thu, tiền bắp nước (subquery `GROUP BY showtime_id` để không đếm trùng khi JOIN), sau đó cộng dồn theo ngày / khung giờ / phim bằng Collection. |
+
+### 4.12. Đánh giá phim (UC18, UC21)
 Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao kèm bình luận; mỗi phim 1 đánh giá, sửa/xóa được. Trang phim hiển thị điểm trung bình, phân bố số sao. Admin lọc, ẩn/hiện bình luận vi phạm hoặc xóa.
 
 ## 5. Đối chiếu yêu cầu đồ án
 
 | Yêu cầu (file đề) | Đáp ứng trong CineBook |
 |---|---|
-| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 13 migration nghiệp vụ, 9 seeder, 9 factory; phim thật cào từ Moveek (`movies:crawl`) |
+| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 14 migration nghiệp vụ, 9 seeder, 9 factory; phim thật cào từ Moveek (`movies:crawl`) |
 | Blade + Bootstrap, tách giao diện user/admin | `layouts/app` (tối, rạp phim) và `layouts/admin` (sidebar) |
-| ≥ 2 role, admin vào `/admin`, bảo vệ route bằng Middleware | Role `admin`/`user`, middleware `role:` tự viết + `auth` + `guest` |
+| ≥ 2 role, admin vào `/admin`, bảo vệ route bằng Middleware | 3 role `admin` / `staff` (nhân viên soát vé, chỉ vào được trang Soát vé) / `user`, middleware `role:` tự viết + `auth` + `guest` |
 | CRUD ≥ 2 bảng có quan hệ | CRUD đủ trên Phim, Thể loại, Phòng, Suất chiếu, Người dùng, Mã giảm giá, Bắp nước (+ Đơn đặt vé, Đánh giá) |
 | Tìm kiếm + phân trang giữ từ khóa | `/phim` và tất cả trang danh sách admin |
 | Validation + thông báo lỗi rõ ràng | 9 Form Request + `validate()`, thông báo tiếng Việt |
@@ -314,7 +327,7 @@ Chi tiết từng người phụ trách trang nào, file code nào và câu hỏ
 
 | Thành viên | Mảng phụ trách | Báo cáo |
 |---|---|---|
-| TV1 – Nhóm trưởng | CSDL (migration, model, quan hệ, seeder), cào phim Moveek, lịch chiếu tự động, Dashboard, xuất Excel | ERD, Công nghệ, Hướng dẫn cài đặt |
-| TV2 | Đăng ký/đăng nhập/quên mật khẩu, middleware `role`, hồ sơ + avatar, quản lý người dùng; mã giảm giá, bắp nước, trang Ưu đãi/Hỗ trợ | Use Case, Phân quyền |
+| TV1 – Nhóm trưởng | CSDL (migration, model, quan hệ, seeder), cào phim Moveek, lịch chiếu tự động, Dashboard, Thống kê, xuất Excel | ERD, Công nghệ, Hướng dẫn cài đặt |
+| TV2 | Đăng ký/đăng nhập/quên mật khẩu, middleware `role` (3 vai trò), hồ sơ + avatar, quản lý người dùng; mã giảm giá, bắp nước, trang Ưu đãi/Hỗ trợ | Use Case, Phân quyền |
 | TV3 | Trang chủ, danh sách/tìm kiếm phim (AJAX), chi tiết phim, lịch chiếu; CRUD Phim (soft delete), Thể loại, Phòng, Suất chiếu; đánh giá phim | Mô tả chức năng xem phim + admin nội dung |
 | TV4 | Chọn ghế realtime + đặt vé (transaction, khóa dòng), VNPay, hoàn tiền, vé QR, hủy/tự hủy vé, soát vé, quản lý đơn, email vé | Mô tả luồng đặt vé – thanh toán, Slide |

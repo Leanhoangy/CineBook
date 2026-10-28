@@ -10,6 +10,7 @@
     @php
         $menu = [
             ['admin.dashboard', 'admin.dashboard', 'bi-speedometer2', 'Tổng quan'],
+            ['admin.reports.index', 'admin.reports.*', 'bi-graph-up-arrow', 'Thống kê'],
             'Nội dung',
             ['admin.movies.index', 'admin.movies.*', 'bi-camera-reels', 'Phim'],
             ['admin.genres.index', 'admin.genres.*', 'bi-tags', 'Thể loại'],

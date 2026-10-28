@@ -86,6 +86,7 @@ Vé đặt xong giữ ghế ngay nhưng phải thanh toán (VNPay hoặc tại q
 | Vai trò | Email | Đăng nhập xong sẽ vào |
 |---|---|---|
 | Quản trị viên | `admin@cinebook.test` | `/admin` |
+| Nhân viên soát vé | `soatve@cinebook.test` | `/admin/soat-ve` (chỉ được dùng trang này) |
 | Khách hàng | `user@cinebook.test` | Trang chủ |
 
 **Mã giảm giá mẫu** (tài khoản demo chưa dùng mã nào): `CINEBOOK10` (giảm 10%, tối đa 30.000 ₫), `GIAM20K` (đơn từ 150.000 ₫), `SINHVIEN`, `NHOMBAN4` (đơn từ 300.000 ₫); `THANHVIENMOI` (20 khách đầu tiên) đã hết lượt, `HE2026` đã hết hạn và `GIANGSINH` chưa tới ngày để demo thông báo lỗi.
@@ -107,7 +108,7 @@ Chạy trên máy cá nhân thì kết quả được ghi nhận khi VNPay đưa
 php artisan test
 ```
 
-90 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, hoàn tiền, soát vé, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+97 test chức năng (đăng nhập, phân quyền 3 vai trò, thống kê, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, hoàn tiền, soát vé, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -135,8 +136,12 @@ php artisan test
 - Lịch sử đặt vé (sắp chiếu / đã chiếu) kèm trạng thái thanh toán, **tự hủy vé** chưa thanh toán trước giờ chiếu 60 phút (vé đã thanh toán online không tự hủy được).
 - Cập nhật hồ sơ, **upload ảnh đại diện**, đổi mật khẩu.
 
+### Nhân viên soát vé (role `staff`)
+- Đăng nhập vào thẳng trang **Soát vé**, menu chỉ có mục này; vào các trang quản trị khác bị chặn (403). Soát vé, thu tiền vé chưa thanh toán khi cho khách vào, nhưng không xem / sửa được đơn đặt vé.
+
 ### Quản trị viên (role `admin`, khu vực `/admin`)
 - **Tổng quan**: doanh thu tháng, vé bán hôm nay, biểu đồ doanh thu 14 ngày (Chart.js), top phim.
+- **Thống kê** (`/admin/thong-ke`): chọn khoảng ngày chiếu (hoặc nhanh: hôm nay, 7/30 ngày, tháng này, tháng trước) → doanh thu vé / bắp nước, **tỉ lệ lấp đầy ghế**, biểu đồ doanh thu theo ngày, **hiệu quả từng khung giờ** (sáng / chiều / tối / khuya, kèm phim bán chạy nhất mỗi khung), top phim (doanh thu + lấp đầy), bắp nước bán chạy.
 - **CRUD Phim**: upload poster, gán nhiều thể loại, ngày kết thúc chiếu (tự chuyển "Ngừng chiếu"), **xóa mềm (Soft Delete)** → thùng rác → khôi phục / xóa vĩnh viễn.
 - **CRUD Thể loại**, **CRUD Phòng chiếu** (xem trước sơ đồ ghế khi nhập số hàng/ghế).
 - **CRUD Suất chiếu**: tự tính giờ kết thúc, **chặn trùng giờ trong cùng phòng**, khóa sửa/xóa khi đã có vé; **hủy suất khi có sự cố**: hủy mọi vé, hoàn tiền vé đã thanh toán, email từng khách, suất được xóa mềm.
@@ -157,7 +162,7 @@ php artisan test
 | Seeder + Factory | `database/seeders/`, `database/factories/` |
 | Eloquent: `hasMany`, `belongsTo`, `belongsToMany`, scope, accessor | `app/Models/` |
 | Soft Delete | `Movie` + `Admin\MovieController@trash/restore/forceDelete` |
-| Middleware phân quyền tự viết `role:admin` | `app/Http/Middleware/EnsureUserHasRole.php`, `bootstrap/app.php` |
+| Middleware phân quyền tự viết `role:admin`, `role:admin,staff` | `app/Http/Middleware/EnsureUserHasRole.php`, `bootstrap/app.php` |
 | Policy (chỉ chủ vé được xem/hủy vé, chỉ chủ đánh giá được xóa) | `app/Policies/` |
 | Form Request + validate tùy biến (`after()`) | `app/Http/Requests/` |
 | `validate()` trong Controller | `ProfileController@updatePassword`, `Admin\BookingController@update` |

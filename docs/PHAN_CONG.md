@@ -20,23 +20,27 @@
 | Trang | URL |
 |---|---|
 | Tổng quan (doanh thu tháng, vé hôm nay, biểu đồ 14 ngày, top phim) | `/admin` |
+| Thống kê theo khoảng ngày (lấp đầy, khung giờ, top phim, bắp nước) | `/admin/thong-ke` |
 | Xuất Excel đơn đặt vé | nút "Xuất Excel" ở `/admin/bookings` |
 
 ### File code
 | Việc | File |
 |---|---|
-| Tạo bảng (12 migration nghiệp vụ) | [`database/migrations/`](../database/migrations/) |
+| Tạo bảng (14 migration nghiệp vụ) | [`database/migrations/`](../database/migrations/) |
 | Model + quan hệ giữa các bảng | [`app/Models/`](../app/Models/) – `Movie`, `Genre`, `Room`, `Showtime`, `Booking`, `BookingSeat`, `User`… |
 | Dữ liệu mẫu | [`database/seeders/`](../database/seeders/), [`database/factories/`](../database/factories/) |
 | Cào phim thật từ Moveek | [`app/Console/Commands/CrawlMovies.php`](../app/Console/Commands/CrawlMovies.php), [`app/Services/MovieImporter.php`](../app/Services/MovieImporter.php) |
 | Tự xếp lịch chiếu 7 ngày, tự chuyển "Đang chiếu" / "Ngừng chiếu" | [`app/Services/ShowtimeScheduler.php`](../app/Services/ShowtimeScheduler.php), [`app/Console/Commands/RefreshShowtimes.php`](../app/Console/Commands/RefreshShowtimes.php) |
 | Lên lịch chạy định kỳ | [`routes/console.php`](../routes/console.php) |
 | Dashboard | [`Admin/DashboardController.php`](../app/Http/Controllers/Admin/DashboardController.php), [`admin/dashboard.blade.php`](../resources/views/admin/dashboard.blade.php) |
+| Thống kê | [`app/Services/SalesReport.php`](../app/Services/SalesReport.php), [`Admin/ReportController.php`](../app/Http/Controllers/Admin/ReportController.php), [`admin/reports/index.blade.php`](../resources/views/admin/reports/index.blade.php), component [`admin/meter`](../resources/views/components/admin/meter.blade.php) |
 | Xuất Excel | [`app/Exports/BookingsExport.php`](../app/Exports/BookingsExport.php), hàm `export()` trong [`Admin/BookingController.php`](../app/Http/Controllers/Admin/BookingController.php) |
 | Cấu hình nghiệp vụ (giá vé, phụ thu VIP, thời gian hủy…) | [`config/cinema.php`](../config/cinema.php) |
-| Test | `tests/Feature/ShowtimeRefreshTest.php`, `BookingExportTest.php` |
+| Test | `tests/Feature/ShowtimeRefreshTest.php`, `BookingExportTest.php`, `ReportTest.php` |
 
 ### Thầy hay hỏi
+- **Tỉ lệ lấp đầy tính thế nào?** → Ghế đã bán (vé "Đã xác nhận") chia tổng ghế (`số hàng × số ghế mỗi hàng` của phòng) của các suất đã chiếu trong khoảng ngày. `SalesReport` dùng subquery `GROUP BY showtime_id` cho số ghế, doanh thu, bắp nước rồi mới JOIN vào suất chiếu, để không bị đếm trùng tiền khi 1 đơn có nhiều ghế.
+- **Thống kê theo ngày đặt hay ngày chiếu?** → Trang Thống kê tính theo **ngày chiếu** (doanh thu ghi nhận khi suất diễn ra, khớp với tỉ lệ lấp đầy); trang Tổng quan tính theo ngày đặt (bán được bao nhiêu hôm nay). Kết quả đã đối chiếu với câu SQL viết tay.
 - **CSDL có những bảng nào, quan hệ ra sao?** → Xem ERD trong [`THIET_KE.md`](THIET_KE.md). Phim – Thể loại là **nhiều-nhiều** qua bảng trung gian `genre_movie` (`belongsToMany`); Phim → Suất chiếu → Đơn đặt vé → Ghế là các quan hệ **1-nhiều** (`hasMany` / `belongsTo`).
 - **Sao không có bảng `seats`?** → Ghế sinh từ `total_rows × seats_per_row` của phòng (`Room::seatMap()`), admin đổi sơ đồ phòng không phải sửa hàng trăm dòng. Bảng `booking_seats` chỉ lưu ghế đã bán **kèm giá lúc mua**, để admin đổi giá sau này không làm sai đơn cũ.
 - **Khóa ngoại xóa thế nào?** → `bookings → users/showtimes` dùng `restrictOnDelete`: không xóa được dữ liệu đã có giao dịch. `booking_seats` dùng `cascadeOnDelete`: xóa đơn thì xóa luôn ghế của đơn.
@@ -65,7 +69,7 @@
 |---|---|
 | Đăng nhập, đăng ký, đăng xuất | [`AuthController.php`](../app/Http/Controllers/AuthController.php), [`Requests/Auth/`](../app/Http/Requests/Auth/), [`views/auth/`](../resources/views/auth/) |
 | Quên / đặt lại mật khẩu (gửi email) | [`PasswordResetController.php`](../app/Http/Controllers/PasswordResetController.php), [`Notifications/ResetPasswordNotification.php`](../app/Notifications/ResetPasswordNotification.php) |
-| Phân quyền admin / khách | [`Middleware/EnsureUserHasRole.php`](../app/Http/Middleware/EnsureUserHasRole.php) (đăng ký tên `role` trong [`bootstrap/app.php`](../bootstrap/app.php)), nhóm route `role:admin` / `role:user` trong `routes/web.php` |
+| Phân quyền admin / nhân viên soát vé / khách | [`Middleware/EnsureUserHasRole.php`](../app/Http/Middleware/EnsureUserHasRole.php) (đăng ký tên `role` trong [`bootstrap/app.php`](../bootstrap/app.php)), nhóm route `role:admin`, `role:admin,staff` (trang Soát vé), `role:user` trong `routes/web.php`; `User::homeUrl()` chọn trang sau khi đăng nhập; menu admin lọc theo vai trò trong [`layouts/admin.blade.php`](../resources/views/layouts/admin.blade.php) |
 | Hồ sơ + upload avatar | [`ProfileController.php`](../app/Http/Controllers/ProfileController.php), [`ProfileRequest.php`](../app/Http/Requests/ProfileRequest.php), [`profile/edit.blade.php`](../resources/views/profile/edit.blade.php) |
 | Quản lý người dùng | [`Admin/UserController.php`](../app/Http/Controllers/Admin/UserController.php), [`Requests/Admin/UserRequest.php`](../app/Http/Requests/Admin/UserRequest.php) |
 | Mã giảm giá: điều kiện, tính tiền giảm | [`Models/Voucher.php`](../app/Models/Voucher.php) (`discountFor`, `unavailableReason`, `usableBy`), [`Admin/VoucherController.php`](../app/Http/Controllers/Admin/VoucherController.php), hàm `checkVoucher()` trong `BookingController` (AJAX) |
@@ -76,6 +80,7 @@
 
 ### Thầy hay hỏi
 - **Mật khẩu lưu thế nào?** → Model `User` khai báo cast `'password' => 'hashed'`, Laravel tự băm bằng bcrypt trước khi lưu. Trong CSDL không có mật khẩu dạng chữ thường.
+- **Có mấy vai trò?** → 3: `admin` (toàn quyền), `staff` (nhân viên soát vé: đăng nhập vào thẳng trang Soát vé, menu chỉ có mục đó, các trang khác 403, không xem được chi tiết đơn) và `user` (khách). Cột `role` không nằm trong `$fillable` nên khách không tự nâng quyền qua form được; chỉ admin đổi được vai trò ở trang Người dùng.
 - **Khách vào `/admin` thì sao?** → Middleware `role:admin` kiểm tra `$user->role`; sai vai trò thì trả **403**, chưa đăng nhập thì chuyển về trang đăng nhập (middleware `auth`).
 - **Chống dò mật khẩu?** → Route đăng nhập có `throttle:10,1` (tối đa 10 lần/phút). Đăng nhập xong gọi `session()->regenerate()` để chống chiếm phiên.
 - **Quên mật khẩu chạy thế nào?** → Dùng Password Broker của Laravel: tạo token lưu bảng `password_reset_tokens` và gửi link qua email. Link có hiệu lực 60 phút, dùng 1 lần.
@@ -177,11 +182,11 @@
 - **Thông báo sau thêm/sửa/xóa?** → Controller `redirect()->with('success', '...')` (flash session) → `partials/flash.blade.php` hiện toast Bootstrap.
 - **CSRF là gì?** → Mỗi form có `@csrf`; AJAX gửi header `X-CSRF-TOKEN` lấy từ thẻ `<meta name="csrf-token">`. Không có token thì Laravel trả lỗi 419.
 - **Chống SQL Injection?** → Eloquent / Query Builder dùng tham số ràng buộc (prepared statement); code không nối chuỗi SQL từ dữ liệu người dùng.
-- **Chạy test?** → `php artisan test`: 90 test chạy trên SQLite trong bộ nhớ, không đụng dữ liệu thật.
+- **Chạy test?** → `php artisan test`: 97 test chạy trên SQLite trong bộ nhớ, không đụng dữ liệu thật.
 
 ## Cách demo gợi ý (mỗi người trình bày phần mình)
 
 1. **TV3**: trang chủ → tìm phim (gợi ý khi gõ) → chi tiết phim → lịch chiếu; vào admin thêm 1 suất chiếu trùng giờ để thấy báo lỗi.
 2. **TV4**: chọn ghế (mở 2 trình duyệt để thấy ghế tự khóa) → đặt vé → thanh toán VNPay thẻ test NCB → vé "Đã thanh toán" → admin quét QR ở trang Soát vé → mở 1 đơn "Chờ hoàn tiền" và hoàn tiền.
-3. **TV2**: đăng ký / quên mật khẩu → áp mã giảm giá + chọn bắp nước ở bước chọn ghế → admin tạo mã giảm giá / combo mới; thử vào `/admin` bằng tài khoản khách để thấy lỗi 403.
-4. **TV1**: ERD → chạy `php artisan showtimes:refresh` / `movies:crawl` → Dashboard doanh thu → xuất Excel.
+3. **TV2**: đăng ký / quên mật khẩu → áp mã giảm giá + chọn bắp nước ở bước chọn ghế → admin tạo mã giảm giá / combo mới; thử vào `/admin` bằng tài khoản khách để thấy lỗi 403; đăng nhập `soatve@cinebook.test` để thấy nhân viên chỉ vào được trang Soát vé.
+4. **TV1**: ERD → chạy `php artisan showtimes:refresh` / `movies:crawl` → Dashboard doanh thu → trang Thống kê (đổi khoảng ngày, xem khung giờ nào lấp đầy cao) → xuất Excel.
