@@ -2,7 +2,7 @@
 
 Đồ án cuối môn **Lập trình mã nguồn mở** – xây dựng bằng **Laravel 13 + MySQL + Blade/Bootstrap 5**.
 
-CineBook cho phép khách hàng xem phim đang chiếu, tra lịch chiếu, **chọn ghế trực tiếp trên sơ đồ phòng chiếu** và đặt vé online; quản trị viên quản lý phim, thể loại, phòng chiếu, suất chiếu, đơn đặt vé, người dùng và theo dõi doanh thu.
+CineBook cho phép khách hàng xem phim đang chiếu, tra lịch chiếu, **chọn ghế trực tiếp trên sơ đồ phòng chiếu**, mua kèm bắp nước, đặt vé và thanh toán online (VNPay); nhân viên **soát vé bằng mã QR** tại cửa phòng chiếu; quản trị viên quản lý phim, thể loại, phòng chiếu, suất chiếu, đơn đặt vé (thu tiền, hoàn tiền), mã giảm giá, bắp nước, người dùng và theo dõi doanh thu, thống kê.
 
 ---
 
@@ -121,7 +121,7 @@ php artisan test
 - Xem lịch chiếu theo ngày (phim sắp chiếu được **mở bán vé trước** khoảng 1 tuần trước khởi chiếu, có nhãn "Đặt vé trước" trên thẻ phim; phim còn xa ngày chiếu hiện "Mở bán vé từ dd/mm"), xem **đánh giá của khán giả** (điểm trung bình, phân bố số sao).
 - Đăng ký, đăng nhập, **quên mật khẩu** (gửi link đặt lại qua email).
 - Trang **Ưu đãi**: chương trình giá vé (Thứ Ba vui vẻ đồng giá, suất sáng giá rẻ, đặt vé trước), mã giảm giá đang áp dụng (sao chép mã 1 chạm), **bảng giá vé** theo khung giờ / ngày trong tuần, loại ghế và phòng chiếu.
-- Trang **Hỗ trợ**: câu hỏi thường gặp (đặt vé, hủy vé, mã giảm giá, phân loại độ tuổi) và thông tin liên hệ.
+- Trang **Hỗ trợ**: câu hỏi thường gặp (đặt vé, thanh toán, hủy vé, hoàn tiền, mã giảm giá, phân loại độ tuổi) và thông tin liên hệ.
 
 ### Khách hàng (role `user`)
 - **Chọn ghế trên sơ đồ phòng chiếu**: ghế thường / ghế VIP (phụ thu), tính tiền tức thì.
@@ -133,7 +133,7 @@ php artisan test
 - Có vé xem trong hôm nay thì **trang chủ nhắc ngay đầu trang** (phim, giờ, phòng, ghế) kèm nút **"Mở mã QR"**: đến rạp chỉ cần mở web là đưa vé cho nhân viên soát.
 - **Thanh toán online qua VNPay** (thẻ ATM, Visa/Master, QR ngân hàng) ngay trên trang vé, hoặc trả tại quầy khi nhận vé; kết quả được kiểm tra chữ ký HMAC-SHA512 và số tiền trước khi ghi nhận.
 - **Đánh giá phim** (1–5 sao + bình luận) sau khi đã xem.
-- Lịch sử đặt vé (sắp chiếu / đã chiếu) kèm trạng thái thanh toán, **tự hủy vé** chưa thanh toán trước giờ chiếu 60 phút (vé đã thanh toán online không tự hủy được).
+- Lịch sử đặt vé (sắp chiếu / đã chiếu) kèm trạng thái thanh toán / hoàn tiền. Khách **tự hủy được vé chưa thanh toán** khi còn ít nhất 60 phút trước giờ chiếu; vé đã thanh toán không đổi trả khi khách đổi ý (giống các rạp), chỉ được rạp hoàn tiền khi có sự cố.
 - Cập nhật hồ sơ, **upload ảnh đại diện**, đổi mật khẩu.
 
 ### Nhân viên soát vé (role `staff`)
@@ -150,7 +150,7 @@ php artisan test
 - **Mã giảm giá**: CRUD mã, thống kê lượt dùng và tổng tiền đã giảm.
 - **Bắp nước**: CRUD combo (upload ảnh, giá, bật/tắt bán), thống kê số phần đã bán và doanh thu; combo đã bán không xóa được (chỉ ngừng bán), đổi giá không ảnh hưởng đơn cũ.
 - **Đánh giá**: tìm kiếm, lọc theo số sao, ẩn/hiện bình luận vi phạm, xóa.
-- **Người dùng**: tạo/sửa/xóa tài khoản, phân quyền admin/user.
+- **Người dùng**: tạo/sửa/xóa tài khoản, phân quyền quản trị viên / nhân viên soát vé / khách hàng.
 
 ---
 
@@ -158,24 +158,26 @@ php artisan test
 
 | Kỹ thuật | Vị trí trong mã nguồn |
 |---|---|
-| Migration (11 bảng nghiệp vụ, khóa ngoại, unique, index) | `database/migrations/` |
+| Migration (12 bảng nghiệp vụ, khóa ngoại, unique, index; thêm cột / đổi enum bằng migration mới) | `database/migrations/` |
 | Seeder + Factory | `database/seeders/`, `database/factories/` |
 | Eloquent: `hasMany`, `belongsTo`, `belongsToMany`, scope, accessor | `app/Models/` |
-| Soft Delete | `Movie` + `Admin\MovieController@trash/restore/forceDelete` |
+| Soft Delete | `Movie` + `Admin\MovieController@trash/restore/forceDelete`; `Showtime` (suất bị rạp hủy) |
 | Middleware phân quyền tự viết `role:admin`, `role:admin,staff` | `app/Http/Middleware/EnsureUserHasRole.php`, `bootstrap/app.php` |
-| Policy (chỉ chủ vé được xem/hủy vé, chỉ chủ đánh giá được xóa) | `app/Policies/` |
+| Policy (chỉ chủ vé được xem/hủy/thanh toán vé, chỉ chủ đánh giá được xóa) | `app/Policies/` |
 | Form Request + validate tùy biến (`after()`) | `app/Http/Requests/` |
 | `validate()` trong Controller | `ProfileController@updatePassword`, `Admin\BookingController@update` |
 | Thông báo lỗi tiếng Việt | `lang/vi/validation.php` |
 | Flash message (toast) | `resources/views/partials/flash.blade.php` |
 | Upload file qua Storage | `ProfileController@update`, `Admin\MovieController@store/update` |
 | AJAX (JSON API) | `MovieController@suggest`, `BookingController@seatStatus/checkVoucher`, `public/js/` |
-| Blade layout, component, directive `@money` | `resources/views/layouts`, `components`, `AppServiceProvider` |
-| DB Transaction + `lockForUpdate` | `BookingController@store` |
+| Blade layout, component, directive `@money`, View Composer (số suất đang soát vé trên menu) | `resources/views/layouts`, `components`, `AppServiceProvider` |
+| DB Transaction + `lockForUpdate` (chống đặt trùng ghế, ghi nhận thanh toán / soát vé / hoàn tiền 1 lần) | `BookingController@store`, `VnpayGateway::process`, `Admin\CheckInController@store`, `BookingRefunder` |
+| Service class (tách nghiệp vụ khỏi Controller) | `app/Services/` – `VnpayGateway`, `BookingRefunder`, `ShowtimeCanceller`, `UnpaidBookingReleaser`, `SalesReport`, `ShowtimeScheduler`, `TicketQr` |
+| Gọi API ngoài bằng HTTP Client (VNPay hoàn tiền), giả lập bằng `Http::fake` khi test | `VnpayGateway::refund`, `tests/Feature/RefundTest.php` |
 | Feature Test | `tests/Feature/` |
 | Artisan command + HTTP Client (cào dữ liệu) | `app/Console/Commands/CrawlMovies.php` |
-| Task Scheduling (tự xếp lịch chiếu hằng ngày) | `app/Console/Commands/RefreshShowtimes.php`, `app/Services/ShowtimeScheduler.php`, `routes/console.php` |
-| Gửi email: Password Broker, Notification, Mailable (Markdown) | `PasswordResetController`, `app/Notifications/`, `app/Mail/BookingConfirmed.php` |
+| Task Scheduling (xếp lịch chiếu hằng ngày, tự hủy vé quá hạn mỗi phút, lấy phim mới hằng tuần) | `app/Console/Commands/`, `app/Services/ShowtimeScheduler.php`, `routes/console.php` |
+| Gửi email: Password Broker, Notification, Mailable (Markdown, ảnh QR nhúng) | `PasswordResetController`, `app/Notifications/`, `app/Mail/` (vé điện tử, vé tự hủy, rạp hủy vé / hoàn tiền) |
 | Xuất file Excel (.xlsx) | `app/Exports/BookingsExport.php` (thư viện `openspout/openspout`) |
 
 ## 5. Cấu trúc thư mục chính
@@ -187,8 +189,11 @@ app/
 │   └── Admin/                 # Controller khu vực quản trị
 ├── Http/Middleware/EnsureUserHasRole.php
 ├── Http/Requests/             # Form Request (validation)
-├── Models/                    # User, Genre, Movie, Room, Showtime, Booking, BookingSeat
-└── Policies/BookingPolicy.php
+├── Models/                    # User, Genre, Movie, Room, Showtime, Booking, BookingSeat, BookingCombo, Combo, Voucher, Review
+├── Services/                  # VNPay, hoàn tiền, hủy suất, tự hủy vé quá hạn, thống kê, xếp lịch chiếu, mã QR
+├── Exports/BookingsExport.php # Xuất Excel
+├── Mail/                      # Email vé điện tử, vé tự hủy, rạp hủy vé / hoàn tiền
+└── Policies/                  # BookingPolicy, ReviewPolicy
 config/cinema.php              # Cấu hình nghiệp vụ: phụ thu VIP, thời gian dọn phòng...
 database/
 ├── migrations/  seeders/  factories/
@@ -197,11 +202,12 @@ lang/vi/                       # Ngôn ngữ tiếng Việt
 public/css, public/js          # Giao diện + script AJAX
 resources/views/
 ├── layouts/ (app, admin)  components/  partials/
-├── home, movies/, schedule/, bookings/, profile/, auth/
-└── admin/ (dashboard, movies, genres, rooms, showtimes, bookings, users)
+├── home, movies/, schedule/, bookings/, profile/, auth/, pages/ (ưu đãi, hỗ trợ), emails/
+└── admin/ (dashboard, reports, check-in, movies, genres, rooms, showtimes, bookings, vouchers, combos, reviews, users)
 docs/
 ├── THIET_KE.md                # ERD, Use Case, đặc tả chức năng
-└── screenshots/               # Ảnh chụp màn hình
+├── PHAN_CONG.md               # Phân công: mỗi thành viên phụ trách trang / file nào, câu hỏi khi bảo vệ
+└── screenshots/               # Ảnh chụp màn hình (xem mục 9)
 ```
 
 ## 6. Cấu hình nghiệp vụ (`config/cinema.php`)
@@ -236,4 +242,18 @@ docs/
 | Poster/avatar upload không hiển thị | Chạy `php artisan storage:link`, kiểm tra `APP_URL` đúng cổng đang chạy |
 | `No application encryption key` | Chạy `php artisan key:generate` |
 | Lỗi 419 Page Expired | Tải lại trang (phiên đăng nhập hết hạn) |
+| Vé quá hạn thanh toán không tự hủy | Bộ lập lịch chưa chạy: mở thêm terminal chạy `php artisan schedule:work` |
+| Hoàn tiền qua VNPay báo lỗi 99 | VNPay khóa API hoàn tiền trên tài khoản sandbox; dùng "Ghi nhận đã hoàn thủ công" hoặc liên hệ VNPay để mở |
 | Trang Soát vé không mở được camera | Trình duyệt chỉ cho dùng camera trên `localhost` hoặc HTTPS: mở bằng `http://localhost:8000` và bấm "Cho phép" khi được hỏi. Mở từ điện thoại qua IP mạng LAN (`http://192.168...`) sẽ bị chặn, khi đó nhập mã vé bằng tay |
+
+## 9. Ảnh chụp màn hình
+
+Tất cả nằm trong [`docs/screenshots/`](docs/screenshots/) (chụp ngày 28/10/2026 với dữ liệu mẫu).
+
+| Khu vực | Ảnh |
+|---|---|
+| Khách | [Trang chủ](docs/screenshots/01-trang-chu.png) · [Tìm kiếm phim](docs/screenshots/02-tim-kiem-phim.png) · [Chi tiết phim](docs/screenshots/03-chi-tiet-phim.png) · [Lịch chiếu](docs/screenshots/04-lich-chieu.png) · [Đăng nhập](docs/screenshots/05-dang-nhap.png) · [Đăng ký báo lỗi](docs/screenshots/06-dang-ky-loi-validate.png) · [Gợi ý tìm kiếm AJAX](docs/screenshots/07-tim-kiem-ajax.png) · [Ưu đãi](docs/screenshots/15-uu-dai.png) |
+| Khách hàng | [Chọn ghế + mã giảm giá + bắp nước](docs/screenshots/08-chon-ghe.png) · [Vé điện tử](docs/screenshots/09-ve-dien-tu.png) · [Vé của tôi](docs/screenshots/10-ve-cua-toi.png) · [Tài khoản](docs/screenshots/11-tai-khoan.png) · [Khách vào /admin bị chặn 403](docs/screenshots/12-user-bi-chan-admin-403.png) · [Nhắc vé hôm nay](docs/screenshots/16-ve-hom-nay.png) · [Phóng to QR](docs/screenshots/17-phong-to-qr.png) |
+| Điện thoại | [Trang chủ](docs/screenshots/13-mobile-trang-chu.png) · [Chọn ghế](docs/screenshots/14-mobile-chon-ghe.png) · [Admin](docs/screenshots/29-admin-mobile.png) |
+| Quản trị | [Tổng quan](docs/screenshots/20-admin-dashboard.png) · [Phim](docs/screenshots/21-admin-phim.png) · [Thêm phim](docs/screenshots/22-admin-them-phim.png) · [Thêm phim báo lỗi](docs/screenshots/23-admin-them-phim-loi.png) · [Thể loại](docs/screenshots/24-admin-the-loai.png) · [Sửa phòng](docs/screenshots/25-admin-sua-phong.png) · [Suất chiếu](docs/screenshots/26-admin-suat-chieu.png) · [Đơn đặt vé](docs/screenshots/27-admin-don-dat-ve.png) · [Người dùng](docs/screenshots/28-admin-nguoi-dung.png) · [Thống kê](docs/screenshots/30-admin-thong-ke.png) · [Soát vé](docs/screenshots/31-admin-soat-ve.png) · [Hoàn tiền](docs/screenshots/32-admin-hoan-tien.png) · [Mã giảm giá](docs/screenshots/33-admin-ma-giam-gia.png) · [Bắp nước](docs/screenshots/34-admin-bap-nuoc.png) |
+| Nhân viên soát vé | [Trang Soát vé (chỉ có mục này)](docs/screenshots/35-nhan-vien-soat-ve.png) |

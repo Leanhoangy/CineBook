@@ -13,7 +13,7 @@
 - *Nhân viên soát vé (Staff)*: chỉ soát vé cho khách vào rạp (và thu tiền vé chưa thanh toán).
 - *Quản trị viên (Admin)*: quản lý toàn bộ dữ liệu nghiệp vụ và theo dõi doanh thu.
 
-**Phạm vi:** một rạp với nhiều phòng chiếu; khách thanh toán online qua cổng VNPay (môi trường sandbox) hoặc trả tại quầy khi nhận vé.
+**Phạm vi:** một rạp với nhiều phòng chiếu; khách đặt vé online, thanh toán qua cổng VNPay (môi trường sandbox) hoặc trả tại quầy khi nhận vé; nhân viên soát vé bằng mã QR tại cửa phòng chiếu. Ngoài phạm vi: bán vé trực tiếp tại quầy cho khách không đặt online, nhiều cụm rạp.
 
 ## 2. Sơ đồ ERD
 
@@ -161,13 +161,17 @@ erDiagram
 | Đơn đặt vé – Ghế | 1 – nhiều | `Booking::seats()` / `BookingSeat::booking()` |
 | Người dùng / Phim – Đánh giá | 1 – nhiều (unique `user_id + movie_id`) | `User::reviews()`, `Movie::reviews()` / `Review::user()`, `Review::movie()` |
 | Mã giảm giá – Đơn đặt vé | 1 – nhiều (không bắt buộc) | `Voucher::bookings()` / `Booking::voucher()` |
+| Đơn đặt vé – Bắp nước đã mua | 1 – nhiều (`booking_combos` lưu tên + giá lúc mua) | `Booking::combos()` |
+| Combo – Bắp nước đã mua | 1 – nhiều (combo bị xóa thì `combo_id` = null, đơn cũ vẫn giữ tên + giá) | `BookingCombo` |
 
 **Ghi chú thiết kế:**
 - Ghế không lưu thành bảng riêng mà sinh từ `total_rows × seats_per_row` của phòng (A1…J14) giúp admin đổi sơ đồ phòng dễ dàng; `booking_seats` lưu ghế đã bán kèm **giá tại thời điểm đặt** để lịch sử không bị thay đổi khi admin đổi giá.
 - Khóa ngoại `showtimes → movies/rooms` và `bookings → users/showtimes` dùng `restrictOnDelete` để không thể xóa dữ liệu đã phát sinh giao dịch.
 - Phim dùng **Soft Delete** để suất chiếu & vé cũ vẫn hiển thị được tên phim.
 - `bookings.total_price` là số tiền khách trả **sau giảm giá**, `discount` lưu số tiền đã giảm tại thời điểm đặt; lượt dùng mã chỉ tính vé còn hiệu lực nên khách hủy vé thì mã được hoàn lượt.
-- Trạng thái thanh toán tách khỏi trạng thái vé: vé "Đã xác nhận" giữ ghế ngay khi đặt, `paid_at` cho biết đã trả tiền hay chưa (online qua VNPay hoặc nhân viên xác nhận thu tại quầy). Vé đã thanh toán online không cho khách tự hủy.
+- Trạng thái thanh toán tách khỏi trạng thái vé: vé "Đã xác nhận" giữ ghế ngay khi đặt, `paid_at` cho biết đã trả tiền hay chưa (online qua VNPay hoặc nhân viên xác nhận thu tại quầy). Vé đã thanh toán không cho khách tự hủy (khách đổi ý không được hoàn tiền, giống rạp thật); rạp hoàn tiền khi có sự cố và ghi lại `refunded_at`, `refund_method`, `refund_ref` (UC27).
+- Suất chiếu bị rạp hủy được **xóa mềm** (`deleted_at`): tự biến mất khỏi mọi truy vấn phía khách, giải phóng phòng, còn vé cũ vẫn xem được thông tin suất (`Booking::showtime()->withTrashed()`).
+- Cột `users.role` không nằm trong `$fillable`, chỉ admin đổi được vai trò, khách không tự nâng quyền qua form.
 - Đánh giá chỉ được tạo khi khách có vé đã xác nhận của một suất chiếu **đã diễn ra** (`Movie::canBeReviewedBy()`), tránh đánh giá ảo.
 
 ## 3. Sơ đồ Use Case
@@ -305,18 +309,18 @@ Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao
 
 | Yêu cầu (file đề) | Đáp ứng trong CineBook |
 |---|---|
-| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 14 migration nghiệp vụ, 9 seeder, 9 factory; phim thật cào từ Moveek (`movies:crawl`) |
+| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 15 migration nghiệp vụ (12 bảng), 9 seeder, 9 factory; phim thật cào từ Moveek (`movies:crawl`) |
 | Blade + Bootstrap, tách giao diện user/admin | `layouts/app` (tối, rạp phim) và `layouts/admin` (sidebar) |
 | ≥ 2 role, admin vào `/admin`, bảo vệ route bằng Middleware | 3 role `admin` / `staff` (nhân viên soát vé, chỉ vào được trang Soát vé) / `user`, middleware `role:` tự viết + `auth` + `guest` |
 | CRUD ≥ 2 bảng có quan hệ | CRUD đủ trên Phim, Thể loại, Phòng, Suất chiếu, Người dùng, Mã giảm giá, Bắp nước (+ Đơn đặt vé, Đánh giá) |
 | Tìm kiếm + phân trang giữ từ khóa | `/phim` và tất cả trang danh sách admin |
-| Validation + thông báo lỗi rõ ràng | 9 Form Request + `validate()`, thông báo tiếng Việt |
+| Validation + thông báo lỗi rõ ràng | 12 Form Request + `validate()`, thông báo tiếng Việt |
 | Flash message sau thêm/sửa/xóa | Toast Bootstrap ở cả 2 khu vực |
 | *Mở rộng:* Upload file | Poster phim, avatar người dùng |
-| *Mở rộng:* Gửi email | Quên mật khẩu (Password Broker), email vé điện tử sau khi đặt |
-| *Mở rộng:* Xuất file | Xuất đơn đặt vé + doanh thu theo phim ra Excel (.xlsx) |
+| *Mở rộng:* Gửi email | Quên mật khẩu (Password Broker), email vé điện tử (kèm QR) sau khi đặt, email báo vé tự hủy, email báo rạp hủy suất / hoàn tiền |
+| *Mở rộng:* Xuất file, thống kê | Xuất đơn đặt vé + doanh thu theo phim ra Excel (.xlsx); trang Thống kê theo khoảng ngày (lấp đầy ghế, khung giờ, top phim, bắp nước) |
 | *Mở rộng:* Tác vụ định kỳ | Laravel Scheduler: `showtimes:refresh` hằng ngày (khởi chiếu / ngừng chiếu tự động, xếp lịch 7 ngày tới, mở bán vé trước); `movies:crawl --import` hằng tuần lấy phim mới; `bookings:release-unpaid` mỗi phút tự hủy vé quá hạn thanh toán |
-| *Mở rộng:* AJAX | Gợi ý tìm kiếm, cập nhật sơ đồ ghế realtime, kiểm tra mã giảm giá, tra cứu & soát vé bằng QR |
+| *Mở rộng:* AJAX | Gợi ý tìm kiếm, cập nhật sơ đồ ghế realtime, kiểm tra mã giảm giá, tra cứu & soát vé bằng QR, bảng suất đang soát vé tự cập nhật |
 | *Mở rộng:* API ngoài | Cổng thanh toán VNPay (sandbox, chữ ký HMAC-SHA512, IPN, API hoàn tiền), YouTube embed (trailer); mã QR vé tạo bằng thư viện PHP ngay trên server |
 | *Mở rộng:* Responsive | Bootstrap grid, menu thu gọn, sidebar offcanvas |
 | *Mở rộng:* Soft Delete, Middleware tùy chỉnh | Phim xóa mềm + thùng rác; suất chiếu bị rạp hủy được xóa mềm; `EnsureUserHasRole` |

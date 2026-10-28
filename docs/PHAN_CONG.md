@@ -26,7 +26,7 @@
 ### File code
 | Việc | File |
 |---|---|
-| Tạo bảng (14 migration nghiệp vụ) | [`database/migrations/`](../database/migrations/) |
+| Tạo bảng (15 migration nghiệp vụ, 12 bảng) | [`database/migrations/`](../database/migrations/) |
 | Model + quan hệ giữa các bảng | [`app/Models/`](../app/Models/) – `Movie`, `Genre`, `Room`, `Showtime`, `Booking`, `BookingSeat`, `User`… |
 | Dữ liệu mẫu | [`database/seeders/`](../database/seeders/), [`database/factories/`](../database/factories/) |
 | Cào phim thật từ Moveek | [`app/Console/Commands/CrawlMovies.php`](../app/Console/Commands/CrawlMovies.php), [`app/Services/MovieImporter.php`](../app/Services/MovieImporter.php) |
@@ -61,7 +61,7 @@
 | Tài khoản (đổi thông tin, avatar, mật khẩu) | `/tai-khoan` |
 | Ưu đãi (chương trình, mã giảm giá, bảng giá vé) · Hỗ trợ (FAQ) | `/uu-dai`, `/ho-tro` |
 | Mã giảm giá & bắp nước ở bước chọn ghế | khối "Mã dành cho bạn", khối "Bắp nước" trên `/suat-chieu/{id}/dat-ve` |
-| Admin: Người dùng · Mã giảm giá · Bắp nước | `/admin/users`, `/admin/vouchers`, `/admin/combos` |
+| Admin: Người dùng (tạo cả tài khoản nhân viên soát vé) · Mã giảm giá · Bắp nước | `/admin/users`, `/admin/vouchers`, `/admin/combos` |
 | Trang lỗi 403 / 404 / 419 / 500 | `resources/views/errors/` |
 
 ### File code
