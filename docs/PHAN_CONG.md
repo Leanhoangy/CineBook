@@ -145,7 +145,7 @@
 | VNPay | [`app/Services/VnpayGateway.php`](../app/Services/VnpayGateway.php), [`PaymentController.php`](../app/Http/Controllers/PaymentController.php), cấu hình `vnpay` trong [`config/services.php`](../config/services.php) |
 | Mã QR vé | [`app/Services/TicketQr.php`](../app/Services/TicketQr.php) (thư viện `chillerlan/php-qrcode`) |
 | Tự hủy vé chưa thanh toán | [`app/Services/UnpaidBookingReleaser.php`](../app/Services/UnpaidBookingReleaser.php), [`Console/Commands/ReleaseUnpaidBookings.php`](../app/Console/Commands/ReleaseUnpaidBookings.php) |
-| Soát vé | [`Admin/CheckInController.php`](../app/Http/Controllers/Admin/CheckInController.php), [`views/admin/check-in/`](../resources/views/admin/check-in/), [`public/js/check-in.js`](../public/js/check-in.js) |
+| Soát vé (quét QR, bảng suất đang soát) | [`Admin/CheckInController.php`](../app/Http/Controllers/Admin/CheckInController.php) (`index`, `showtimes`, `lookup`, `store`), [`views/admin/check-in/`](../resources/views/admin/check-in/), [`public/js/check-in.js`](../public/js/check-in.js) |
 | Quản lý đơn (lọc, xác nhận/hủy, thu tiền tại quầy) | [`Admin/BookingController.php`](../app/Http/Controllers/Admin/BookingController.php), [`views/admin/bookings/`](../resources/views/admin/bookings/) |
 | Hoàn tiền, hủy suất chiếu | [`app/Services/BookingRefunder.php`](../app/Services/BookingRefunder.php), [`app/Services/ShowtimeCanceller.php`](../app/Services/ShowtimeCanceller.php), `refund()` trong [`VnpayGateway.php`](../app/Services/VnpayGateway.php), `refund()` trong [`Admin/BookingController.php`](../app/Http/Controllers/Admin/BookingController.php), `cancel()` trong [`Admin/ShowtimeController.php`](../app/Http/Controllers/Admin/ShowtimeController.php) |
 | Email | [`Mail/BookingConfirmed.php`](../app/Mail/BookingConfirmed.php), [`Mail/BookingReleased.php`](../app/Mail/BookingReleased.php), [`Mail/BookingCancelledByCinema.php`](../app/Mail/BookingCancelledByCinema.php), [`views/emails/`](../resources/views/emails/) |
@@ -158,6 +158,7 @@
 - **VNPay bảo mật thế nào?** → Link thanh toán được ký **HMAC-SHA512** bằng chuỗi bí mật (`VNPAY_HASH_SECRET` trong `.env`, không đưa lên GitHub). Kết quả trả về phải **đúng chữ ký** và **đúng số tiền** mới được ghi nhận. Kết quả có thể về 2 lần (trình duyệt quay về + IPN từ server VNPay), nhưng vé đã bị khóa dòng nên chỉ được ghi nhận 1 lần.
 - **Đặt rồi không trả tiền thì sao?** → Hạn thanh toán là trước giờ chiếu 30 phút (`paymentDeadline()`). Lệnh `bookings:release-unpaid` chạy mỗi phút, tự hủy vé quá hạn, mở bán lại ghế và gửi email báo khách.
 - **QR trên vé chứa gì, tạo thế nào?** → QR chỉ chứa **mã vé**, được tạo ngay trên server bằng thư viện PHP (`TicketQr`), không gọi dịch vụ ngoài. Trong email, QR được nhúng dạng ảnh PNG đính kèm vì Gmail chặn ảnh SVG.
+- **Nhân viên biết suất nào tới giờ soát vé bằng cách nào?** → Trang Soát vé có bảng "Suất đang soát vé" (`Showtime::scopeCheckInOpen()`: từ 60 phút trước giờ chiếu tới khi phim kết thúc) và "Sắp mở soát" trong 2 giờ tới, kèm số vé đã vào/đã bán. Trình duyệt gọi AJAX `/admin/soat-ve/suat-chieu` mỗi 30 giây, thấy suất mới vào giờ soát thì hiện thông báo + tiếng bíp. Menu admin hiện số suất đang soát (View Composer trong `AppServiceProvider`).
 - **Soát vé chống dùng 1 vé 2 lần?** → Khi cho vào, server khóa dòng vé rồi ghi `checked_in_at`. Lần quét sau, `Booking::checkInProblem()` báo "Vé đã được soát lúc …". Vé đã hủy, chưa tới giờ (mở soát trước giờ chiếu 60 phút) hoặc suất đã kết thúc cũng bị chặn.
 - **Sao khách không xem được vé của người khác?** → `BookingPolicy::view()`: chỉ chủ vé hoặc admin; route dùng mã vé ngẫu nhiên (`CBxxxxxx`) chứ không dùng id tăng dần.
 - **Khách đã trả tiền online muốn hủy thì sao?** → Giống các rạp thật ở Việt Nam: vé đã thanh toán **không đổi trả khi khách đổi ý** (`canBeCancelledByCustomer()` chặn). Rạp chỉ hoàn tiền khi lỗi từ phía rạp: admin bấm **"Hủy vé & hoàn tiền"**.
@@ -176,7 +177,7 @@
 - **Thông báo sau thêm/sửa/xóa?** → Controller `redirect()->with('success', '...')` (flash session) → `partials/flash.blade.php` hiện toast Bootstrap.
 - **CSRF là gì?** → Mỗi form có `@csrf`; AJAX gửi header `X-CSRF-TOKEN` lấy từ thẻ `<meta name="csrf-token">`. Không có token thì Laravel trả lỗi 419.
 - **Chống SQL Injection?** → Eloquent / Query Builder dùng tham số ràng buộc (prepared statement); code không nối chuỗi SQL từ dữ liệu người dùng.
-- **Chạy test?** → `php artisan test`: 89 test chạy trên SQLite trong bộ nhớ, không đụng dữ liệu thật.
+- **Chạy test?** → `php artisan test`: 90 test chạy trên SQLite trong bộ nhớ, không đụng dữ liệu thật.
 
 ## Cách demo gợi ý (mỗi người trình bày phần mình)
 

@@ -27,6 +27,11 @@
                     </div>
                 </form>
             </div>
+
+            <div class="ad-card" id="showtimeBoard" data-url="{{ route('admin.check-in.showtimes') }}"
+                 data-open="{{ $open->pluck('id')->toJson() }}">
+                @include('admin.check-in._showtimes')
+            </div>
         </div>
 
         <div class="col-lg-7">

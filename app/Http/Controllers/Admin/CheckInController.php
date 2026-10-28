@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Showtime;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +27,47 @@ class CheckInController extends Controller
             ->get();
         $todayCount = Booking::whereDate('checked_in_at', today())->count();
 
-        return view('admin.check-in.index', compact('recent', 'todayCount'));
+        return view('admin.check-in.index', [...compact('recent', 'todayCount'), ...$this->board()]);
+    }
+
+    /** Bảng "Suất đang soát vé" (AJAX, trang tự gọi lại mỗi 30 giây) */
+    public function showtimes(): JsonResponse
+    {
+        $board = $this->board();
+
+        return response()->json([
+            'html' => view('admin.check-in._showtimes', $board)->render(),
+            // Để trình duyệt báo "vừa mở soát vé" khi có suất mới vào giờ soát
+            'open' => $board['open']->map(fn (Showtime $st) => [
+                'id' => $st->id,
+                'label' => "{$st->movie->title} · {$st->start_time->format('H:i')} · {$st->room->name}",
+            ]),
+        ]);
+    }
+
+    /**
+     * Suất đang trong giờ soát vé và suất sắp mở soát trong 2 giờ tới (chỉ tính suất đã có vé),
+     * kèm số vé đã bán / đã vào / chưa thanh toán.
+     */
+    private function board(): array
+    {
+        $counts = fn ($q) => $q->with(['movie', 'room'])
+            ->whereHas('confirmedBookings')
+            ->withCount([
+                'confirmedBookings as sold_count',
+                'confirmedBookings as checked_count' => fn ($b) => $b->whereNotNull('checked_in_at'),
+                'confirmedBookings as unpaid_count' => fn ($b) => $b->whereNull('paid_at'),
+            ])
+            ->orderBy('start_time');
+
+        $open = $counts(Showtime::checkInOpen())->get();
+        $soon = $counts(Showtime::query())
+            ->where('start_time', '>', now()->addMinutes((int) config('cinema.checkin_before_minutes')))
+            ->where('start_time', '<=', now()->addMinutes((int) config('cinema.checkin_before_minutes') + 120))
+            ->take(6)
+            ->get();
+
+        return compact('open', 'soon');
     }
 
     /** Tra cứu vé theo mã (AJAX) */

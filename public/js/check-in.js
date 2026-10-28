@@ -45,6 +45,37 @@ document.addEventListener('DOMContentLoaded', () => {
         input.select();
     };
 
+    // Bảng "Suất đang soát vé": tự cập nhật mỗi 30 giây, báo khi có suất vừa tới giờ mở soát
+    const board = document.getElementById('showtimeBoard');
+    let openIds = new Set(JSON.parse(board.dataset.open));
+
+    const notify = (text) => {
+        const wrap = document.querySelector('.cb-toast-wrap');
+        wrap.insertAdjacentHTML('beforeend', `
+            <div class="toast align-items-center text-white bg-primary border-0 mb-2" role="alert" data-bs-delay="10000">
+                <div class="d-flex">
+                    <div class="toast-body d-flex gap-2 align-items-start"><i class="bi bi-bell-fill mt-1"></i><span></span></div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Đóng"></button>
+                </div>
+            </div>`);
+        const toast = wrap.lastElementChild;
+        toast.querySelector('span').textContent = text;
+        bootstrap.Toast.getOrCreateInstance(toast).show();
+    };
+
+    const refreshBoard = async () => {
+        try {
+            const res = await fetch(board.dataset.url, { headers: { Accept: 'application/json' } });
+            const data = await res.json();
+            board.innerHTML = data.html;
+            const opened = data.open.filter((st) => !openIds.has(st.id));
+            opened.forEach((st) => notify(`Đã mở soát vé: ${st.label}`));
+            if (opened.length) beep(true);
+            openIds = new Set(data.open.map((st) => st.id));
+        } catch { /* mất mạng: lần sau thử lại */ }
+    };
+    setInterval(refreshBoard, 30000);
+
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         lookup(input.value);
@@ -67,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 list.querySelector('[data-empty]')?.remove();
                 list.insertAdjacentHTML('afterbegin', data.row);
                 count.textContent = `${data.count} vé`;
+                refreshBoard(); // cập nhật số vé đã vào của suất
             }
         } catch {
             btn.disabled = false;

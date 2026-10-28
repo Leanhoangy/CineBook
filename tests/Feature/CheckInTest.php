@@ -46,6 +46,27 @@ class CheckInTest extends TestCase
             ->assertSee(['Soát vé', 'Bật camera', 'Đã soát hôm nay']);
     }
 
+    public function test_board_lists_showtimes_open_for_check_in_and_opening_soon(): void
+    {
+        $open = $this->ticket(30, ['paid_at' => now(), 'payment_method' => Booking::PAYMENT_VNPAY]); // mở soát từ 30 phút trước
+        $open->update(['checked_in_at' => now()]);
+        $this->ticket(30, ['showtime_id' => $open->showtime_id]);                                    // vé thứ 2, chưa trả tiền
+        $soon = $this->ticket(100);                                                                   // mở soát sau 40 phút
+        $later = $this->ticket(300);                                                                  // còn lâu
+        Showtime::factory()->create(['start_time' => now()->addMinutes(20)]);                        // chưa bán vé nào: không hiện
+
+        $this->actingAs($this->admin)->get(route('admin.check-in.index'))
+            ->assertSee(['Suất đang soát vé', $open->showtime->movie->title, '1/2', '1 vé chưa thanh toán', 'Bắt đầu sau 30 phút'])
+            ->assertSee(['Sắp mở soát', 'Mở '.$soon->showtime->checkInOpensAt()->format('H:i')])
+            ->assertDontSee($later->showtime->movie->title)
+            ->assertSee('title="1 suất đang trong giờ soát vé"', false); // số trên menu
+
+        $this->actingAs($this->admin)->getJson(route('admin.check-in.showtimes'))
+            ->assertOk()
+            ->assertJsonCount(1, 'open')
+            ->assertJsonPath('open.0.id', $open->showtime_id);
+    }
+
     public function test_paid_ticket_is_let_in_once(): void
     {
         $booking = $this->ticket(attributes: ['paid_at' => now(), 'payment_method' => Booking::PAYMENT_VNPAY]);

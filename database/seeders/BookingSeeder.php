@@ -226,19 +226,20 @@ class BookingSeeder extends Seeder
     }
 
     /**
-     * Suất đã bắt đầu: khách vào rạp trước giờ chiếu vài phút. Khách trả tại quầy vào ngay sau khi trả tiền;
-     * khoảng 5% khách đã trả online nhưng không đến xem.
+     * Khách vào rạp trước giờ chiếu 2–40 phút (suất sắp chiếu thì chỉ những ai đã tới giờ đó mới được tính là đã vào).
+     * Khách trả tại quầy vào ngay sau khi trả tiền; khoảng 5% khách đã trả online nhưng không đến xem.
      */
     private function checkInTime(Showtime $showtime, Carbon $paidAt, string $method): ?Carbon
     {
-        if ($showtime->start_time->isFuture()) {
+        if ($method === Booking::PAYMENT_COUNTER) {
+            return $showtime->start_time->isPast() ? $paidAt->copy()->addMinutes(fake()->numberBetween(0, 5)) : null;
+        }
+        if (! fake()->boolean(95)) {
             return null;
         }
-        if ($method === Booking::PAYMENT_COUNTER) {
-            return $paidAt->copy()->addMinutes(fake()->numberBetween(0, 5));
-        }
+        $at = $showtime->start_time->copy()->subMinutes(fake()->numberBetween(2, 40));
 
-        return fake()->boolean(95) ? $showtime->start_time->copy()->subMinutes(fake()->numberBetween(2, 40)) : null;
+        return $at->isPast() ? $at : null;
     }
 
     /**

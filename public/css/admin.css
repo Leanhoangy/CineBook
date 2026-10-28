@@ -104,6 +104,11 @@ body {
 .ad-checkin-result.is-warning .ad-checkin-state { background: #f5b942; color: #3a2a00; }
 .ad-checkin-result.is-danger { border-color: #dc3545; }
 .ad-checkin-result.is-danger .ad-checkin-state { background: #dc3545; }
+.ad-checkin-show { display: flex; gap: 1rem; align-items: center; }
+.ad-checkin-show-time { width: 72px; flex-shrink: 0; text-align: center; }
+.ad-live-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: #dc3545; margin-right: .5rem; vertical-align: middle; animation: ad-pulse 1.6s infinite; }
+@keyframes ad-pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, .5); } 70% { box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
+.ad-nav .badge { margin-left: auto; }
 .ad-checkin-combos { padding: .6rem .8rem; border-radius: 10px; background: #fff6e0; border: 1px solid #f5d27a; color: #5c4300; }
 .ad-combo-thumb { width: 48px; height: 48px; flex-shrink: 0; border-radius: 10px; object-fit: cover; display: grid; place-items: center; font-size: 1.5rem; background: #fff6e0; }
 .ad-combo-preview { width: 100%; aspect-ratio: 1; border-radius: 12px; object-fit: cover; background: #fff6e0; border: 1px solid #e6e9ef; }

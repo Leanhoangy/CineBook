@@ -266,6 +266,7 @@ Giá ghế thường của mỗi suất được tính tự động theo bảng 
 | Tác nhân | Quản trị viên / nhân viên soát vé |
 | Luồng chính | 1. Nhân viên mở `/admin/soat-ve`, bật camera. 2. Khách đưa mã QR trên vé (điện thoại hoặc vé in); QR chỉ chứa mã vé. 3. Trình duyệt đọc mã, gọi AJAX tra cứu → hiện phim, suất, phòng, ghế, khách, trạng thái thanh toán kèm tiếng bíp. 4. Nhân viên bấm "Cho vào" → hệ thống khóa dòng vé, kiểm tra lại rồi ghi `checked_in_at`. 5. Vé được thêm vào danh sách "Đã soát hôm nay"; trên trang vé của khách hiện "Đã vào rạp lúc …". |
 | Luồng phụ | 3a. Vé chưa thanh toán → nút đổi thành "Đã thu … ₫ & cho vào" (ghi nhận thanh toán tại quầy). 3b. Vé đã hủy / đã soát rồi / chưa tới giờ (mở trước giờ chiếu 60 phút) / suất đã kết thúc / mã không tồn tại → báo đỏ, không cho vào. 2a. Không có camera → gõ mã vé hoặc dùng máy quét mã vạch (hoạt động như bàn phím). |
+| Bảng suất đang soát | Trang soát vé liệt kê suất đã tới giờ soát (mở trước giờ chiếu 60 phút đến khi kết thúc) và suất sắp mở trong 2 giờ tới, kèm số vé đã vào / đã bán / chưa thanh toán; AJAX cập nhật mỗi 30 giây, có suất vừa mở soát thì hiện thông báo + tiếng bíp; menu admin hiện số suất đang soát. |
 
 ### 4.9. Bắp nước và tự hủy vé chưa thanh toán (UC25, UC26)
 | Mục | Nội dung |

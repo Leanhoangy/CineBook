@@ -94,6 +94,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('showtimes', Admin\ShowtimeController::class)->except('show');
 
     Route::get('soat-ve', [Admin\CheckInController::class, 'index'])->name('check-in.index');
+    Route::get('soat-ve/suat-chieu', [Admin\CheckInController::class, 'showtimes'])->name('check-in.showtimes'); // AJAX
     Route::get('soat-ve/tra-cuu', [Admin\CheckInController::class, 'lookup'])->name('check-in.lookup'); // AJAX
     Route::post('soat-ve/{booking}', [Admin\CheckInController::class, 'store'])->name('check-in.store'); // AJAX
 

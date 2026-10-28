@@ -17,7 +17,7 @@
             ['admin.showtimes.index', 'admin.showtimes.*', 'bi-calendar3', 'Suất chiếu'],
             ['admin.reviews.index', 'admin.reviews.*', 'bi-chat-square-text', 'Đánh giá'],
             'Kinh doanh',
-            ['admin.check-in.index', 'admin.check-in.*', 'bi-qr-code-scan', 'Soát vé'],
+            ['admin.check-in.index', 'admin.check-in.*', 'bi-qr-code-scan', 'Soát vé', $checkInOpenCount],
             ['admin.bookings.index', 'admin.bookings.*', 'bi-receipt', 'Đơn đặt vé'],
             ['admin.vouchers.index', 'admin.vouchers.*', 'bi-ticket-detailed', 'Mã giảm giá'],
             ['admin.combos.index', 'admin.combos.*', 'bi-cup-straw', 'Bắp nước'],
@@ -35,7 +35,10 @@
                 @if (is_string($item))
                     <div class="ad-nav-label">{{ $item }}</div>
                 @else
-                    <a href="{{ route($item[0]) }}" class="nav-link {{ request()->routeIs($item[1]) ? 'active' : '' }}"><i class="bi {{ $item[2] }}"></i>{{ $item[3] }}</a>
+                    <a href="{{ route($item[0]) }}" class="nav-link {{ request()->routeIs($item[1]) ? 'active' : '' }}">
+                        <i class="bi {{ $item[2] }}"></i>{{ $item[3] }}
+                        @if (! empty($item[4]))<span class="badge rounded-pill text-bg-danger" title="{{ $item[4] }} suất đang trong giờ soát vé">{{ $item[4] }}</span>@endif
+                    </a>
                 @endif
             @endforeach
             <div class="ad-nav-label">Khác</div>

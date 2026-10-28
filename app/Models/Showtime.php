@@ -56,6 +56,19 @@ class Showtime extends Model
         return $this->trashed();
     }
 
+    /** Lúc mở soát vé: trước giờ chiếu checkin_before_minutes phút */
+    public function checkInOpensAt(): Carbon
+    {
+        return $this->start_time->copy()->subMinutes((int) config('cinema.checkin_before_minutes'));
+    }
+
+    /** Suất đang trong giờ soát vé: từ lúc mở soát đến khi phim kết thúc */
+    public function scopeCheckInOpen(Builder $query): Builder
+    {
+        return $query->where('start_time', '<=', now()->addMinutes((int) config('cinema.checkin_before_minutes')))
+            ->where('end_time', '>', now());
+    }
+
     public function scopeUpcoming(Builder $query): Builder
     {
         return $query->where('start_time', '>', now());
