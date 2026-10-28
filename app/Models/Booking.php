@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
-#[Fillable(['code', 'user_id', 'showtime_id', 'voucher_id', 'total_price', 'discount', 'status', 'cancel_reason', 'note', 'paid_at', 'payment_method', 'payment_ref', 'checked_in_at'])]
+#[Fillable(['code', 'user_id', 'showtime_id', 'voucher_id', 'total_price', 'discount', 'status', 'cancel_reason', 'note', 'paid_at', 'payment_method', 'payment_ref', 'payment_txn_ref', 'refunded_at', 'refund_method', 'refund_ref', 'checked_in_at'])]
 class Booking extends Model
 {
     use HasFactory;
@@ -31,10 +31,13 @@ class Booking extends Model
 
     public const CANCEL_UNPAID = 'unpaid';
 
+    public const CANCEL_SHOWTIME = 'showtime';
+
     public const CANCEL_REASONS = [
         self::CANCEL_BY_CUSTOMER => 'Khách tự hủy',
         self::CANCEL_BY_ADMIN => 'Quản trị viên hủy',
         self::CANCEL_UNPAID => 'Tự hủy do quá hạn thanh toán',
+        self::CANCEL_SHOWTIME => 'Rạp hủy suất chiếu',
     ];
 
     public const PAYMENT_VNPAY = 'vnpay';
@@ -46,12 +49,22 @@ class Booking extends Model
         self::PAYMENT_COUNTER => 'Tại quầy',
     ];
 
+    public const REFUND_VNPAY = 'vnpay';
+
+    public const REFUND_MANUAL = 'manual';
+
+    public const REFUND_METHODS = [
+        self::REFUND_VNPAY => 'Hoàn qua VNPay',
+        self::REFUND_MANUAL => 'Hoàn thủ công',
+    ];
+
     protected function casts(): array
     {
         return [
             'total_price' => 'integer',
             'discount' => 'integer',
             'paid_at' => 'datetime',
+            'refunded_at' => 'datetime',
             'checked_in_at' => 'datetime',
         ];
     }
@@ -79,7 +92,8 @@ class Booking extends Model
 
     public function showtime(): BelongsTo
     {
-        return $this->belongsTo(Showtime::class);
+        // withTrashed: suất chiếu bị rạp hủy vẫn hiện trên vé cũ
+        return $this->belongsTo(Showtime::class)->withTrashed();
     }
 
     public function seats(): HasMany
@@ -147,9 +161,34 @@ class Booking extends Model
 
     public function getPaymentLabelAttribute(): string
     {
-        return $this->isPaid()
-            ? 'Đã thanh toán ('.(self::PAYMENT_METHODS[$this->payment_method] ?? $this->payment_method).')'
-            : 'Chưa thanh toán';
+        return match (true) {
+            $this->isRefunded() => 'Đã hoàn tiền',
+            $this->needsRefund() => 'Chờ hoàn tiền',
+            $this->isPaid() => 'Đã thanh toán ('.(self::PAYMENT_METHODS[$this->payment_method] ?? $this->payment_method).')',
+            default => 'Chưa thanh toán',
+        };
+    }
+
+    public function isRefunded(): bool
+    {
+        return $this->refunded_at !== null;
+    }
+
+    /** Khách đã trả tiền nhưng vé đã bị hủy (rạp hủy suất, admin hủy, trả tiền trễ sau khi vé tự hủy) và chưa được hoàn */
+    public function needsRefund(): bool
+    {
+        return $this->isPaid() && ! $this->isConfirmed() && ! $this->isRefunded();
+    }
+
+    public function scopePendingRefund(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_CANCELLED)->whereNotNull('paid_at')->whereNull('refunded_at');
+    }
+
+    /** Hoàn được qua API VNPay khi vé trả bằng VNPay và còn lưu đủ thông tin giao dịch gốc */
+    public function canBeRefundedViaVnpay(): bool
+    {
+        return $this->payment_method === self::PAYMENT_VNPAY && $this->payment_txn_ref && $this->payment_ref;
     }
 
     /**
@@ -180,9 +219,9 @@ class Booking extends Model
         return self::CANCEL_REASONS[$this->cancel_reason] ?? null;
     }
 
-    public function markPaid(string $method, ?string $ref = null): void
+    public function markPaid(string $method, ?string $ref = null, ?string $txnRef = null, ?Carbon $paidAt = null): void
     {
-        $this->update(['paid_at' => now(), 'payment_method' => $method, 'payment_ref' => $ref]);
+        $this->update(['paid_at' => $paidAt ?? now(), 'payment_method' => $method, 'payment_ref' => $ref, 'payment_txn_ref' => $txnRef]);
     }
 
     public function isCheckedIn(): bool

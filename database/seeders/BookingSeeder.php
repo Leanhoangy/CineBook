@@ -47,6 +47,48 @@ class BookingSeeder extends Seeder
 
         // Vé chưa thanh toán của các suất sắp chiếu trong 30 phút tới đã quá hạn: tự hủy như hệ thống thật (không gửi email)
         $releaser->release(notify: false);
+
+        $this->seedRefunds();
+    }
+
+    /**
+     * Vài trường hợp hoàn tiền như ngoài thực tế (hiếm): rạp hủy vé đã thanh toán do sự cố rồi hoàn tiền,
+     * và vài vé rạp vừa hủy, đang chờ nhân viên hoàn lại.
+     */
+    private function seedRefunds(): void
+    {
+        $refunded = Booking::where('status', Booking::STATUS_CONFIRMED)
+            ->whereNotNull('paid_at')
+            ->whereNull('checked_in_at')
+            ->where('paid_at', '<', now()->subDay())
+            ->inRandomOrder()
+            ->limit(18)
+            ->get();
+
+        foreach ($refunded as $booking) {
+            $vnpay = $booking->payment_method === Booking::PAYMENT_VNPAY;
+            $booking->update([
+                'status' => Booking::STATUS_CANCELLED,
+                'cancel_reason' => Booking::CANCEL_BY_ADMIN,
+                'refunded_at' => $booking->paid_at->copy()->addHours(fake()->numberBetween(2, 20)),
+                'refund_method' => $vnpay ? Booking::REFUND_VNPAY : Booking::REFUND_MANUAL,
+                'refund_ref' => $vnpay ? fake()->numerify('14######') : 'Trả tiền mặt tại quầy',
+                'note' => 'Sự cố máy chiếu, rạp hoàn tiền',
+            ]);
+        }
+
+        // Chờ hoàn tiền (để demo luôn có): rạp vừa hủy vài vé đã trả qua VNPay của suất sắp chiếu (ghế hỏng), chưa hoàn
+        Booking::where('status', Booking::STATUS_CONFIRMED)
+            ->where('payment_method', Booking::PAYMENT_VNPAY)
+            ->whereHas('showtime', fn ($q) => $q->where('start_time', '>', now()->addHours(3)))
+            ->inRandomOrder()
+            ->limit(3)
+            ->get()
+            ->each(fn (Booking $b) => $b->update([
+                'status' => Booking::STATUS_CANCELLED,
+                'cancel_reason' => Booking::CANCEL_BY_ADMIN,
+                'note' => 'Ghế hỏng, đã gọi báo khách, chờ hoàn tiền',
+            ]));
     }
 
     private function fillShowtime(Showtime $showtime, Collection $customers): void
@@ -123,7 +165,9 @@ class BookingSeeder extends Seeder
         [$paidAt, $method] = $cancelled ? [null, null] : $this->payment($showtime, $createdAt);
         $combos = $this->pickCombos(count($seats));
 
+        $code = Booking::generateCode();
         $booking = new Booking([
+            'code' => $code,
             'user_id' => $customer->id,
             'showtime_id' => $showtime->id,
             'voucher_id' => $voucher?->id,
@@ -134,6 +178,7 @@ class BookingSeeder extends Seeder
             'paid_at' => $paidAt,
             'payment_method' => $method,
             'payment_ref' => $method === Booking::PAYMENT_VNPAY ? fake()->numerify('14######') : null,
+            'payment_txn_ref' => $method === Booking::PAYMENT_VNPAY ? $code.'-'.$paidAt->format('His') : null, // như VnpayGateway::paymentUrl()
             'checked_in_at' => $paidAt ? $this->checkInTime($showtime, $paidAt, $method) : null,
         ]);
         $booking->created_at = $booking->updated_at = $createdAt;

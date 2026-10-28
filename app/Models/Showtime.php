@@ -8,12 +8,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 #[Fillable(['movie_id', 'room_id', 'start_time', 'end_time', 'price'])]
+/**
+ * Suất chiếu. Suất bị rạp hủy được xóa mềm (deleted_at): tự ẩn khỏi mọi trang và truy vấn,
+ * nhưng vé của khách vẫn xem được thông tin suất cũ.
+ */
 class Showtime extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected function casts(): array
     {
@@ -43,6 +48,12 @@ class Showtime extends Model
     public function confirmedBookings(): HasMany
     {
         return $this->bookings()->where('status', Booking::STATUS_CONFIRMED);
+    }
+
+    /** Suất đã bị rạp hủy */
+    public function isCancelled(): bool
+    {
+        return $this->trashed();
     }
 
     public function scopeUpcoming(Builder $query): Builder

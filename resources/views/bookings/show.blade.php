@@ -20,6 +20,8 @@
                     <div class="text-muted small">{{ $st->movie->duration }} phút · {{ $st->movie->age_rating }}</div>
                     @if ($booking->cancel_reason === \App\Models\Booking::CANCEL_UNPAID)
                         <div class="small text-warning mt-2"><i class="bi bi-exclamation-triangle me-1"></i>Vé đã tự hủy vì chưa thanh toán trước {{ $booking->paymentDeadline()->format('H:i d/m') }}. Ghế đã được mở bán lại.</div>
+                    @elseif ($booking->cancel_reason === \App\Models\Booking::CANCEL_SHOWTIME)
+                        <div class="small text-warning mt-2"><i class="bi bi-exclamation-triangle me-1"></i>Rất xin lỗi bạn, rạp đã hủy suất chiếu này vì sự cố ngoài ý muốn.</div>
                     @elseif ($booking->cancel_reason_label)
                         <div class="small text-muted mt-2">{{ $booking->cancel_reason_label }}</div>
                     @endif
@@ -97,7 +99,34 @@
                     <span>Tổng cộng</span><span>@money($booking->total_price)</span>
                 </div>
 
-                @if ($booking->isPaid())
+                @if ($booking->isRefunded())
+                    <div class="cb-payment is-refunded mt-3">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        <div>
+                            <div class="fw-semibold">Đã hoàn @money($booking->total_price)</div>
+                            <div class="text-muted">
+                                Lúc {{ $booking->refunded_at->format('H:i d/m/Y') }} ·
+                                @if ($booking->refund_method === \App\Models\Booking::REFUND_VNPAY)
+                                    qua VNPay, mã giao dịch hoàn tiền <span class="font-monospace">{{ $booking->refund_ref }}</span>.
+                                    Tiền về đúng thẻ/tài khoản bạn đã dùng để thanh toán, thường trong vài ngày làm việc tùy ngân hàng.
+                                @else
+                                    {{ $booking->refund_ref }}
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @elseif ($booking->needsRefund())
+                    <div class="cb-payment mt-3">
+                        <i class="bi bi-hourglass-split"></i>
+                        <div>
+                            <div class="fw-semibold">Chờ hoàn tiền</div>
+                            <div class="text-muted">
+                                Bạn đã thanh toán @money($booking->total_price) ({{ \App\Models\Booking::PAYMENT_METHODS[$booking->payment_method] }}) nhưng vé đã bị hủy.
+                                Rạp sẽ hoàn lại toàn bộ số tiền cho bạn. Cần hỗ trợ, vui lòng gọi hotline.
+                            </div>
+                        </div>
+                    </div>
+                @elseif ($booking->isPaid())
                     <div class="cb-payment is-paid mt-3">
                         <i class="bi bi-check2-circle"></i>
                         <div>

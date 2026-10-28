@@ -32,16 +32,30 @@
                 <tbody>
                     @forelse ($showtimes as $st)
                         @php $locked = $st->start_time->isPast() || $st->bookings_count > 0; @endphp
-                        <tr class="{{ $st->start_time->isPast() ? 'text-muted' : '' }}">
-                            <td class="fw-semibold">{{ $st->movie->title }} @if ($st->movie->trashed())<span class="badge text-bg-secondary">đã xóa</span>@endif</td>
+                        <tr class="{{ $st->start_time->isPast() || $st->isCancelled() ? 'text-muted' : '' }}">
+                            <td class="fw-semibold">
+                                {{ $st->movie->title }} @if ($st->movie->trashed())<span class="badge text-bg-secondary">đã xóa</span>@endif
+                                @if ($st->isCancelled())<span class="badge text-bg-danger">Đã hủy suất</span>@endif
+                            </td>
                             <td>{{ $st->room->name }}</td>
                             <td class="text-nowrap">{{ $st->start_time->format('H:i') }} <small class="text-muted">{{ $st->start_time->format('d/m/Y') }}</small></td>
                             <td class="text-nowrap">{{ $st->end_time->format('H:i') }}</td>
                             <td class="text-end">@money($st->price)</td>
                             <td class="text-center">{{ $st->bookings_count }}</td>
                             <td class="text-end text-nowrap">
-                                @if ($locked)
-                                    <span class="text-muted small" title="Suất đã chiếu hoặc đã có vé nên không thể sửa/xóa"><i class="bi bi-lock"></i></span>
+                                @if ($st->isCancelled())
+                                    <span class="text-muted small">Hủy lúc {{ $st->deleted_at->format('H:i d/m') }}</span>
+                                @elseif ($locked)
+                                    @if ($st->bookings_count && $st->end_time->isFuture())
+                                        {{-- Sự cố: hủy cả suất, hoàn tiền tự động cho vé đã trả qua VNPay --}}
+                                        <form method="POST" action="{{ route('admin.showtimes.cancel', $st) }}" class="d-inline"
+                                              data-confirm="Hủy suất {{ $st->movie->title }} lúc {{ $st->start_time->format('H:i d/m') }}?&#10;&#10;• {{ $st->bookings_count }} vé sẽ bị hủy và khách nhận email báo.&#10;• {{ $st->paid_count }} vé đã thanh toán sẽ được hoàn tiền.&#10;&#10;Không thể hoàn tác!">
+                                            @csrf
+                                            <button class="btn btn-sm btn-light btn-icon text-danger" title="Hủy suất chiếu (sự cố) và hoàn tiền cho khách"><i class="bi bi-x-octagon"></i></button>
+                                        </form>
+                                    @else
+                                        <span class="text-muted small" title="Suất đã chiếu hoặc đã có vé nên không thể sửa/xóa"><i class="bi bi-lock"></i></span>
+                                    @endif
                                 @else
                                     <a href="{{ route('admin.showtimes.edit', $st) }}" class="btn btn-sm btn-light btn-icon" title="Sửa"><i class="bi bi-pencil"></i></a>
                                     <form method="POST" action="{{ route('admin.showtimes.destroy', $st) }}" class="d-inline" data-confirm="Xóa suất chiếu {{ $st->start_time->format('H:i d/m') }}?">

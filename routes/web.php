@@ -90,6 +90,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::resource('movies', Admin\MovieController::class);
 
     Route::resource('rooms', Admin\RoomController::class)->except('show');
+    Route::post('showtimes/{showtime}/huy', [Admin\ShowtimeController::class, 'cancel'])->name('showtimes.cancel');
     Route::resource('showtimes', Admin\ShowtimeController::class)->except('show');
 
     Route::get('soat-ve', [Admin\CheckInController::class, 'index'])->name('check-in.index');
@@ -98,6 +99,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     Route::get('bookings/xuat-excel', [Admin\BookingController::class, 'export'])->name('bookings.export');
     Route::patch('bookings/{booking}/thu-tien', [Admin\BookingController::class, 'markPaid'])->name('bookings.mark-paid');
+    Route::post('bookings/{booking}/hoan-tien', [Admin\BookingController::class, 'refund'])->name('bookings.refund');
     Route::resource('bookings', Admin\BookingController::class)->only(['index', 'show', 'update', 'destroy']);
 
     Route::resource('reviews', Admin\ReviewController::class)->only(['index', 'update', 'destroy']);

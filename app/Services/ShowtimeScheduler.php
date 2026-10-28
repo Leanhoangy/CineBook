@@ -59,7 +59,7 @@ class ShowtimeScheduler
             // Giờ trống kế tiếp của từng phòng; giờ mở cửa lệch nhau 10 phút cho lịch chiếu tự nhiên hơn
             $cursors = [];
             foreach ($rooms as $roomIndex => $room) {
-                if (Showtime::where('room_id', $room->id)->whereDate('start_time', $date)->exists()) {
+                if (Showtime::withTrashed()->where('room_id', $room->id)->whereDate('start_time', $date)->exists()) {
                     continue;
                 }
 

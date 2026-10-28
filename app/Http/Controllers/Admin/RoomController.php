@@ -58,7 +58,7 @@ class RoomController extends Controller
 
     public function destroy(Room $room): RedirectResponse
     {
-        if ($room->showtimes()->exists()) {
+        if ($room->showtimes()->withTrashed()->exists()) {
             return back()->with('error', "Không thể xóa {$room->name} vì đã có suất chiếu. Bạn có thể chuyển phòng sang trạng thái ngừng hoạt động.");
         }
 

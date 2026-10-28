@@ -127,7 +127,7 @@ class MovieController extends Controller
 
     public function forceDelete(Movie $movie): RedirectResponse
     {
-        if ($movie->showtimes()->exists()) {
+        if ($movie->showtimes()->withTrashed()->exists()) {
             return back()->with('error', "Không thể xóa vĩnh viễn \"{$movie->title}\" vì phim đã có lịch sử suất chiếu và vé bán ra.");
         }
 

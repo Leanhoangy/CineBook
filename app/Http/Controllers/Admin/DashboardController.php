@@ -52,6 +52,8 @@ class DashboardController extends Controller
 
         $recentBookings = Booking::with(['user', 'showtime.movie'])->latest()->take(6)->get();
 
-        return view('admin.dashboard', compact('stats', 'chart', 'topMovies', 'recentBookings'));
+        $pendingRefunds = Booking::pendingRefund()->count();
+
+        return view('admin.dashboard', compact('pendingRefunds', 'stats', 'chart', 'topMovies', 'recentBookings'));
     }
 }

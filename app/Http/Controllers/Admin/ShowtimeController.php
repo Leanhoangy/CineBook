@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\ShowtimeRequest;
 use App\Models\Movie;
 use App\Models\Room;
 use App\Models\Showtime;
+use App\Services\ShowtimeCanceller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,8 +16,9 @@ class ShowtimeController extends Controller
 {
     public function index(Request $request): View
     {
-        $showtimes = Showtime::with(['movie', 'room'])
-            ->withCount(['confirmedBookings as bookings_count'])
+        $showtimes = Showtime::withTrashed() // hiện cả suất đã hủy (gắn nhãn) để tra cứu
+            ->with(['movie', 'room'])
+            ->withCount(['confirmedBookings as bookings_count', 'confirmedBookings as paid_count' => fn ($q) => $q->whereNotNull('paid_at')])
             ->when($request->query('q'), fn ($q, $k) => $q->whereHas('movie', fn ($m) => $m->where('title', 'like', "%{$k}%")))
             ->when($request->query('room'), fn ($q, $room) => $q->where('room_id', $room))
             ->when($request->query('date'), fn ($q, $date) => $q->whereDate('start_time', $date))
@@ -76,9 +78,29 @@ class ShowtimeController extends Controller
             return back()->with('error', 'Không thể xóa suất chiếu đã có khách đặt vé.');
         }
 
-        $showtime->delete();
+        $showtime->forceDelete(); // chưa có vé nào: xóa hẳn
 
         return back()->with('success', 'Đã xóa suất chiếu.');
+    }
+
+    /** Rạp hủy suất chiếu: hủy toàn bộ vé, hoàn tiền vé đã thanh toán, email báo từng khách */
+    public function cancel(Request $request, Showtime $showtime, ShowtimeCanceller $canceller): RedirectResponse
+    {
+        if ($showtime->end_time->isPast()) {
+            return back()->with('error', 'Suất chiếu đã kết thúc, không thể hủy.');
+        }
+
+        $result = $canceller->cancel($showtime, $request->user(), $request->ip());
+
+        $message = "Đã hủy suất {$showtime->movie->title} lúc {$showtime->start_time->format('H:i d/m/Y')}: {$result['cancelled']} vé bị hủy";
+        $message .= $result['refunded'] ? ", {$result['refunded']} vé đã hoàn tiền qua VNPay" : '';
+        $message .= '. Đã gửi email báo khách.';
+
+        $redirect = redirect()->route('admin.showtimes.index', ['date' => $showtime->start_time->toDateString()])->with('success', $message);
+
+        return $result['pending']
+            ? $redirect->with('error', "Còn {$result['pending']} vé đã thanh toán cần hoàn tiền thủ công (trả tại quầy hoặc VNPay lỗi). Xem trong mục Đơn đặt vé → Chờ hoàn tiền.")
+            : $redirect;
     }
 
     private function payload(ShowtimeRequest $request): array

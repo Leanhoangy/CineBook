@@ -43,7 +43,7 @@ class PaymentController extends Controller
         [$type, $message] = match ($result) {
             VnpayGateway::RESULT_PAID, VnpayGateway::RESULT_ALREADY_PAID => ['success', "Thanh toán vé {$booking->code} thành công. Hẹn gặp bạn ở rạp!"],
             VnpayGateway::RESULT_CANCELLED_BY_USER => ['error', 'Bạn đã hủy thanh toán. Vé vẫn được giữ, bạn có thể thanh toán lại hoặc trả tại quầy.'],
-            VnpayGateway::RESULT_BOOKING_CANCELLED => ['error', 'Vé đã bị hủy trước khi thanh toán xong. Vui lòng liên hệ hỗ trợ để được hoàn tiền.'],
+            VnpayGateway::RESULT_BOOKING_CANCELLED => ['error', 'Vé đã bị hủy trước khi thanh toán xong. Rạp đã ghi nhận số tiền bạn trả và sẽ hoàn lại vào tài khoản của bạn.'],
             default => ['error', 'Thanh toán không thành công. Bạn có thể thử lại hoặc thanh toán tại quầy.'],
         };
 
@@ -59,8 +59,8 @@ class PaymentController extends Controller
             VnpayGateway::RESULT_INVALID_SIGNATURE => ['97', 'Invalid signature'],
             VnpayGateway::RESULT_NOT_FOUND => ['01', 'Order not found'],
             VnpayGateway::RESULT_INVALID_AMOUNT => ['04', 'Invalid amount'],
-            VnpayGateway::RESULT_ALREADY_PAID, VnpayGateway::RESULT_BOOKING_CANCELLED => ['02', 'Order already confirmed'],
-            default => ['00', 'Confirm Success'], // đã ghi nhận kết quả (thành công hoặc thất bại)
+            VnpayGateway::RESULT_ALREADY_PAID => ['02', 'Order already confirmed'],
+            default => ['00', 'Confirm Success'], // đã ghi nhận kết quả (thành công, thất bại, hoặc tiền trả cho vé đã hủy chờ hoàn)
         };
 
         return response()->json(['RspCode' => $code, 'Message' => $message]);

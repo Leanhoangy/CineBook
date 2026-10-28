@@ -95,6 +95,8 @@ Vé đặt xong giữ ghế ngay nhưng phải thanh toán (VNPay hoặc tại q
 2. Điền vào `.env`: `VNPAY_TMN_CODE=...` và `VNPAY_HASH_SECRET=...`
 3. Đặt vé → trang vé bấm **"Thanh toán ... qua VNPay"** → chọn *Thẻ nội địa* → ngân hàng **NCB**, dùng thẻ test: số thẻ `9704198526191432198`, tên `NGUYEN VAN A`, ngày phát hành `07/15`, OTP `123456`.
 
+**Hoàn tiền:** theo chính sách chung của các rạp, vé đã thanh toán không được hoàn khi khách đổi ý; rạp chỉ hoàn khi lỗi từ phía rạp (sự cố, hủy suất chiếu) hoặc khách trả tiền đúng lúc vé vừa tự hủy. Admin bấm "Hủy vé & hoàn tiền" ở chi tiết đơn: vé VNPay gọi API hoàn tiền của VNPay, vé trả tại quầy ghi nhận hoàn thủ công. Lưu ý: **VNPay khóa API hoàn tiền trên tài khoản sandbox** (trả mã 99, cần liên hệ VNPay để mở), nên khi demo hãy dùng "Ghi nhận đã hoàn thủ công".
+
 Chạy trên máy cá nhân thì kết quả được ghi nhận khi VNPay đưa trình duyệt quay về web. URL IPN (`/thanh-toan/vnpay/ipn`, VNPay gọi từ server của họ) chỉ hoạt động khi web có địa chỉ public (VD: deploy hoặc dùng ngrok) và đã khai báo URL này trong trang quản lý sandbox.
 
 **Email** (quên mật khẩu, vé điện tử): mặc định `MAIL_MAILER=log` nên email được ghi vào `storage/logs/laravel.log`. Muốn gửi thật, điền cấu hình SMTP (VD: [Mailtrap](https://mailtrap.io) hoặc Gmail + App Password) vào các biến `MAIL_*` trong `.env`.
@@ -105,7 +107,7 @@ Chạy trên máy cá nhân thì kết quả được ghi nhận khi VNPay đưa
 php artisan test
 ```
 
-83 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, soát vé, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+89 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, hoàn tiền, soát vé, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -137,9 +139,9 @@ php artisan test
 - **Tổng quan**: doanh thu tháng, vé bán hôm nay, biểu đồ doanh thu 14 ngày (Chart.js), top phim.
 - **CRUD Phim**: upload poster, gán nhiều thể loại, ngày kết thúc chiếu (tự chuyển "Ngừng chiếu"), **xóa mềm (Soft Delete)** → thùng rác → khôi phục / xóa vĩnh viễn.
 - **CRUD Thể loại**, **CRUD Phòng chiếu** (xem trước sơ đồ ghế khi nhập số hàng/ghế).
-- **CRUD Suất chiếu**: tự tính giờ kết thúc, **chặn trùng giờ trong cùng phòng**, khóa sửa/xóa khi đã có vé.
+- **CRUD Suất chiếu**: tự tính giờ kết thúc, **chặn trùng giờ trong cùng phòng**, khóa sửa/xóa khi đã có vé; **hủy suất khi có sự cố**: hủy mọi vé, hoàn tiền vé đã thanh toán, email từng khách, suất được xóa mềm.
 - **Soát vé** (`/admin/soat-ve`): quét mã QR trên vé bằng camera laptop/điện thoại (hoặc máy quét mã vạch, gõ mã vé) → hiện ngay phim, suất, phòng, ghế, trạng thái thanh toán → bấm **"Cho vào"** (vé chưa trả tiền thì thu tiền rồi cho vào). Chặn vé đã hủy, vé quét lần 2, vé chưa tới giờ (mở soát trước giờ chiếu 60 phút) hoặc suất đã kết thúc; có tiếng bíp báo kết quả và danh sách vé đã soát trong ngày.
-- **Đơn đặt vé**: tìm kiếm theo mã vé/khách/phim, lọc trạng thái, thanh toán & khoảng ngày, xác nhận/hủy, **xác nhận đã thu tiền tại quầy**, xóa đơn đã hủy, **xuất Excel** (chi tiết đơn + doanh thu theo phim).
+- **Đơn đặt vé**: tìm kiếm theo mã vé/khách/phim, lọc trạng thái, thanh toán & khoảng ngày, xác nhận/hủy, **xác nhận đã thu tiền tại quầy**, **hủy vé & hoàn tiền** (API hoàn tiền VNPay hoặc hoàn thủ công, cảnh báo vé "Chờ hoàn tiền"), xóa đơn đã hủy chưa có giao dịch tiền, **xuất Excel** (chi tiết đơn + doanh thu theo phim).
 - **Mã giảm giá**: CRUD mã, thống kê lượt dùng và tổng tiền đã giảm.
 - **Bắp nước**: CRUD combo (upload ảnh, giá, bật/tắt bán), thống kê số phần đã bán và doanh thu; combo đã bán không xóa được (chỉ ngừng bán), đổi giá không ảnh hưởng đơn cũ.
 - **Đánh giá**: tìm kiếm, lọc theo số sao, ẩn/hiện bình luận vi phạm, xóa.

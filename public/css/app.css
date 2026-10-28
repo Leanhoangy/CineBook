@@ -314,6 +314,8 @@ main { flex: 1; }
 .cb-payment > .bi { font-size: 1.4rem; color: var(--cb-gold); line-height: 1.2; }
 .cb-payment.is-paid { border: 1px solid rgba(25, 135, 84, .6); background: rgba(25, 135, 84, .1); }
 .cb-payment.is-paid > .bi { color: #3ec98a; }
+.cb-payment.is-refunded { border: 1px solid rgba(13, 202, 240, .5); background: rgba(13, 202, 240, .08); }
+.cb-payment.is-refunded > .bi { color: #3dd5f3; }
 .cb-ticket.cancelled { opacity: .7; }
 .cb-ticket.cancelled .cb-ticket-head { background: rgba(108, 117, 125, .2); }
 

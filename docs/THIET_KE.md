@@ -81,6 +81,7 @@ erDiagram
         datetime start_time
         datetime end_time
         int price
+        timestamp deleted_at "rạp hủy suất (Soft Delete)"
     }
     bookings {
         bigint id PK
@@ -91,10 +92,14 @@ erDiagram
         int total_price "sau giảm giá"
         int discount
         enum status "confirmed|cancelled"
-        enum cancel_reason "customer|admin|unpaid, nullable"
+        enum cancel_reason "customer|admin|unpaid|showtime, nullable"
         timestamp paid_at "null = chưa thanh toán"
         enum payment_method "vnpay|counter, nullable"
         varchar payment_ref "mã giao dịch VNPay"
+        varchar payment_txn_ref "vnp_TxnRef, dùng khi hoàn tiền"
+        timestamp refunded_at "null = chưa hoàn"
+        enum refund_method "vnpay|manual, nullable"
+        varchar refund_ref "mã GD hoàn / cách trả"
         timestamp checked_in_at "lúc soát vé vào rạp"
         varchar note
     }
@@ -199,11 +204,12 @@ flowchart LR
         UC22(Xuất báo cáo Excel)
         UC23(Thanh toán online VNPay)
         UC24(Soát vé bằng mã QR)
+        UC27(Hoàn tiền / hủy suất chiếu)
     end
 
     Guest --- UC1 & UC2 & UC3 & UC4 & UC5 & UC17
     User --- UC1 & UC2 & UC3 & UC5 & UC6 & UC7 & UC8 & UC9 & UC18 & UC23
-    Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16 & UC20 & UC21 & UC22 & UC24 & UC26
+    Admin --- UC5 & UC9 & UC10 & UC11 & UC12 & UC13 & UC14 & UC15 & UC16 & UC20 & UC21 & UC22 & UC24 & UC26 & UC27
     UC6 -. include .-> UC5
     UC19 -. extend .-> UC6
     UC25 -. extend .-> UC6
@@ -268,14 +274,24 @@ Giá ghế thường của mỗi suất được tính tự động theo bảng 
 | Hạn thanh toán | `Booking::paymentDeadline()` = muộn hơn trong 2 mốc: giờ chiếu − 30 phút, hoặc lúc đặt + 15 phút. Thanh toán online chỉ được trước hạn; link VNPay hết hạn không quá mốc này. |
 | Tự hủy | Lệnh `bookings:release-unpaid` chạy mỗi phút: vé "Đã xác nhận", chưa thanh toán, chưa soát và đã quá hạn → khóa dòng, kiểm tra lại rồi chuyển "Đã hủy" với `cancel_reason = unpaid`, ghế mở bán lại, lượt mã giảm giá được hoàn, gửi email báo khách. `cancel_reason` cũng ghi nhận khách tự hủy / admin hủy. |
 
-### 4.10. Đánh giá phim (UC18, UC21)
+### 4.10. Hoàn tiền và hủy suất chiếu (UC27)
+| Mục | Nội dung |
+|---|---|
+| Chính sách | Giống rạp thật: vé đã thanh toán không đổi trả khi khách đổi ý (khách không tự hủy được). Chỉ hoàn khi lỗi từ phía rạp hoặc khách trả tiền cho vé đã bị hủy. |
+| Luồng chính (1 vé) | 1. Admin mở chi tiết đơn đã thanh toán, bấm "Hoàn … qua VNPay". 2. `BookingRefunder` khóa dòng vé, kiểm tra vé đã trả tiền và chưa hoàn. 3. `VnpayGateway::refund()` gọi API `merchant_webapi/api/transaction` (`vnp_Command=refund`, loại 02 = hoàn toàn phần, mã giao dịch gốc, ngày thanh toán, số tiền), ký HMAC-SHA512. 4. VNPay trả `00` → lưu `refunded_at`, `refund_method = vnpay`, `refund_ref`; vé còn hiệu lực chuyển "Đã hủy" (ghế mở bán lại). 5. Email báo khách; vé hiện "Đã hoàn tiền". |
+| Luồng phụ | 3a. Vé trả tại quầy hoặc VNPay từ chối/lỗi kết nối → không đổi gì, báo lỗi; admin trả tiền mặt/chuyển khoản rồi bấm "Đã trả lại", bắt buộc ghi cách trả (`refund_method = manual`). 2a. Vé đã hoàn → chặn hoàn lần 2, không khôi phục, không xóa được. |
+| Hủy suất chiếu | Admin bấm ⊗ ở danh sách suất (suất có vé, chưa kết thúc) → `ShowtimeCanceller` hủy mọi vé (`cancel_reason = showtime`), hoàn tự động vé VNPay, vé còn lại chuyển "Chờ hoàn tiền", email từng khách, rồi xóa mềm suất chiếu: suất tự ẩn khỏi trang khách, phòng được giải phóng, vé cũ vẫn xem được. |
+| Chờ hoàn tiền | Vé "Đã hủy" có `paid_at` nhưng chưa `refunded_at` (VD: khách trả VNPay đúng lúc vé vừa tự hủy – `process()` vẫn ghi nhận tiền). Dashboard và trang Đơn đặt vé hiện cảnh báo + bộ lọc "Chờ hoàn tiền". |
+| Ghi chú | VNPay khóa API hoàn tiền trên sandbox (mã 99); khi demo dùng hoàn thủ công. |
+
+### 4.11. Đánh giá phim (UC18, UC21)
 Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao kèm bình luận; mỗi phim 1 đánh giá, sửa/xóa được. Trang phim hiển thị điểm trung bình, phân bố số sao. Admin lọc, ẩn/hiện bình luận vi phạm hoặc xóa.
 
 ## 5. Đối chiếu yêu cầu đồ án
 
 | Yêu cầu (file đề) | Đáp ứng trong CineBook |
 |---|---|
-| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 12 migration nghiệp vụ, 9 seeder, 9 factory; phim thật cào từ Moveek (`movies:crawl`) |
+| Laravel mới nhất, MySQL, Eloquent, Migration, Seeder/Factory | Laravel 13, 13 migration nghiệp vụ, 9 seeder, 9 factory; phim thật cào từ Moveek (`movies:crawl`) |
 | Blade + Bootstrap, tách giao diện user/admin | `layouts/app` (tối, rạp phim) và `layouts/admin` (sidebar) |
 | ≥ 2 role, admin vào `/admin`, bảo vệ route bằng Middleware | Role `admin`/`user`, middleware `role:` tự viết + `auth` + `guest` |
 | CRUD ≥ 2 bảng có quan hệ | CRUD đủ trên Phim, Thể loại, Phòng, Suất chiếu, Người dùng, Mã giảm giá, Bắp nước (+ Đơn đặt vé, Đánh giá) |
@@ -287,9 +303,9 @@ Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao
 | *Mở rộng:* Xuất file | Xuất đơn đặt vé + doanh thu theo phim ra Excel (.xlsx) |
 | *Mở rộng:* Tác vụ định kỳ | Laravel Scheduler: `showtimes:refresh` hằng ngày (khởi chiếu / ngừng chiếu tự động, xếp lịch 7 ngày tới, mở bán vé trước); `movies:crawl --import` hằng tuần lấy phim mới; `bookings:release-unpaid` mỗi phút tự hủy vé quá hạn thanh toán |
 | *Mở rộng:* AJAX | Gợi ý tìm kiếm, cập nhật sơ đồ ghế realtime, kiểm tra mã giảm giá, tra cứu & soát vé bằng QR |
-| *Mở rộng:* API ngoài | Cổng thanh toán VNPay (sandbox, chữ ký HMAC-SHA512, IPN), YouTube embed (trailer); mã QR vé tạo bằng thư viện PHP ngay trên server |
+| *Mở rộng:* API ngoài | Cổng thanh toán VNPay (sandbox, chữ ký HMAC-SHA512, IPN, API hoàn tiền), YouTube embed (trailer); mã QR vé tạo bằng thư viện PHP ngay trên server |
 | *Mở rộng:* Responsive | Bootstrap grid, menu thu gọn, sidebar offcanvas |
-| *Mở rộng:* Soft Delete, Middleware tùy chỉnh | Phim xóa mềm + thùng rác; `EnsureUserHasRole` |
+| *Mở rộng:* Soft Delete, Middleware tùy chỉnh | Phim xóa mềm + thùng rác; suất chiếu bị rạp hủy được xóa mềm; `EnsureUserHasRole` |
 
 ## 6. Phân công nhóm 4 người
 
@@ -300,4 +316,4 @@ Chi tiết từng người phụ trách trang nào, file code nào và câu hỏ
 | TV1 – Nhóm trưởng | CSDL (migration, model, quan hệ, seeder), cào phim Moveek, lịch chiếu tự động, Dashboard, xuất Excel | ERD, Công nghệ, Hướng dẫn cài đặt |
 | TV2 | Đăng ký/đăng nhập/quên mật khẩu, middleware `role`, hồ sơ + avatar, quản lý người dùng; mã giảm giá, bắp nước, trang Ưu đãi/Hỗ trợ | Use Case, Phân quyền |
 | TV3 | Trang chủ, danh sách/tìm kiếm phim (AJAX), chi tiết phim, lịch chiếu; CRUD Phim (soft delete), Thể loại, Phòng, Suất chiếu; đánh giá phim | Mô tả chức năng xem phim + admin nội dung |
-| TV4 | Chọn ghế realtime + đặt vé (transaction, khóa dòng), VNPay, vé QR, hủy/tự hủy vé, soát vé, quản lý đơn, email vé | Mô tả luồng đặt vé – thanh toán, Slide |
+| TV4 | Chọn ghế realtime + đặt vé (transaction, khóa dòng), VNPay, hoàn tiền, vé QR, hủy/tự hủy vé, soát vé, quản lý đơn, email vé | Mô tả luồng đặt vé – thanh toán, Slide |

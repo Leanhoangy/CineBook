@@ -4,6 +4,13 @@
 @section('subtitle', $bookings->total().' đơn')
 
 @section('content')
+    @if ($pendingRefunds && request('payment') !== 'refund_pending')
+        <div class="alert alert-warning d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-counterclockwise fs-5"></i>
+            <div class="flex-grow-1">Có <strong>{{ $pendingRefunds }} vé</strong> khách đã thanh toán nhưng vé bị hủy, cần hoàn tiền.</div>
+            <a href="{{ route('admin.bookings.index', ['payment' => 'refund_pending']) }}" class="btn btn-sm btn-warning">Xem ngay</a>
+        </div>
+    @endif
     <div class="ad-card">
         <div class="ad-card-header">
             <form method="GET" class="d-flex flex-wrap gap-2 align-items-center">
@@ -20,6 +27,8 @@
                     @foreach (\App\Models\Booking::PAYMENT_METHODS as $value => $label)
                         <option value="{{ $value }}" @selected(request('payment') === $value)>Đã trả · {{ $label }}</option>
                     @endforeach
+                    <option value="refund_pending" @selected(request('payment') === 'refund_pending')>Chờ hoàn tiền</option>
+                    <option value="refunded" @selected(request('payment') === 'refunded')>Đã hoàn tiền</option>
                 </select>
                 <span class="small text-muted">Từ</span>
                 <input type="date" name="from" value="{{ request('from') }}" class="form-control form-control-sm w-auto">

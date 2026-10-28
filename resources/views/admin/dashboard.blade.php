@@ -4,6 +4,13 @@
 @section('subtitle', 'Hôm nay, '.now()->translatedFormat('l d/m/Y'))
 
 @section('content')
+    @if ($pendingRefunds)
+        <div class="alert alert-warning d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-counterclockwise fs-5"></i>
+            <div class="flex-grow-1">Có <strong>{{ $pendingRefunds }} vé</strong> khách đã thanh toán nhưng vé bị hủy, cần hoàn tiền.</div>
+            <a href="{{ route('admin.bookings.index', ['payment' => 'refund_pending']) }}" class="btn btn-sm btn-warning">Xem ngay</a>
+        </div>
+    @endif
     @php
         // Thẻ nhỏ nên doanh thu hiện dạng rút gọn (3,79 tỷ ₫), rê chuột để xem số đầy đủ
         $revenue = $stats['revenue_month'];

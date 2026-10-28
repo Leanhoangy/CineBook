@@ -8,7 +8,7 @@
 | TV1 | *(nhóm trưởng)* | | CSDL, dữ liệu phim thật, lịch chiếu tự động, thống kê & xuất Excel |
 | TV2 | | | Tài khoản & phân quyền, mã giảm giá, bắp nước, trang Ưu đãi / Hỗ trợ |
 | TV3 | | | Phim & lịch chiếu (khách + admin), tìm kiếm, đánh giá phim |
-| TV4 | | | Đặt vé, thanh toán VNPay, vé QR, soát vé, quản lý đơn |
+| TV4 | | | Đặt vé, thanh toán VNPay, hoàn tiền, vé QR, soát vé, quản lý đơn |
 
 **Cách đọc code nhanh:** mở [`routes/web.php`](../routes/web.php) → tìm URL của trang → xem route gọi Controller nào, hàm nào → trong hàm đó xem dùng Model / View nào. Mọi trang đều đi theo đường **Route → Controller → Model → View (Blade)**.
 
@@ -123,7 +123,7 @@
 
 ---
 
-## TV4 – Đặt vé, thanh toán, vé QR, soát vé
+## TV4 – Đặt vé, thanh toán, hoàn tiền, vé QR, soát vé
 
 ### Trang phụ trách
 | Trang | URL |
@@ -133,6 +133,7 @@
 | Thanh toán VNPay (đi và về) | nút "Thanh toán qua VNPay", `/thanh-toan/vnpay/ket-qua`, `/thanh-toan/vnpay/ipn` |
 | Ô nhắc "Vé hôm nay" ở trang chủ | đầu trang `/` khi có vé trong ngày |
 | Admin: Soát vé (quét QR) · Đơn đặt vé | `/admin/soat-ve`, `/admin/bookings` |
+| Admin: Hoàn tiền · Hủy suất chiếu (sự cố) | ô "Hủy vé & hoàn tiền" ở `/admin/bookings/{id}`, lọc "Chờ hoàn tiền"; nút ⊗ ở `/admin/showtimes` |
 | Email vé điện tử, email báo vé tự hủy | `resources/views/emails/` |
 
 ### File code
@@ -146,8 +147,9 @@
 | Tự hủy vé chưa thanh toán | [`app/Services/UnpaidBookingReleaser.php`](../app/Services/UnpaidBookingReleaser.php), [`Console/Commands/ReleaseUnpaidBookings.php`](../app/Console/Commands/ReleaseUnpaidBookings.php) |
 | Soát vé | [`Admin/CheckInController.php`](../app/Http/Controllers/Admin/CheckInController.php), [`views/admin/check-in/`](../resources/views/admin/check-in/), [`public/js/check-in.js`](../public/js/check-in.js) |
 | Quản lý đơn (lọc, xác nhận/hủy, thu tiền tại quầy) | [`Admin/BookingController.php`](../app/Http/Controllers/Admin/BookingController.php), [`views/admin/bookings/`](../resources/views/admin/bookings/) |
-| Email | [`Mail/BookingConfirmed.php`](../app/Mail/BookingConfirmed.php), [`Mail/BookingReleased.php`](../app/Mail/BookingReleased.php), [`views/emails/`](../resources/views/emails/) |
-| Test | `BookingTest.php`, `PaymentTest.php`, `CheckInTest.php`, `UnpaidReleaseTest.php` |
+| Hoàn tiền, hủy suất chiếu | [`app/Services/BookingRefunder.php`](../app/Services/BookingRefunder.php), [`app/Services/ShowtimeCanceller.php`](../app/Services/ShowtimeCanceller.php), `refund()` trong [`VnpayGateway.php`](../app/Services/VnpayGateway.php), `refund()` trong [`Admin/BookingController.php`](../app/Http/Controllers/Admin/BookingController.php), `cancel()` trong [`Admin/ShowtimeController.php`](../app/Http/Controllers/Admin/ShowtimeController.php) |
+| Email | [`Mail/BookingConfirmed.php`](../app/Mail/BookingConfirmed.php), [`Mail/BookingReleased.php`](../app/Mail/BookingReleased.php), [`Mail/BookingCancelledByCinema.php`](../app/Mail/BookingCancelledByCinema.php), [`views/emails/`](../resources/views/emails/) |
+| Test | `BookingTest.php`, `PaymentTest.php`, `RefundTest.php`, `CheckInTest.php`, `UnpaidReleaseTest.php` |
 
 ### Thầy hay hỏi
 - **2 người bấm đặt cùng 1 ghế cùng lúc thì sao?** → `BookingController::store()` chạy trong `DB::transaction` và **khóa dòng suất chiếu** (`lockForUpdate`). Người thứ hai phải đợi người đầu lưu xong, sau đó kiểm tra lại `bookedSeatCodes()` và bị báo "Ghế … vừa có người đặt".
@@ -158,6 +160,11 @@
 - **QR trên vé chứa gì, tạo thế nào?** → QR chỉ chứa **mã vé**, được tạo ngay trên server bằng thư viện PHP (`TicketQr`), không gọi dịch vụ ngoài. Trong email, QR được nhúng dạng ảnh PNG đính kèm vì Gmail chặn ảnh SVG.
 - **Soát vé chống dùng 1 vé 2 lần?** → Khi cho vào, server khóa dòng vé rồi ghi `checked_in_at`. Lần quét sau, `Booking::checkInProblem()` báo "Vé đã được soát lúc …". Vé đã hủy, chưa tới giờ (mở soát trước giờ chiếu 60 phút) hoặc suất đã kết thúc cũng bị chặn.
 - **Sao khách không xem được vé của người khác?** → `BookingPolicy::view()`: chỉ chủ vé hoặc admin; route dùng mã vé ngẫu nhiên (`CBxxxxxx`) chứ không dùng id tăng dần.
+- **Khách đã trả tiền online muốn hủy thì sao?** → Giống các rạp thật ở Việt Nam: vé đã thanh toán **không đổi trả khi khách đổi ý** (`canBeCancelledByCustomer()` chặn). Rạp chỉ hoàn tiền khi lỗi từ phía rạp: admin bấm **"Hủy vé & hoàn tiền"**.
+- **Hoàn tiền làm thế nào?** → Vé trả qua VNPay: `VnpayGateway::refund()` gọi **API hoàn tiền của VNPay** (`vnp_Command=refund`, gửi mã giao dịch gốc `vnp_TxnRef`, `vnp_TransactionNo`, ngày thanh toán, số tiền; ký HMAC-SHA512 các trường nối bằng `|`). Tiền về đúng thẻ khách đã dùng. Vé trả tại quầy (hoặc VNPay lỗi): nhân viên trả tiền rồi bấm "Đã trả lại", bắt buộc ghi cách trả. Hệ thống lưu `refunded_at`, `refund_method`, `refund_ref` và email báo khách. Vé được khóa dòng nên không hoàn 2 lần; vé đã hoàn không khôi phục hay xóa được.
+- **Sandbox VNPay hoàn tiền được không?** → VNPay **khóa API hoàn tiền trên sandbox** (trả mã 99), phải liên hệ VNPay mới mở. Web báo rõ lỗi và mở sẵn ô hoàn thủ công; phần gọi API được kiểm chứng bằng test (`RefundTest`, giả lập phản hồi VNPay bằng `Http::fake`).
+- **Rạp hủy cả suất chiếu?** → Nút ⊗ ở trang Suất chiếu → `ShowtimeCanceller`: hủy mọi vé (`cancel_reason = showtime`), vé VNPay hoàn tự động, vé còn lại chuyển "Chờ hoàn tiền", email từng khách, rồi **xóa mềm** suất chiếu (`SoftDeletes`) để nó tự biến mất khỏi mọi trang khách, còn vé cũ vẫn xem được.
+- **Khách trả tiền đúng lúc vé vừa tự hủy?** → `VnpayGateway::process()` vẫn ghi nhận số tiền đã nhận, vé chuyển "Chờ hoàn tiền", Dashboard và trang Đơn đặt vé hiện cảnh báo cho admin.
 - **Gửi email lỗi thì sao?** → Gửi email nằm trong `try/catch`: lỗi SMTP chỉ được ghi log, việc đặt vé vẫn thành công.
 
 ---
@@ -169,11 +176,11 @@
 - **Thông báo sau thêm/sửa/xóa?** → Controller `redirect()->with('success', '...')` (flash session) → `partials/flash.blade.php` hiện toast Bootstrap.
 - **CSRF là gì?** → Mỗi form có `@csrf`; AJAX gửi header `X-CSRF-TOKEN` lấy từ thẻ `<meta name="csrf-token">`. Không có token thì Laravel trả lỗi 419.
 - **Chống SQL Injection?** → Eloquent / Query Builder dùng tham số ràng buộc (prepared statement); code không nối chuỗi SQL từ dữ liệu người dùng.
-- **Chạy test?** → `php artisan test`: 83 test chạy trên SQLite trong bộ nhớ, không đụng dữ liệu thật.
+- **Chạy test?** → `php artisan test`: 89 test chạy trên SQLite trong bộ nhớ, không đụng dữ liệu thật.
 
 ## Cách demo gợi ý (mỗi người trình bày phần mình)
 
 1. **TV3**: trang chủ → tìm phim (gợi ý khi gõ) → chi tiết phim → lịch chiếu; vào admin thêm 1 suất chiếu trùng giờ để thấy báo lỗi.
-2. **TV4**: chọn ghế (mở 2 trình duyệt để thấy ghế tự khóa) → đặt vé → thanh toán VNPay thẻ test NCB → vé "Đã thanh toán" → admin quét QR ở trang Soát vé.
+2. **TV4**: chọn ghế (mở 2 trình duyệt để thấy ghế tự khóa) → đặt vé → thanh toán VNPay thẻ test NCB → vé "Đã thanh toán" → admin quét QR ở trang Soát vé → mở 1 đơn "Chờ hoàn tiền" và hoàn tiền.
 3. **TV2**: đăng ký / quên mật khẩu → áp mã giảm giá + chọn bắp nước ở bước chọn ghế → admin tạo mã giảm giá / combo mới; thử vào `/admin` bằng tài khoản khách để thấy lỗi 403.
 4. **TV1**: ERD → chạy `php artisan showtimes:refresh` / `movies:crawl` → Dashboard doanh thu → xuất Excel.

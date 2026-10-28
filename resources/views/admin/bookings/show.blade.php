@@ -29,7 +29,10 @@
                     </div>
                     <div class="col-sm-6">
                         <div class="text-muted small">Suất chiếu</div>
-                        <div class="fw-semibold">{{ $st->start_time->format('H:i d/m/Y') }} · {{ $st->room->name }}</div>
+                        <div class="fw-semibold">
+                            {{ $st->start_time->format('H:i d/m/Y') }} · {{ $st->room->name }}
+                            @if ($st->isCancelled())<span class="badge text-bg-danger">Đã hủy suất</span>@endif
+                        </div>
                     </div>
                     <div class="col-sm-6">
                         <div class="text-muted small">Ngày đặt</div>
@@ -41,6 +44,13 @@
                             @if ($booking->isPaid())
                                 {{ \App\Models\Booking::PAYMENT_METHODS[$booking->payment_method] }} lúc {{ $booking->paid_at->format('H:i d/m/Y') }}
                                 @if ($booking->payment_ref)<span class="small text-muted">· mã GD <span class="font-monospace">{{ $booking->payment_ref }}</span></span>@endif
+                                @if ($booking->isRefunded())
+                                    <div class="text-info-emphasis small mt-1">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                        {{ \App\Models\Booking::REFUND_METHODS[$booking->refund_method] }} lúc {{ $booking->refunded_at->format('H:i d/m/Y') }}
+                                        · @if ($booking->refund_method === 'vnpay') mã GD hoàn <span class="font-monospace">{{ $booking->refund_ref }}</span> @else {{ $booking->refund_ref }} @endif
+                                    </div>
+                                @endif
                             @else
                                 Chưa thanh toán
                             @endif
@@ -94,6 +104,40 @@
                     <button class="btn btn-success w-100"><i class="bi bi-cash-coin me-1"></i>Đã thu @money($booking->total_price)</button>
                 </form>
             @endif
+            @if ($booking->isPaid() && ! $booking->isRefunded())
+                @php $viaVnpay = $booking->canBeRefundedViaVnpay() && \App\Services\VnpayGateway::isConfigured(); @endphp
+                <div class="ad-card p-4 mb-4 {{ $booking->needsRefund() ? 'border border-warning' : '' }}" id="refund">
+                    <h2 class="h6 fw-bold mb-2">{{ $booking->isConfirmed() ? 'Hủy vé & hoàn tiền' : 'Hoàn tiền cho khách' }}</h2>
+                    <p class="small text-muted mb-3">
+                        @if ($booking->needsRefund())
+                            Khách đã trả @money($booking->total_price) nhưng vé đã bị hủy. Cần hoàn lại toàn bộ.
+                        @else
+                            Chỉ dùng khi lỗi từ phía rạp (sự cố, đổi lịch...). Khách đổi ý không được hoàn tiền theo chính sách.
+                        @endif
+                    </p>
+                    @if ($viaVnpay)
+                        <form method="POST" action="{{ route('admin.bookings.refund', $booking) }}"
+                              data-confirm="Hoàn @money($booking->total_price) qua VNPay cho vé {{ $booking->code }}?{{ $booking->isConfirmed() ? ' Vé sẽ bị hủy và mở bán lại ghế.' : '' }}">
+                            @csrf
+                            <input type="hidden" name="method" value="vnpay">
+                            <button class="btn btn-danger w-100"><i class="bi bi-arrow-counterclockwise me-1"></i>Hoàn @money($booking->total_price) qua VNPay</button>
+                        </form>
+                        <div class="small text-muted mt-2">Tiền về đúng thẻ/tài khoản khách đã dùng để thanh toán.</div>
+                    @endif
+                    <details class="mt-2" @if (! $viaVnpay || $errors->has('refund_note') || session('refund_failed')) open @endif>
+                        <summary class="small {{ $viaVnpay ? 'text-muted' : 'fw-semibold' }}">{{ $viaVnpay ? 'Hoặc ghi nhận đã hoàn thủ công' : 'Ghi nhận đã hoàn tiền' }}</summary>
+                        <form method="POST" action="{{ route('admin.bookings.refund', $booking) }}" class="mt-2"
+                              data-confirm="Xác nhận đã trả lại @money($booking->total_price) cho khách?">
+                            @csrf
+                            <input type="hidden" name="method" value="manual">
+                            <input type="text" name="refund_note" value="{{ old('refund_note', $booking->payment_method === 'counter' ? 'Trả tiền mặt tại quầy' : '') }}"
+                                   class="form-control form-control-sm mb-2 @error('refund_note') is-invalid @enderror" placeholder="Cách trả: tiền mặt, chuyển khoản (mã GD)...">
+                            @error('refund_note') <div class="invalid-feedback mb-2">{{ $message }}</div> @enderror
+                            <button class="btn btn-outline-danger btn-sm w-100">Đã trả lại @money($booking->total_price) cho khách</button>
+                        </form>
+                    </details>
+                </div>
+            @endif
             <div class="ad-card p-4">
                 <h2 class="h6 fw-bold mb-3">Cập nhật trạng thái</h2>
                 <form method="POST" action="{{ route('admin.bookings.update', $booking) }}">
@@ -109,7 +153,7 @@
                     @error('note') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     <button class="btn btn-primary w-100">Lưu</button>
                 </form>
-                @unless ($booking->isConfirmed())
+                @unless ($booking->isConfirmed() || $booking->isPaid())
                     <form method="POST" action="{{ route('admin.bookings.destroy', $booking) }}" class="mt-2" data-confirm="Xóa vĩnh viễn đơn {{ $booking->code }}?">
                         @csrf @method('DELETE')
                         <button class="btn btn-outline-danger w-100"><i class="bi bi-trash me-1"></i>Xóa đơn đã hủy</button>
