@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Genre;
 use App\Models\Movie;
 use App\Models\Voucher;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $nowShowing = Movie::with('genres')
             ->where('status', 'now_showing')
@@ -33,6 +34,10 @@ class HomeController extends Controller
         $voucher = Voucher::listedForCustomers()
             ->first(fn ($v) => ! $v->starts_at?->isFuture() && ! $v->min_order);
 
-        return view('home', compact('nowShowing', 'comingSoon', 'featured', 'genres', 'programs', 'voucher'));
+        // Khách có vé xem trong hôm nay: nhắc ở đầu trang để đến rạp mở mã QR nhanh
+        $user = $request->user();
+        $todayTickets = $user && ! $user->isAdmin() ? $user->todayTickets() : collect();
+
+        return view('home', compact('nowShowing', 'comingSoon', 'featured', 'genres', 'programs', 'voucher', 'todayTickets'));
     }
 }

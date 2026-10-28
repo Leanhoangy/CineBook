@@ -101,7 +101,7 @@ Chạy trên máy cá nhân thì kết quả được ghi nhận khi VNPay đưa
 php artisan test
 ```
 
-71 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, soát vé, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
+73 test chức năng (đăng nhập, phân quyền, quên mật khẩu, tìm kiếm, đặt vé, mã giảm giá, thanh toán VNPay, soát vé, đánh giá, xuất Excel, lịch chiếu tự động, CRUD quản trị) chạy trên SQLite in-memory nên không ảnh hưởng dữ liệu thật.
 
 ---
 
@@ -121,7 +121,8 @@ php artisan test
 - Sơ đồ ghế **tự động cập nhật bằng AJAX mỗi 10 giây**; nếu ghế đang chọn bị người khác đặt sẽ được thông báo.
 - Đặt vé an toàn: dùng **transaction + khóa dòng (`lockForUpdate`)** để 2 người không thể đặt trùng ghế.
 - **Mã giảm giá**: danh sách "Mã dành cho bạn" ngay ở bước chọn ghế (hiện số tiền được giảm theo ghế đang chọn, gợi ý mã tiết kiệm nhất, báo còn thiếu bao nhiêu để đủ điều kiện), bấm để áp dụng; kiểm tra bằng AJAX, tự tính lại khi đổi ghế (giảm % có mức tối đa / giảm tiền cố định, đơn tối thiểu, giới hạn lượt, mỗi khách 1 lần).
-- Vé điện tử có mã vé + mã QR (tạo ngay trên server, không cần mạng), in vé, **nhận vé qua email** ngay sau khi đặt.
+- Vé điện tử có mã vé + mã QR (tạo ngay trên server, không cần mạng), **bấm để phóng to QR** nền trắng cho nhân viên quét, in vé, **nhận vé qua email** ngay sau khi đặt.
+- Có vé xem trong hôm nay thì **trang chủ nhắc ngay đầu trang** (phim, giờ, phòng, ghế) kèm nút **"Mở mã QR"**: đến rạp chỉ cần mở web là đưa vé cho nhân viên soát.
 - **Thanh toán online qua VNPay** (thẻ ATM, Visa/Master, QR ngân hàng) ngay trên trang vé, hoặc trả tại quầy khi nhận vé; kết quả được kiểm tra chữ ký HMAC-SHA512 và số tiền trước khi ghi nhận.
 - **Đánh giá phim** (1–5 sao + bình luận) sau khi đã xem.
 - Lịch sử đặt vé (sắp chiếu / đã chiếu) kèm trạng thái thanh toán, **tự hủy vé** chưa thanh toán trước giờ chiếu 60 phút (vé đã thanh toán online không tự hủy được).

@@ -1,6 +1,39 @@
 @extends('layouts.app')
 
 @section('content')
+    {{-- Nhắc vé xem trong hôm nay (khách đã đăng nhập) --}}
+    @if ($todayTickets->isNotEmpty())
+        @php
+            $ticket = $todayTickets->first();
+            $st = $ticket->showtime;
+        @endphp
+        <div class="container pt-3">
+            <div class="cb-today-ticket">
+                <span class="cb-today-ticket-icon"><i class="bi bi-qr-code"></i></span>
+                <div class="flex-grow-1 min-w-0">
+                    <div class="small text-muted">
+                        @if ($st->start_time->isPast())
+                            <span class="text-danger fw-semibold"><i class="bi bi-record-circle me-1"></i>Đang chiếu</span>
+                        @else
+                            Vé hôm nay · bắt đầu {{ $st->start_time->diffForHumans() }}
+                        @endif
+                    </div>
+                    <div class="fw-bold text-truncate">{{ $st->movie->title }}</div>
+                    <div class="small">
+                        <strong>{{ $st->start_time->format('H:i') }}</strong> · {{ $st->room->name }} · Ghế {{ $ticket->seat_list }}
+                        @unless ($ticket->isPaid())
+                            · <span class="text-warning">chưa thanh toán</span>
+                        @endunless
+                    </div>
+                    @if ($todayTickets->count() > 1)
+                        <a href="{{ route('bookings.index') }}" class="small">và {{ $todayTickets->count() - 1 }} vé khác hôm nay</a>
+                    @endif
+                </div>
+                <a href="{{ route('bookings.show', $ticket) }}#qr" class="btn btn-primary rounded-pill px-3 flex-shrink-0"><i class="bi bi-qr-code-scan me-1"></i>Mở mã QR</a>
+            </div>
+        </div>
+    @endif
+
     {{-- Hero: phim nổi bật --}}
     <section class="cb-hero py-5" @if ($featured) style="--h: {{ $featured->poster_hue }}" @endif>
         <div class="container py-lg-4">

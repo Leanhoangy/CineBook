@@ -283,6 +283,30 @@ main { flex: 1; }
 .cb-ticket .value { font-weight: 700; font-size: 1.05rem; }
 .cb-qr { width: 120px; height: 120px; border-radius: 10px; background: #fff; padding: 8px; }
 .cb-qr.is-used { opacity: .35; }
+.cb-qr-zoom { background: none; border: 0; padding: 0; color: var(--cb-muted); }
+.cb-qr-zoom:hover { color: var(--cb-text); }
+.cb-qr-zoom:hover .cb-qr { box-shadow: 0 0 0 3px var(--cb-accent); }
+/* Hộp QR phóng to: nền trắng, chữ đen để máy quét đọc nhanh */
+.cb-qr-modal { background: #fff; color: #111; border: 0; border-radius: 18px; padding: 2.5rem 1.5rem 1.5rem; text-align: center; align-items: center; }
+.cb-qr-large { width: min(78vw, 340px); height: auto; aspect-ratio: 1; }
+.cb-qr-modal .cb-ticket-code { color: #111; }
+.cb-qr-modal-hint { color: #6b7280; }
+
+/* Nhắc vé xem trong hôm nay ở trang chủ */
+.cb-today-ticket {
+    display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, rgba(255, 77, 90, .18), rgba(245, 185, 66, .08));
+    border: 1px solid rgba(255, 77, 90, .45); border-radius: var(--cb-radius);
+}
+.cb-today-ticket-icon {
+    width: 48px; height: 48px; flex-shrink: 0; display: grid; place-items: center;
+    border-radius: 12px; background: #fff; color: #111; font-size: 1.6rem;
+}
+@media (max-width: 575.98px) {
+    .cb-today-ticket { flex-wrap: wrap; }
+    .cb-today-ticket > .btn { width: 100%; }
+}
+@media print { .modal { display: none !important; } }
 .cb-payment {
     display: flex; gap: .75rem; align-items: flex-start; padding: .9rem 1rem;
     border: 1px dashed var(--cb-gold); border-radius: 10px; background: rgba(245, 185, 66, .06);

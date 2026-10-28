@@ -108,4 +108,35 @@ class CheckInTest extends TestCase
         $this->actingAs($booking->user)->get(route('bookings.show', $booking))
             ->assertSee('Đã vào rạp lúc '.now()->format('H:i d/m'));
     }
+
+    public function test_home_page_reminds_customer_of_todays_ticket_with_qr_link(): void
+    {
+        $this->travelTo(today()->setTime(15, 0));
+        $customer = User::factory()->create();
+        $today = $this->ticket(4 * 60, ['user_id' => $customer->id]);       // 19:00 hôm nay
+        $this->ticket(24 * 60, ['user_id' => $customer->id]);               // ngày mai: không nhắc
+        $this->ticket(60, ['user_id' => $customer->id, 'status' => Booking::STATUS_CANCELLED]);
+        $this->ticket(30, ['user_id' => $customer->id, 'checked_in_at' => now()]); // đã vào rạp
+
+        $this->actingAs($customer)->get(route('home'))
+            ->assertSee([$today->showtime->movie->title, '19:00', 'Ghế C5, C6', 'chưa thanh toán', 'Mở mã QR'])
+            ->assertSee(route('bookings.show', $today).'#qr', false)
+            ->assertDontSee('vé khác hôm nay');
+
+        $this->actingAs($this->admin)->get(route('home'))->assertDontSee('Mở mã QR');
+        auth()->logout();
+        $this->get(route('home'))->assertDontSee('Mở mã QR');
+    }
+
+    public function test_ticket_qr_can_be_enlarged_until_checked_in(): void
+    {
+        $booking = $this->ticket();
+
+        $this->actingAs($booking->user)->get(route('bookings.show', $booking))
+            ->assertSee(['Bấm để phóng to', 'id="qr"', 'Tăng độ sáng màn hình'], false);
+
+        $booking->update(['checked_in_at' => now()]);
+        $this->actingAs($booking->user)->get(route('bookings.show', $booking))
+            ->assertDontSee(['Bấm để phóng to', 'id="qr"'], false);
+    }
 }

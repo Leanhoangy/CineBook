@@ -6,6 +6,7 @@
     @php
         $st = $booking->showtime;
         $payOnline = \App\Services\VnpayGateway::isConfigured() && auth()->user()->can('pay', $booking);
+        $qr = \App\Services\TicketQr::svg($booking->code);
     @endphp
     <div class="container py-4 py-lg-5" style="max-width: 720px">
         <a href="{{ route('bookings.index') }}" class="small text-muted text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Vé của tôi</a>
@@ -49,12 +50,14 @@
                 </div>
                 @if ($booking->isConfirmed())
                     <div class="text-center">
-                        <img class="cb-qr {{ $booking->isCheckedIn() ? 'is-used' : '' }}" alt="Mã QR vé {{ $booking->code }}"
-                             src="{{ \App\Services\TicketQr::svg($booking->code) }}">
                         @if ($booking->isCheckedIn())
+                            <img class="cb-qr is-used" alt="Mã QR vé {{ $booking->code }}" src="{{ $qr }}">
                             <div class="small text-success mt-2"><i class="bi bi-check2-circle me-1"></i>Đã vào rạp lúc {{ $booking->checked_in_at->format('H:i d/m') }}</div>
                         @else
-                            <div class="small text-muted mt-2">Đưa mã này cho nhân viên soát vé</div>
+                            <button type="button" class="cb-qr-zoom" data-bs-toggle="modal" data-bs-target="#qr" title="Phóng to mã QR">
+                                <img class="cb-qr" alt="Mã QR vé {{ $booking->code }}" src="{{ $qr }}">
+                                <span class="small d-block mt-2"><i class="bi bi-arrows-fullscreen me-1"></i>Bấm để phóng to</span>
+                            </button>
                         @endif
                     </div>
                 @endif
@@ -127,4 +130,19 @@
             @endcan
         </div>
     </div>
+    {{-- QR phóng to cho nhân viên quét (mở bằng nút trên vé hoặc link .../#qr) --}}
+    @if ($booking->isConfirmed() && ! $booking->isCheckedIn())
+        <div class="modal fade" id="qr" tabindex="-1" aria-label="Mã QR vé {{ $booking->code }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content cb-qr-modal">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    <img src="{{ $qr }}" alt="Mã QR vé {{ $booking->code }}" class="cb-qr-large">
+                    <div class="cb-ticket-code mt-2">{{ $booking->code }}</div>
+                    <div class="fw-bold mt-2">{{ $st->movie->title }}</div>
+                    <div class="small">{{ $st->start_time->format('H:i d/m/Y') }} · {{ $st->room->name }} · Ghế {{ $booking->seat_list }}</div>
+                    <div class="small cb-qr-modal-hint mt-3"><i class="bi bi-brightness-high me-1"></i>Tăng độ sáng màn hình để nhân viên quét nhanh hơn</div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection

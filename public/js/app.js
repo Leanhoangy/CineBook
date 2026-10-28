@@ -26,6 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Mở hộp thoại theo địa chỉ, VD: /ve-cua-toi/CB123456#qr mở ngay mã QR phóng to
+    const hashModal = location.hash.length > 1 && document.getElementById(location.hash.slice(1));
+    if (hashModal?.classList.contains('modal')) bootstrap.Modal.getOrCreateInstance(hashModal).show();
+
     // Hộp xác nhận trước khi xóa/hủy: <form data-confirm="Nội dung câu hỏi">
     document.querySelectorAll('form[data-confirm]').forEach((form) => {
         form.addEventListener('submit', (e) => {

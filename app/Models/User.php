@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -46,6 +47,21 @@ class User extends Authenticatable
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    /** Vé còn dùng được trong hôm nay (suất chưa kết thúc, chưa vào rạp), suất gần nhất đứng trước */
+    public function todayTickets(): Collection
+    {
+        return $this->bookings()
+            ->with(['showtime.movie', 'showtime.room', 'seats'])
+            ->where('status', Booking::STATUS_CONFIRMED)
+            ->whereNull('checked_in_at')
+            ->whereHas('showtime', fn (Builder $q) => $q
+                ->where('end_time', '>', now())
+                ->where('start_time', '<=', today()->endOfDay()))
+            ->get()
+            ->sortBy('showtime.start_time')
+            ->values();
     }
 
     public function reviews(): HasMany
