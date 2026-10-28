@@ -291,13 +291,13 @@ Khách đã xem phim (vé hợp lệ của suất đã chiếu) chấm 1–5 sao
 | *Mở rộng:* Responsive | Bootstrap grid, menu thu gọn, sidebar offcanvas |
 | *Mở rộng:* Soft Delete, Middleware tùy chỉnh | Phim xóa mềm + thùng rác; `EnsureUserHasRole` |
 
-## 6. Gợi ý phân công nhóm 4 người
+## 6. Phân công nhóm 4 người
 
-> Điền tên + MSSV. Mỗi người nên tự commit phần của mình lên GitHub để có điểm "Tham gia thực hiện".
+Chi tiết từng người phụ trách trang nào, file code nào và câu hỏi thường gặp khi bảo vệ: xem [`PHAN_CONG.md`](PHAN_CONG.md).
 
-| Thành viên | Phụ trách | File chính | Báo cáo |
-|---|---|---|---|
-| TV1 – Nhóm trưởng | CSDL & nền tảng: migration, model, quan hệ, seeder/factory, cấu hình; Dashboard thống kê | `database/`, `app/Models/`, `Admin/DashboardController` | ERD, Công nghệ, Hướng dẫn cài đặt |
-| TV2 | Xác thực & phân quyền: đăng ký/đăng nhập, middleware `role`, Policy, hồ sơ + upload avatar; quản lý Người dùng | `AuthController`, `ProfileController`, `Middleware/`, `Policies/`, `Admin/UserController` | Use Case, Phân quyền |
-| TV3 | Quản trị nội dung: CRUD Phim (poster, soft delete), Thể loại, Phòng chiếu, Suất chiếu (chống trùng giờ) | `Admin/MovieController`, `GenreController`, `RoomController`, `ShowtimeController`, `Requests/Admin/` | Mô tả chức năng admin + ảnh |
-| TV4 | Giao diện khách & đặt vé: trang chủ, danh sách/tìm kiếm phim, lịch chiếu, sơ đồ ghế AJAX, vé điện tử; quản lý Đơn đặt vé | `HomeController`, `MovieController`, `BookingController`, `resources/views/`, `public/js/` | Mô tả chức năng khách + ảnh, Slide |
+| Thành viên | Mảng phụ trách | Báo cáo |
+|---|---|---|
+| TV1 – Nhóm trưởng | CSDL (migration, model, quan hệ, seeder), cào phim Moveek, lịch chiếu tự động, Dashboard, xuất Excel | ERD, Công nghệ, Hướng dẫn cài đặt |
+| TV2 | Đăng ký/đăng nhập/quên mật khẩu, middleware `role`, hồ sơ + avatar, quản lý người dùng; mã giảm giá, bắp nước, trang Ưu đãi/Hỗ trợ | Use Case, Phân quyền |
+| TV3 | Trang chủ, danh sách/tìm kiếm phim (AJAX), chi tiết phim, lịch chiếu; CRUD Phim (soft delete), Thể loại, Phòng, Suất chiếu; đánh giá phim | Mô tả chức năng xem phim + admin nội dung |
+| TV4 | Chọn ghế realtime + đặt vé (transaction, khóa dòng), VNPay, vé QR, hủy/tự hủy vé, soát vé, quản lý đơn, email vé | Mô tả luồng đặt vé – thanh toán, Slide |
